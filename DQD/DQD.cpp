@@ -10,20 +10,12 @@ typedef std::vector<Field>                                  Fields;
 //          DQD             //
 //////////////////////////////
 
-DQD::DQD()
-{
-}
-
-
-DQD::~DQD()
-{
-}
 
 //////////////////////////////
 //      HilbertSpace        //
 //////////////////////////////
 
-Complex HilbertSpace::product(const State& state1, const Hamiltonian& ham, const State& state2) const
+Complex DQD::HilbertSpace::product(const State& state1, const Hamiltonian& ham, const State& state2) const
 {
     Fields fields1 = state1.getFields();
     Fields fields2 = state2.getFields();
@@ -37,7 +29,7 @@ Complex HilbertSpace::product(const State& state1, const Hamiltonian& ham, const
     return result;
 }
 
-Complex HilbertSpace::product(const Field& field1, const Hamiltonian& ham, const Field& field2) const
+Complex DQD::HilbertSpace::product(const Field& field1, const Hamiltonian& ham, const Field& field2) const
 {
     MU::ScalarField field11 = field1.getField1();
     MU::ScalarField field12 = field1.getField2();
@@ -47,15 +39,15 @@ Complex HilbertSpace::product(const Field& field1, const Hamiltonian& ham, const
     Complex result;
 
     // Kinetic energy
-    result += ham.kineticConstant() * field11 * MU::laplacian(field21);
-    result += ham.kineticConstant() * field12 * MU::laplacian(field22);
+    result += ham.kineticConstant() * (field11 * MU::laplacian(field21));
+    result += ham.kineticConstant() * (field12 * MU::laplacian(field22));
 
     // External Potential
-    result += ham.coulombConstant() * field11 * MU::inverseR(field21);
-    result += ham.coulombConstant() * field12 * MU::inverseR(field22);
+    result += ham.coulombConstant() * (field11 * MU::inverseR(field21));
+    result += ham.coulombConstant() * (field12 * MU::inverseR(field22));
 
     // Internal Coulomb energy
-    result += ham.coulombConstant() * MU::operate(field11, field12, MU::inverseR(), field21, field22);
+    result += ham.coulombConstant() * MU::twoSiteInverseRIntegral(field11, field12, field21, field22);
 
     return result;
 }

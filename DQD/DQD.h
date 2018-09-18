@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DQD_H
+#define DQD_H
 
 #include <vector>
 
@@ -16,7 +17,13 @@ public:
         class Hamiltonian
         {
         public:
-            
+            Complex kineticConstant() const;
+			Complex coulombConstant() const;
+			
+			// Operators
+			// "*": Operation of Hamiltonian on State
+			State operator*(const State&) const;
+				
         private:
             // Parameters of terms in Hamiltonian (Kinetic, potential, repulsion)
         };
@@ -55,14 +62,13 @@ public:
         };
 
         Complex product(const State&, const Hamiltonian&, const State&) const;
-        Complex product(const Field&, const Hamiltonian&, const Field&) const;
+        Complex product(const State::TwoParticleWaveFunction&, const Hamiltonian&, const State::TwoParticleWaveFunction&) const;
 
     private:
         int width, height;
     };
 
-    DQD();
-    ~DQD();
-
 private:
 };
+
+#endif //DQD_H
