@@ -16,11 +16,7 @@ public:
         class Hamiltonian
         {
         public:
-            // Operators
-            // "*": Hamiltonian operate on State
-            State operator*(const State&) const;
-            //State::TwoParticleWaveFunction operator*(const State::TwoParticleWaveFunction&) const;
-
+            
         private:
             // Parameters of terms in Hamiltonian (Kinetic, potential, repulsion)
         };
@@ -57,6 +53,9 @@ public:
         private:
             std::vector<TwoParticleWaveFunction> fields;
         };
+
+        Complex product(const State&, const Hamiltonian&, const State&) const;
+        Complex product(const Field&, const Hamiltonian&, const Field&) const;
 
     private:
         int width, height;
