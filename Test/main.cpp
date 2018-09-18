@@ -2,8 +2,7 @@
 
 int main()
 {
-	DQD::HilbertSpace::State state1, state2;
+	DQD dqdSystem1;
 
-	state1 = state1 + state2;
 	return 0;
 }

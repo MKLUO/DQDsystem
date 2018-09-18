@@ -1,26 +1,39 @@
-#include "MathUtilities.h"
+#include "DQD.h"
 
-using MU::ScalarField;
+// Abbreviations
+typedef DQD::HilbertSpace::MathUtilities					MU;
+typedef DQD::HilbertSpace::MathUtilities::ScalarField		ScalarField;
 
 //////////////////////////////
 //      	MU        		//
 //////////////////////////////
 
-ScalarField laplacian(const ScalarField& field)
+MU::MathUtilities(int width_, int height_)
 {
-	ScalarField newField;
+	width = width_;
+	height = height_;
+}
+
+ScalarField MU::scalarField() const
+{
+	return ScalarField(width * height);
+}
+
+ScalarField MU::laplacian(const ScalarField& field) const
+{
+	ScalarField newField = scalarField();
 	
 	return newField;
 }
 
-ScalarField inverseR(const ScalarField&)
+ScalarField MU::multiply(const ScalarField& func, const ScalarField& field) const
 {
-	ScalarField newField;
+	ScalarField newField = scalarField();
 	
 	return newField;
 }
 
-Complex twoSiteInverseRIntegral(const ScalarField&, const ScalarField&, const ScalarField&, const ScalarField&)
+Complex MU::twoSiteInverseRIntegral(const ScalarField&, const ScalarField&, const ScalarField&, const ScalarField&) const
 {
 	Complex result;
 	
@@ -31,6 +44,11 @@ Complex twoSiteInverseRIntegral(const ScalarField&, const ScalarField&, const Sc
 //////////////////////////////
 //      ScalarField        	//
 //////////////////////////////
+
+ScalarField::ScalarField(int size)
+{
+	data.resize(size);
+}
 
 Complex ScalarField::operator*(const ScalarField&) const
 {

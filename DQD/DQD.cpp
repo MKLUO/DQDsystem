@@ -1,19 +1,49 @@
 #include "DQD.h"
+#include <utility>
 
 // Abbreviations
+typedef DQD::Setting                                        Setting;
 typedef DQD::HilbertSpace::Hamiltonian                      Hamiltonian;
 typedef DQD::HilbertSpace::State                            State;
 typedef DQD::HilbertSpace::State::TwoParticleWaveFunction   Field;
 typedef std::vector<Field>                                  Fields;
 
+typedef DQD::HilbertSpace::MathUtilities::ScalarField       ScalarField;
+
 //////////////////////////////
 //          DQD             //
 //////////////////////////////
 
+DQD::DQD()
+{
+    hilbertSpace = new HilbertSpace(Setting::defaultSetting());
+}
+
+DQD::~DQD()
+{
+    delete hilbertSpace;
+}
+
+//////////////////////////////
+//        Setting           //
+//////////////////////////////
+
+Setting Setting::defaultSetting()
+{
+    Setting setting;
+    return setting;
+}
 
 //////////////////////////////
 //      HilbertSpace        //
 //////////////////////////////
+
+DQD::HilbertSpace::HilbertSpace(Setting setting_)
+{
+    setting = setting_;
+
+    mu = new MathUtilities(setting.width, setting.height);
+}
 
 Complex DQD::HilbertSpace::product(const State& state1, const Hamiltonian& ham, const State& state2) const
 {
@@ -31,23 +61,23 @@ Complex DQD::HilbertSpace::product(const State& state1, const Hamiltonian& ham, 
 
 Complex DQD::HilbertSpace::product(const Field& field1, const Hamiltonian& ham, const Field& field2) const
 {
-    MU::ScalarField field11 = field1.getField1();
-    MU::ScalarField field12 = field1.getField2();
-    MU::ScalarField field21 = field2.getField1();
-    MU::ScalarField field22 = field2.getField2();
+    ScalarField field11 = field1.getField1();
+    ScalarField field12 = field1.getField2();
+    ScalarField field21 = field2.getField1();
+    ScalarField field22 = field2.getField2();
 
     Complex result;
 
     // Kinetic energy
-    result += ham.kineticConstant() * (field11 * MU::laplacian(field21));
-    result += ham.kineticConstant() * (field12 * MU::laplacian(field22));
+    result += ham.kineticConstant() * (field11 * mu->laplacian(field21));
+    result += ham.kineticConstant() * (field12 * mu->laplacian(field22));
 
     // External Potential
-    result += ham.coulombConstant() * (field11 * MU::inverseR(field21));
-    result += ham.coulombConstant() * (field12 * MU::inverseR(field22));
+    result += field11 * mu->multiply(ham.getPotential(), field21);
+    result += field12 * mu->multiply(ham.getPotential(), field22);
 
     // Internal Coulomb energy
-    result += ham.coulombConstant() * MU::twoSiteInverseRIntegral(field11, field12, field21, field22);
+    result += ham.coulombConstant() * mu->twoSiteInverseRIntegral(field11, field12, field21, field22);
 
     return result;
 }
@@ -55,6 +85,21 @@ Complex DQD::HilbertSpace::product(const Field& field1, const Hamiltonian& ham, 
 //////////////////////////////
 //      Hamiltonian         //
 //////////////////////////////
+
+Complex Hamiltonian::kineticConstant() const
+{
+    return Complex();
+}
+
+Complex Hamiltonian::coulombConstant() const
+{
+    return Complex();
+}
+
+ScalarField Hamiltonian::getPotential() const
+{
+    return potential;
+}
 
 State Hamiltonian::operator*(const State& state) const
 {
@@ -72,12 +117,12 @@ State Hamiltonian::operator*(const State& state) const
 
 State::State()
 {
-    
+
 }
 
 State::State(Fields fields_)
 {
-    fields = fields_;
+    fields = std::move(fields_);
 }
 
 Fields State::getFields() const
@@ -113,12 +158,12 @@ Complex State::operator*(const State& state) const
 // TwoParticleWaveFunction  // * Abbreviated as "Field"
 //////////////////////////////
 
-MU::ScalarField Field::getField1() const
+ScalarField Field::getField1() const
 {
     return scalarField1;
 }
 
-MU::ScalarField Field::getField2() const
+ScalarField Field::getField2() const
 {
     return scalarField2;
 }
