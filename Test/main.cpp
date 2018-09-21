@@ -1,8 +1,10 @@
-#include "DQD.h"
+#include "HilbertSpace.h"
 
 int main()
 {
-	DQD dqdSystem1;
+	HilbertSpace dqdSystem;
+
+	dqdSystem.calculate_J_HL(0.0);
 
 	return 0;
 }

@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(DQD)
 
 add_executable(DQDsystem
-        DQD/DQD.cpp
-        DQD/DQD.h
+        DQD/HilbertSpace.cpp
+        DQD/HilbertSpace.h
         DQD/MathUtilities.cpp
         DQD/MathUtilities.h
         Test/main.cpp
-        )
+        DQD/HeitlerLondon.cpp DQD/HeitlerLondon.h)
