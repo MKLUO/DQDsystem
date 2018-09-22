@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <complex>
-typedef std::complex<double> Complex;
 
 #include "MathUtilities.h"
 
@@ -18,7 +17,9 @@ public:
     //
     //      Operator
     //          `- (SingleOperator*) SingleParticleOperator
-    //          `- (SingleOperator*) DoubleParticleOperator
+    //              `- SingleParticleFunction
+    //          `- (SingleOperator*) DoubleParticleScalarOperator
+    //              `- DoubleParticleScalarFunction
     //
     class   SingleParticleState;
     class   SingleParticleStatePair;
@@ -32,7 +33,7 @@ public:
     // SingleParticleState: Represents a one-particle wavefunction.
     class SingleParticleState {
     public:
-        SingleParticleState(const ScalarField &);
+        SingleParticleState(const ScalarField&);
 
         ScalarField getField() const;
 
@@ -40,9 +41,9 @@ public:
         // "+": Addition of two SingleParticleState
         // "*": Inner product of two SingleParticleState
         // "^": Tensor product of two SingleParticleState
-        SingleParticleState operator+(const SingleParticleState &) const;
-        Complex operator*(const SingleParticleState &) const;
-        SingleParticleStatePair operator^(const SingleParticleState &) const;
+        SingleParticleState operator+(const SingleParticleState&) const;
+        Complex operator*(const SingleParticleState&) const;
+        SingleParticleStatePair operator^(const SingleParticleState&) const;
 
     private:
         ScalarField field;
@@ -51,7 +52,7 @@ public:
     // SingleParticleStatePair: Represents a separable two-particle wavefunction.
     class SingleParticleStatePair {
     public:
-        SingleParticleStatePair(const SingleParticleState &, const SingleParticleState &);
+        SingleParticleStatePair(const SingleParticleState&, const SingleParticleState&);
 
         ScalarField getFirstField() const;
         ScalarField getSecondField() const;
@@ -64,16 +65,20 @@ public:
     // State: Represents a general two-particle wavefunction.
     class State {
     public:
-        State(const std::vector<SingleParticleStatePair> &);
+        State(const std::vector<SingleParticleStatePair>&);
         ~State();
 
         std::vector<SingleParticleStatePair> getState() const;
 
         // Operators
         // "+": Addition of two State
+        // "*": Multiply with a scalar
         // "*": Inner product of two State
-        State operator+(const State &) const;
-        Complex operator*(const State &) const;
+        State operator+(const State&) const;
+        State operator*(Complex) const;
+        Complex operator*(const State&) const;
+
+        // TODO: print()
 
     private:
         std::vector<SingleParticleStatePair> states;
@@ -82,39 +87,45 @@ public:
     // Operator: A interface for both Single/DoubleParticlOoperator.
     class SingleOperator {
     public:
-        virtual State operator*(const State &) const = 0;
+        virtual State operator*(const State&) const = 0;
+
+        virtual Complex operatorValue(const State&, const State&) const = 0;
     };
 
     // SingleParticleOperator: Represents a one-particle operator.
     class SingleParticleOperator: public SingleOperator {
     public:
-        SingleParticleOperator(const SingleParticleFunction &, const SingleParticleFunction &);
+        SingleParticleOperator(const SingleParticleFunction&, const SingleParticleFunction&);
 
         // Operators
         // "*": Operation of SingleParticleOperator on State
-        State operator*(const State &) const override;
+        State operator*(const State&) const override;
+
+        Complex operatorValue(const State&, const State&) const override;
 
     private:
         SingleParticleFunction left;
         SingleParticleFunction right;
     };
 
-    // DoubleParticleOperator: Represents a two-particle operator.
-    class DoubleParticleOperator: public SingleOperator {
+    // DoubleParticleScalarOperator: Represents a two-particle scalar operator.
+    class DoubleParticleScalarOperator: public SingleOperator {
     public:
-        DoubleParticleOperator(const DoubleParticleFunction &);
+        DoubleParticleScalarOperator(const DoubleParticleScalarFunction&);
 
         // Operators
         // "*": Operation of DoubleParticleOperator on State
-        State operator*(const State &) const override;
+        State operator*(const State&) const override;
+
+        Complex operatorValue(const State&, const State&) const override;
 
     private:
-        DoubleParticleFunction func;
+        DoubleParticleScalarFunction func;
     };
 
     class Operator {
     public:
-        Operator(const std::vector<SingleOperator *> &);
+        Operator(const std::vector<SingleOperator*>&);
         ~Operator();
 
         // Operators
@@ -123,18 +134,24 @@ public:
         Operator operator+(const Operator &) const;
         //State operator*(const State &) const;
 
+        std::vector<SingleOperator*> getOperator() const;
+
         // TODO: How to handle generic operations?
 
     private:
-        std::vector<SingleOperator *> operators;
+        std::vector<SingleOperator*> operators;
     };
 
     // Constructor input: width and height of the Hilbert space.
     HilbertSpace(int, int);
 
-    SingleParticleState createSingleParticleState(const ScalarFunction &) const;
-    Operator createOperator(const SingleParticleFunction &, const SingleParticleFunction &) const;
-    Operator createOperator(const DoubleParticleFunction &) const;
+    SingleParticleState createSingleParticleState(const SingleParticleScalarFunction&) const;
+    Operator createOperator(const SingleParticleFunction&, const SingleParticleFunction&) const;
+    Operator createOperator(const DoubleParticleScalarFunction&) const;
+
+    // TODO: proper naming of this function.
+    Complex operatorValue(const State&, const Operator&, const State&) const;
+    double expectationValue(const State&, const Operator&) const;
 
 private:
     int width, height;
