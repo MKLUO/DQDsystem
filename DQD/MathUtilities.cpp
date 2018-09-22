@@ -1,49 +1,4 @@
-#include "HilbertSpace.h"
-
-// Abbreviations
-typedef HilbertSpace::MathUtilities					MU;
-typedef HilbertSpace::MathUtilities::ScalarField		ScalarField;
-
-typedef HilbertSpace::State                            State;
-typedef HilbertSpace::State::TwoParticleWaveFunction   Field;
-typedef std::vector<Field>                                Fields;
-
-//////////////////////////////
-//      	MU        		//
-//////////////////////////////
-
-MU::MathUtilities(int width_, int height_)
-{
-	width = width_;
-	height = height_;
-}
-
-ScalarField MU::scalarField() const
-{
-	return ScalarField(width, height);
-}
-
-ScalarField MU::laplacian(const ScalarField& field) const
-{
-	ScalarField newField = scalarField();
-	
-	return newField;
-}
-
-ScalarField MU::multiply(const ScalarField& func, const ScalarField& field) const
-{
-	ScalarField newField = scalarField();
-	
-	return newField;
-}
-
-Complex MU::twoSiteInverseRIntegral(const ScalarField&, const ScalarField&, const ScalarField&, const ScalarField&) const
-{
-	Complex result;
-	
-	return result;
-}
-
+#include "MathUtilities.h"
 
 //////////////////////////////
 //      ScalarField        	//
@@ -83,7 +38,28 @@ State ScalarField::operator^(const ScalarField& newField) const
 //        Utilities        	//
 //////////////////////////////
 
-Complex MU::fockDarwin(int x, int y)
+ScalarField scalarField() const
 {
-	return Complex();
+	return ScalarField(width, height);
+}
+
+ScalarField laplacian(const ScalarField& field) const
+{
+	ScalarField newField = scalarField();
+
+	return newField;
+}
+
+ScalarField multiply(const ScalarField& func, const ScalarField& field) const
+{
+	ScalarField newField = scalarField();
+
+	return newField;
+}
+
+Complex twoSiteInverseRIntegral(const ScalarField&, const ScalarField&, const ScalarField&, const ScalarField&) const
+{
+	Complex result;
+
+	return result;
 }
