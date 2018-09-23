@@ -25,7 +25,3 @@ ScalarField kineticEnergy(ScalarField field, const Setting & setting);
 ScalarField potentialEnergy(ScalarField field, const Setting & setting);
 
 Complex coulombEnergy(double, double, double, double, const Setting & setting);
-
-Complex kineticConstant();
-
-Complex coulombConstant();

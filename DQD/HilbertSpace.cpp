@@ -63,9 +63,8 @@ HilbertSpace::expectationValue(const State &state, const Operator &ops) const {
 //////////////////////////////
 //   SingleParticleState    //
 //////////////////////////////
-SPState::SingleParticleState(const ScalarField &field_) {
-    field = field_;
-}
+SPState::SingleParticleState(const ScalarField &field_) :
+        field(field_) {}
 
 ScalarField
 SPState::getField() const {
@@ -91,10 +90,9 @@ SPState::operator^(const SPState &state) const {
 // SingleParticleStatePair  //
 //////////////////////////////
 
-SPStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2) {
-    first = state1;
-    second = state2;
-}
+SPStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2) :
+        first(state1),
+        second(state2) {}
 
 SPState
 SPStatePair::getFirstField() const {
@@ -133,7 +131,7 @@ State
 State::operator*(Complex c) const {
     std::vector<SPStatePair> states = this->getState();
     for (SPStatePair &pair : states) {
-        ScalarField newLeft     = pair.getFirstField().getField() * c;
+        ScalarField newLeft = pair.getFirstField().getField() * c;
         pair = SPState(newLeft) ^ SPState(pair.getSecondField().getField());
     }
     return State(states);
@@ -148,9 +146,9 @@ State::operator*(const State &state) const {
 
     for (const SPStatePair &pair1 : states1) {
         for (const SPStatePair &pair2 : states2) {
-            SPState field1Left  = pair1.getFirstField();
+            SPState field1Left = pair1.getFirstField();
             SPState field1Right = pair1.getSecondField();
-            SPState field2Left  = pair2.getFirstField();
+            SPState field2Left = pair2.getFirstField();
             SPState field2Right = pair2.getSecondField();
 
             result += field1Left * field2Left + field1Right * field2Right;
@@ -164,8 +162,8 @@ State::operator*(const State &state) const {
 //  SingleParticleOperator  //
 //////////////////////////////
 
-SPOperator::SingleParticleOperator(const SingleParticleFunction & left_,
-                                   const SingleParticleFunction & right_) {
+SPOperator::SingleParticleOperator(const SingleParticleFunction &left_,
+                                   const SingleParticleFunction &right_) {
     left = left_;
     right = right_;
 }
@@ -175,8 +173,8 @@ SPOperator::operator*(const State &state) const {
     std::vector<SPStatePair> states = state.getState();
 
     for (SPStatePair &pair : states) {
-        ScalarField newLeft     = pair.getFirstField().getField() * left;
-        ScalarField newRight    = pair.getSecondField().getField() * right;
+        ScalarField newLeft = pair.getFirstField().getField() * left;
+        ScalarField newRight = pair.getSecondField().getField() * right;
 
         pair = SPState(newLeft) ^ SPState(newRight);
     }
@@ -213,9 +211,9 @@ DPSOperator::operatorValue(const State &left, const State &right) const {
 
     for (const SPStatePair &pair1 : states1) {
         for (const SPStatePair &pair2 : states2) {
-            ScalarField field1Left  = pair1.getFirstField().getField();
+            ScalarField field1Left = pair1.getFirstField().getField();
             ScalarField field1Right = pair1.getSecondField().getField();
-            ScalarField field2Left  = pair2.getFirstField().getField();
+            ScalarField field2Left = pair2.getFirstField().getField();
             ScalarField field2Right = pair2.getSecondField().getField();
 
             result += twoSiteIntegral(field1Left, field2Left, func, field1Right, field2Right);
@@ -233,6 +231,11 @@ Operator::Operator(const std::vector<SingleOperator *> &operators_) {
     operators = operators_;
 }
 
+Operator::~Operator() {
+    for (auto op : operators)
+        delete(op);
+}
+
 Operator
 Operator::operator+(const Operator &ops) const {
     std::vector<SingleOperator *> v1 = this->getOperator();
@@ -245,5 +248,5 @@ Operator::operator+(const Operator &ops) const {
 
 std::vector<SingleOperator *>
 Operator::getOperator() const {
-    return std::vector<SingleOperator *>();
+    return operators;
 }

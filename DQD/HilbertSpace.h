@@ -77,8 +77,6 @@ public:
     public:
         explicit State(const std::vector<SingleParticleStatePair> &);
 
-        ~State();
-
         std::vector<SingleParticleStatePair> getState() const;
 
         // Operators

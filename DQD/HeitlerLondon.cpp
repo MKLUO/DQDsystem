@@ -10,7 +10,10 @@ typedef HilbertSpace::State State;
 
 typedef HilbertSpace::Operator Operator;
 
-double calculateJWithSetting_HL(const Setting &setting) {
+double
+calculateJWithSetting_HL(const Setting &setting) {
+
+    // TODO: build system according to setting
 
     HilbertSpace hilbertSpace = HilbertSpace(100, 50, 0.1);
 
@@ -18,13 +21,13 @@ double calculateJWithSetting_HL(const Setting &setting) {
 
     SPState left =
             hilbertSpace.createSingleParticleState(
-                    [](double x, double y) {
+                    [setting](double x, double y) {
                         return fockDarwin(x, y, setting, Orientation::Left);
                     });
 
     SPState right =
             hilbertSpace.createSingleParticleState(
-                    [](double x, double y) {
+                    [setting](double x, double y) {
                         return fockDarwin(x, y, setting, Orientation::Right);
                     });
 
@@ -38,7 +41,7 @@ double calculateJWithSetting_HL(const Setting &setting) {
 
     Operator kineticLeft =
             hilbertSpace.createOperator(
-                    [](ScalarField field) {
+                    [setting](ScalarField field) {
                         return kineticEnergy(field, setting);
                     },
                     [](ScalarField field) {
@@ -50,13 +53,13 @@ double calculateJWithSetting_HL(const Setting &setting) {
                     [](ScalarField field) {
                         return field;
                     },
-                    [](ScalarField field) {
+                    [setting](ScalarField field) {
                         return kineticEnergy(field, setting);
                     });
 
     Operator potentialLeft =
             hilbertSpace.createOperator(
-                    [](ScalarField field) {
+                    [setting](ScalarField field) {
                         return potentialEnergy(field, setting);
                     },
                     [](ScalarField field) {
@@ -68,13 +71,13 @@ double calculateJWithSetting_HL(const Setting &setting) {
                     [](ScalarField field) {
                         return field;
                     },
-                    [](ScalarField field) {
+                    [setting](ScalarField field) {
                         return potentialEnergy(field, setting);
                     });
 
     Operator coulomb =
             hilbertSpace.createOperator(
-                    [](double x1, double y1, double x2, double y2) {
+                    [setting](double x1, double y1, double x2, double y2) {
                         return coulombEnergy(x1, y1, x2, y2, setting);
                     });
 
@@ -88,10 +91,22 @@ double calculateJWithSetting_HL(const Setting &setting) {
     return (energy_antisym - energy_sym);
 }
 
-Complex fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
+Complex
+fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
     return Complex();
 }
 
-ScalarField kineticEnergy(ScalarField field, const Setting &setting) {
-    return ScalarField();
+ScalarField
+kineticEnergy(ScalarField field, const Setting &setting) {
+    return ScalarField(0, 0, 0.0, std::vector<Complex>());
+}
+
+ScalarField
+potentialEnergy(ScalarField field, const Setting &setting) {
+    return ScalarField(0, 0, 0.0, std::vector<Complex>());
+}
+
+Complex
+coulombEnergy(double, double, double, double, const Setting &setting) {
+    return Complex();
 }

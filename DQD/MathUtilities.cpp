@@ -23,13 +23,11 @@ ScalarField::ScalarField(int width_,
     height = height_;
     gridSize = gridSize_;
 
-    data.resize(width_ * height_);
+    data.resize(width * height);
 
     for (int i = 0; i < width; ++i)
-        for (int j = 0; j < height; ++j) {
-            this->at(i, j) = function(getX(i), getY(j));
-        }
-
+        for (int j = 0; j < height; ++j)
+            data[getIndex(i, j)] = function(getX(i), getY(j));
 }
 
 ScalarField
