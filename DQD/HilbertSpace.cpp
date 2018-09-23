@@ -151,7 +151,7 @@ State::operator*(const State &state) const {
             SPState field2Left = pair2.getFirstField();
             SPState field2Right = pair2.getSecondField();
 
-            result += field1Left * field2Left + field1Right * field2Right;
+            result += (field1Left * field2Left) * (field1Right * field2Right);
         }
     }
 

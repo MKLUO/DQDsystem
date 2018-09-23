@@ -9,12 +9,12 @@ typedef HilbertSpace::State State;
 typedef HilbertSpace::Operator Operator;
 
 Complex gaussian(double x, double y) {
-	return exp(-(x*x + y*y)/8.0);
+	return exp(-(x*x + y*y));
 }
 
 int main()
 {
-	HilbertSpace hilbertSpace = HilbertSpace(20, 20, 0.1);
+	HilbertSpace hilbertSpace = HilbertSpace(60, 60, 0.1);
 
 	// Build H-L singlet/triplet state
 
@@ -25,6 +25,8 @@ int main()
 					});
 
 	State dpState = State({spState ^ spState});
+
+	Complex c = dpState * dpState;
 
 	return 0;
 }
