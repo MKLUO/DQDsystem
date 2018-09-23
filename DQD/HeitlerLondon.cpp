@@ -18,13 +18,13 @@ double calculateJWithSetting_HL(const Setting &setting) {
 
     SPState left =
             hilbertSpace.createSingleParticleState(
-                    [](int x, int y) {
+                    [](double x, double y) {
                         return fockDarwin(x, y, setting, Orientation::Left);
                     });
 
     SPState right =
             hilbertSpace.createSingleParticleState(
-                    [](int x, int y) {
+                    [](double x, double y) {
                         return fockDarwin(x, y, setting, Orientation::Right);
                     });
 
@@ -74,7 +74,7 @@ double calculateJWithSetting_HL(const Setting &setting) {
 
     Operator coulomb =
             hilbertSpace.createOperator(
-                    [](int x1, int y1, int x2, int y2) {
+                    [](double x1, double y1, double x2, double y2) {
                         return coulombEnergy(x1, y1, x2, y2, setting);
                     });
 
@@ -88,7 +88,7 @@ double calculateJWithSetting_HL(const Setting &setting) {
     return (energy_antisym - energy_sym);
 }
 
-Complex fockDarwin(int x, int y, const Setting &setting, Orientation direction) {
+Complex fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
     return Complex();
 }
 

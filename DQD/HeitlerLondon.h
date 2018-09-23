@@ -18,13 +18,13 @@ enum class Orientation
 
 double calculateJWithSetting_HL(const Setting &);
 
-Complex fockDarwin(int, int, const Setting &, Orientation);
+Complex fockDarwin(double, double, const Setting &, Orientation);
 
 ScalarField kineticEnergy(ScalarField field, const Setting & setting);
 
 ScalarField potentialEnergy(ScalarField field, const Setting & setting);
 
-Complex coulombEnergy(int, int, int, int, const Setting & setting);
+Complex coulombEnergy(double, double, double, double, const Setting & setting);
 
 Complex kineticConstant();
 
