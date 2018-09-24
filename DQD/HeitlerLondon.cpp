@@ -93,20 +93,24 @@ calculateJWithSetting_HL(const Setting &setting) {
 
 Complex
 fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
+    //TODO:
     return Complex();
 }
 
 ScalarField
 kineticEnergy(ScalarField field, const Setting &setting) {
+    //TODO:
     return ScalarField(0, 0, 0.0, std::vector<Complex>());
 }
 
 ScalarField
 potentialEnergy(ScalarField field, const Setting &setting) {
+    //TODO:
     return ScalarField(0, 0, 0.0, std::vector<Complex>());
 }
 
 Complex
 coulombEnergy(double, double, double, double, const Setting &setting) {
+    //TODO:
     return Complex();
 }

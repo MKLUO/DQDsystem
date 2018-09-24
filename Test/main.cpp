@@ -24,7 +24,7 @@ int main()
 						return gaussian(x, y);
 					});
 
-	State dpState = State({spState ^ spState});
+	State dpState = State({spState ^ spState}) + State({spState ^ spState}) * (-1.0) ;
 
 	Complex c = dpState * dpState;
 
