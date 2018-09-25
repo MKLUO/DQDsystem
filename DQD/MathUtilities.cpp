@@ -120,12 +120,12 @@ ScalarField::getGridSize() const {
 
 ScalarField
 ScalarField::laplacian() const {
-
+    // TODO:
 }
 
 ScalarField
 ScalarField::angularMomentum() const {
-
+    // TODO:
 }
 
 
@@ -151,8 +151,8 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 for (int y2 = 0; y2 < height; ++y2)
                     result +=   std::conj(left1.at(x1, y1) * left2.at(x2, y2)) *
                                 function(x1, y1, x2, y2) *
-                                right1.at(x1, y1) * right2.at(x2, y2) *
-                                gridSize * gridSize * gridSize * gridSize;
+                                right1.at(x1, y1) * right2.at(x2, y2);
 
-    return result;
+    return result *
+           gridSize * gridSize * gridSize * gridSize;
 }
