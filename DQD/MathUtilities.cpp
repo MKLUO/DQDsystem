@@ -118,9 +118,23 @@ ScalarField::getGridSize() const {
     return gridSize;
 }
 
+Complex&
+ScalarField::getData(int x, int y) {
+    return data[x + y * width];
+}
+
 ScalarField
 ScalarField::laplacian() const {
 
+    //TODO: FFT
+
+    ScalarField result = ScalarField(width, height, gridSize, std::vector<Complex>());
+
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y)
+            result.getData(x, y) = 0.0;
+
+    return result;
 }
 
 ScalarField
