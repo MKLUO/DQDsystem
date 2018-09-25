@@ -14,7 +14,7 @@ Complex gaussian(double x, double y) {
 
 int main()
 {
-	HilbertSpace hilbertSpace = HilbertSpace(60, 60, 0.1);
+	HilbertSpace hilbertSpace = HilbertSpace(40, 40, 0.1);
 
 	// Build H-L singlet/triplet state
 

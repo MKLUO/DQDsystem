@@ -15,6 +15,8 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     // TODO: build system according to setting
 
+    // TODO: check if setting matches constraint
+
     HilbertSpace hilbertSpace = HilbertSpace(100, 50, 0.1);
 
     // Build H-L singlet/triplet state
