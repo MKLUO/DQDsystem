@@ -53,6 +53,8 @@ public:
     ScalarField angularMomentum() const;
 
 private:
+    Complex& getData(int, int);
+
     std::vector<Complex> data;
     int width, height;
     double gridSize;
