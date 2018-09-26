@@ -1,4 +1,5 @@
 #include "HilbertSpace.h"
+#include "Plot.h"
 
 // Abbreviations
 
@@ -24,9 +25,11 @@ int main()
 						return gaussian(x, y);
 					});
 
-	State dpState = State({spState ^ spState});
+	State dpState = (spState ^ spState) + (spState ^ spState);
 
 	Complex c = dpState * dpState;
 
+
+	plotter::plotTest();
 	return 0;
 }

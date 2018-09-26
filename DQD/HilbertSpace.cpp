@@ -76,6 +76,11 @@ SPState::operator+(const SPState &state) const {
     return SPState(this->getField() + state.getField());
 }
 
+SPState
+SPState::operator*(Complex c) const {
+    return SPState(field * c);
+}
+
 Complex
 SPState::operator*(const SPState &state) const {
     return (this->getField() * state.getField());
@@ -104,6 +109,17 @@ SPStatePair::getSecondField() const {
     return second;
 }
 
+State
+SPStatePair::operator+(const SPStatePair &state) const {
+    return State({*this, state});
+}
+
+SPStatePair
+SPStatePair::operator*(Complex c) const {
+    return SPStatePair(first * c, second);
+}
+
+
 //////////////////////////////
 //          State           //
 //////////////////////////////
@@ -115,6 +131,15 @@ State::State(const std::vector<SPStatePair> &states_) {
 std::vector<SPStatePair>
 State::getState() const {
     return states;
+}
+
+State
+State::operator+(const SPStatePair &pair) const {
+    std::vector<SPStatePair> v1 = this->getState();
+
+    v1.push_back(pair);
+
+    return State(v1);
 }
 
 State
@@ -130,10 +155,8 @@ State::operator+(const State &state) const {
 State
 State::operator*(Complex c) const {
     std::vector<SPStatePair> states = this->getState();
-    for (SPStatePair &pair : states) {
-        ScalarField newLeft = pair.getFirstField().getField() * c;
-        pair = SPState(newLeft) ^ SPState(pair.getSecondField().getField());
-    }
+    for (SPStatePair &pair : states)
+        pair = pair * c;
     return State(states);
 }
 

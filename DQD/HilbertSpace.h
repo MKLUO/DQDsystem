@@ -46,9 +46,12 @@ public:
 
         // Operators
         // "+": Addition of two SingleParticleState
+        // "*": Multiply with a scalar
         // "*": Inner product of two SingleParticleState
         // "^": Tensor product of two SingleParticleState
         SingleParticleState operator+(const SingleParticleState &) const;
+
+        SingleParticleState operator*(Complex) const;
 
         Complex operator*(const SingleParticleState &) const;
 
@@ -67,6 +70,12 @@ public:
 
         SingleParticleState getSecondField() const;
 
+        // Operators
+        // "+": Addition of two SingleParticleStatePair
+        // "*": Multiply with a scalar
+        State operator+(const SingleParticleStatePair&) const;
+        SingleParticleStatePair operator*(Complex) const;
+
     private:
         SingleParticleState first;
         SingleParticleState second;
@@ -80,9 +89,12 @@ public:
         std::vector<SingleParticleStatePair> getState() const;
 
         // Operators
+        // "+": Add a SingleParticleStatePair
         // "+": Addition of two State
         // "*": Multiply with a scalar
         // "*": Inner product of two State
+        State operator+(const SingleParticleStatePair&) const;
+
         State operator+(const State &) const;
 
         State operator*(Complex) const;

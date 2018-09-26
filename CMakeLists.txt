@@ -3,7 +3,9 @@ project(DQDsystem)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(DQD)
+include_directories(DQD
+        Utilities
+        Utilities/gnugraph)
 
 add_executable(DQDsystem
         DQD/HilbertSpace.cpp
@@ -11,4 +13,4 @@ add_executable(DQDsystem
         DQD/MathUtilities.cpp
         DQD/MathUtilities.h
         Test/main.cpp
-        DQD/HeitlerLondon.cpp DQD/HeitlerLondon.h)
+        DQD/HeitlerLondon.cpp DQD/HeitlerLondon.h Utilities/Plot.h Utilities/Plot.cpp)

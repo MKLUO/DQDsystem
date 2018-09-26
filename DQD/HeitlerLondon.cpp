@@ -33,11 +33,11 @@ calculateJWithSetting_HL(const Setting &setting) {
                         return fockDarwin(x, y, setting, Orientation::Right);
                     });
 
-    State state_FD_sym      =   State({left ^ right}) * sqrt(0.5) +
-                                State({right ^ left}) * sqrt(0.5);
+    State state_FD_sym = (left ^ right) * sqrt(0.5) +
+                         (right ^ left) * sqrt(0.5);
 
-    State state_FD_antisym  =   State({left ^ right}) * sqrt(0.5) +
-                                State({right ^ left}) * sqrt(0.5) * (-1.0);
+    State state_FD_antisym = (left ^ right) * sqrt(0.5) +
+                             (right ^ left) * sqrt(0.5) * (-1.0);
 
     // Build Hamiltonian
 

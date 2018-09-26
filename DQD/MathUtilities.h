@@ -63,3 +63,6 @@ private:
 Complex
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
                 const ScalarField &);
+
+ScalarField
+fft2d(const ScalarField &);
