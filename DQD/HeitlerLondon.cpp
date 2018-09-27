@@ -5,7 +5,6 @@
 // Abbreviations
 
 typedef HilbertSpace::SingleParticleState SPState;
-typedef HilbertSpace::SingleParticleStatePair SPStatePair;
 typedef HilbertSpace::State State;
 
 typedef HilbertSpace::Operator Operator;
@@ -101,7 +100,7 @@ fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
 
 ScalarField
 kineticEnergy(ScalarField field, const Setting &setting) {
-    //TODO:
+
     return ScalarField(0, 0, 0.0, std::vector<Complex>());
 }
 

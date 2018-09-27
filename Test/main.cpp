@@ -1,35 +1,31 @@
 #include "HilbertSpace.h"
 #include "Plot.h"
+#include "Fourier.h"
 
 // Abbreviations
 
 typedef HilbertSpace::SingleParticleState SPState;
-typedef HilbertSpace::SingleParticleStatePair SPStatePair;
 typedef HilbertSpace::State State;
 
 typedef HilbertSpace::Operator Operator;
 
-Complex gaussian(double x, double y) {
-	return exp(-(x*x + y*y));
-}
 
 int main()
 {
+
 	HilbertSpace hilbertSpace = HilbertSpace(40, 40, 0.1);
 
-	// Build H-L singlet/triplet state
+	// Build state
 
-	SPState spState =
+	SPState spState1 =
 			hilbertSpace.createSingleParticleState(
 					[](double x, double y) {
-						return gaussian(x, y);
+						return gaussian(x, y, 1.);
 					});
 
-	State dpState = (spState ^ spState) + (spState ^ spState);
+	State dpState = (spState1 ^ spState1);
 
-	Complex c = dpState * dpState;
+	Complex c = spState1 * spState1;
 
-
-	plotter::plotTest();
 	return 0;
 }

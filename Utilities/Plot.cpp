@@ -14,6 +14,7 @@ using std::string;
 // TODO: implements plotting
 
 void plotter::plotTest() {
+    // TODO: this path should be determined in cmake
     GnuGraph graph("C:/Program Files/gnuplot/bin/gnuplot.exe"); // provide path to executable
 
     vector<double> x, y;
@@ -27,6 +28,6 @@ void plotter::plotTest() {
     cout << output << '\n'; // print any errors to console
     cin.get(); // keep the window open until the user presses ENTER
 }
-void plotter::plotAbs(const ScalarField &field) {
+void plotter::plotFieldAbs(const ScalarField &field) {
 
 }

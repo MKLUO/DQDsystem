@@ -25,8 +25,6 @@ public:
 
     class SingleParticleState;
 
-    class SingleParticleStatePair;
-
     class State;
 
     class SingleOperator;
@@ -55,7 +53,7 @@ public:
 
         Complex operator*(const SingleParticleState &) const;
 
-        SingleParticleStatePair operator^(const SingleParticleState &) const;
+        State operator^(const SingleParticleState &) const;
 
     private:
         ScalarField field;
@@ -71,9 +69,7 @@ public:
         SingleParticleState getSecondField() const;
 
         // Operators
-        // "+": Addition of two SingleParticleStatePair
         // "*": Multiply with a scalar
-        State operator+(const SingleParticleStatePair&) const;
         SingleParticleStatePair operator*(Complex) const;
 
     private:
@@ -84,17 +80,17 @@ public:
     // State: Represents a general two-particle wavefunction.
     class State {
     public:
+
+        explicit State(const SingleParticleState &, const SingleParticleState &);
+
         explicit State(const std::vector<SingleParticleStatePair> &);
 
         std::vector<SingleParticleStatePair> getState() const;
 
         // Operators
-        // "+": Add a SingleParticleStatePair
         // "+": Addition of two State
         // "*": Multiply with a scalar
         // "*": Inner product of two State
-        State operator+(const SingleParticleStatePair&) const;
-
         State operator+(const State &) const;
 
         State operator*(Complex) const;
@@ -123,6 +119,7 @@ public:
         // Operators
         // "*": Operation of SingleParticleOperator on State
         State operator*(const State &) const;
+        SingleParticleStatePair operator*(const SingleParticleStatePair &) const;
 
         Complex operatorValue(const State &, const State &) const override;
 

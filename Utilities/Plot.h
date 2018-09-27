@@ -4,5 +4,5 @@
 
 namespace plotter {
     void plotTest();
-    void plotAbs(const ScalarField &);
+    void plotFieldAbs(const ScalarField &);
 }

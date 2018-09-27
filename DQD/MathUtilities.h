@@ -32,7 +32,9 @@ public:
 
     // Access
 
-    Complex at(int, int) const;
+    std::vector<Complex> getDatas() const;
+
+    Complex getData(int, int) const;
 
     double getX(int) const;
 
@@ -46,23 +48,26 @@ public:
 
     double getGridSize() const;
 
-    // Math Utilities
-
-    ScalarField laplacian() const;
-
-    ScalarField angularMomentum() const;
 
 private:
-    Complex& getData(int, int);
+    Complex& at(int, int);
 
     std::vector<Complex> data;
     int width, height;
     double gridSize;
 };
 
+// Math Utilities
+
 Complex
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
                 const ScalarField &);
 
 ScalarField
-fft2d(const ScalarField &);
+laplacian(const ScalarField &);
+
+ScalarField
+angularMomentum(const ScalarField &);
+
+Complex
+gaussian(double, double, double);

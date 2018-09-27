@@ -1,4 +1,5 @@
 #include "MathUtilities.h"
+#include "Fourier.h"
 
 //////////////////////////////
 //      ScalarField        	//
@@ -37,7 +38,7 @@ ScalarField::operator+(const ScalarField &field) const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = this->at(x, y) + field.at(x, y);
+            newData[getIndex(x, y)] = this->getData(x, y) + field.getData(x, y);
 
     return ScalarField(width, height, gridSize, newData);
 }
@@ -49,7 +50,7 @@ ScalarField::operator*(Complex c) const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = c * this->at(x, y);
+            newData[getIndex(x, y)] = c * this->getData(x, y);
 
     return ScalarField(width, height, gridSize, newData);
 }
@@ -60,7 +61,7 @@ ScalarField::operator*(const ScalarField &field) const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            result += std::conj(this->at(x, y)) * field.at(x, y) * gridSize * gridSize;
+            result += std::conj(this->getData(x, y)) * field.getData(x, y) * gridSize * gridSize;
 
     return result;
 }
@@ -72,7 +73,7 @@ ScalarField::operator*(const SingleParticleScalarFunction &function) const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = function(getX(x), getY(y)) * this->at(x, y);
+            newData[getIndex(x, y)] = function(getX(x), getY(y)) * this->getData(x, y);
 
     return ScalarField(width, height, gridSize, newData);
 }
@@ -82,8 +83,13 @@ ScalarField::operator*(const SingleParticleFunction &function) const {
     return function(*this);
 }
 
+std::vector<Complex>
+ScalarField::getDatas() const {
+    return data;
+}
+
 Complex
-ScalarField::at(int x, int y) const {
+ScalarField::getData(int x, int y) const {
     return data[x + y * width];
 }
 
@@ -118,28 +124,9 @@ ScalarField::getGridSize() const {
     return gridSize;
 }
 
-Complex&
-ScalarField::getData(int x, int y) {
+Complex &
+ScalarField::at(int x, int y) {
     return data[x + y * width];
-}
-
-ScalarField
-ScalarField::laplacian() const {
-
-    //TODO: FFT
-
-    ScalarField result = ScalarField(width, height, gridSize, std::vector<Complex>());
-
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
-            result.getData(x, y) = 0.0;
-
-    return result;
-}
-
-ScalarField
-ScalarField::angularMomentum() const {
-    // TODO:
 }
 
 
@@ -163,10 +150,53 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
         for (int y1 = 0; y1 < height; ++y1)
             for (int x2 = 0; x2 < width; ++x2)
                 for (int y2 = 0; y2 < height; ++y2)
-                    result +=   std::conj(left1.at(x1, y1) * left2.at(x2, y2)) *
-                                function(x1, y1, x2, y2) *
-                                right1.at(x1, y1) * right2.at(x2, y2);
+                    result += std::conj(left1.getData(x1, y1) * left2.getData(x2, y2)) *
+                              function(x1, y1, x2, y2) *
+                              right1.getData(x1, y1) * right2.getData(x2, y2);
 
     return result *
            gridSize * gridSize * gridSize * gridSize;
+}
+
+
+ScalarField
+laplacian(const ScalarField &field) {
+
+    //TODO: FFT
+    int width = field.getWidth();
+    int height = field.getHeight();
+    double gridSize = field.getGridSize();
+
+    std::vector<Complex> field_FT = fourier::fft2d(field.getDatas(), width, height);
+    std::vector<Complex> result_FT(width * height);
+
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y) {
+            double kx = double(x) / (2. * M_PI * double(width));
+            double ky = double(y) / (2. * M_PI * double(height));
+
+            result_FT[x + y * width] = -field_FT[x + y * width] * (kx * kx + ky * ky);
+        }
+
+    return ScalarField(width, height, gridSize, fourier::ifft2d(result_FT, width, height));
+}
+
+ScalarField
+angularMomentum(const ScalarField &) {
+    // TODO:
+}
+
+Complex
+gaussian(double x, double y, double r) {
+    return Complex(exp(-(x * x + y * y) / (2. * r * r)), 0.);
+}
+
+std::vector<Complex>
+fft2d(const std::vector<Complex> &, int width, int height) {
+
+}
+
+std::vector<Complex>
+ifft2d(const std::vector<Complex> &, int width, int height) {
+
 }
