@@ -4,8 +4,7 @@ project(DQDSystem)
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(DQD
-        Utilities
-        Utilities/gnugraph)
+        Utilities)
 
 add_library(Fourier
         Utilities/Fourier.h
@@ -21,7 +20,7 @@ add_library(DQD
         DQD/HeitlerLondon.cpp
         DQD/HeitlerLondon.h)
 
-add_library(Utilities
+add_library(Plot
         Utilities/Plot.h
         Utilities/Plot.cpp)
 
@@ -29,7 +28,7 @@ add_executable(DQDSystem
         Test/main.cpp)
 
 target_link_libraries(DQD Fourier)
-target_link_libraries(DQDSystem Fourier DQD Utilities)
+target_link_libraries(DQDSystem Fourier DQD Plot)
 
 #------ArrayFire & CUDA
 #
