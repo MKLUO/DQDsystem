@@ -44,6 +44,11 @@ ScalarField::operator+(const ScalarField &field) const {
 }
 
 ScalarField
+ScalarField::operator-(const ScalarField &field) const {
+    return *this + field * Complex(-1., 0.);
+}
+
+ScalarField
 ScalarField::operator*(Complex c) const {
     std::vector<Complex> newData;
     newData.resize(data.size());
@@ -162,6 +167,8 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
 ScalarField
 laplacian(const ScalarField &field) {
 
+    // Calculate 2D-Laplacian by FFT
+
     //TODO: FFT
     int width = field.getWidth();
     int height = field.getHeight();
@@ -182,9 +189,43 @@ laplacian(const ScalarField &field) {
 }
 
 ScalarField
-angularMomentum(const ScalarField &) {
+angularMomentum(const ScalarField &field) {
+
+    // Calculate 2D-"angular momentum" by FFT
+
     // TODO:
+    int width = field.getWidth();
+    int height = field.getHeight();
+    double gridSize = field.getGridSize();
+
+    std::vector<Complex> field_FT = fourier::fft2d(field.getDatas(), width, height);
+    std::vector<Complex> gradX_FT(width * height);
+    std::vector<Complex> gradY_FT(width * height);
+
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y) {
+            double kx = double(x) / (2. * M_PI * double(width));
+            double ky = double(y) / (2. * M_PI * double(height));
+
+            gradX_FT[x + y * width] = field_FT[x + y * width] * kx * Complex(0., 1.);
+            gradY_FT[x + y * width] = field_FT[x + y * width] * ky * Complex(0., 1.);
+        }
+
+    ScalarField gradX = ScalarField(width, height, gridSize, fourier::ifft2d(gradX_FT, width, height));
+    ScalarField gradY = ScalarField(width, height, gridSize, fourier::ifft2d(gradY_FT, width, height));
+
+    return gradY * x_func - gradX * y_func;
 }
+
+SingleParticleScalarFunction
+x_func = [](double x, double y) {
+    return Complex(x, 0.);
+};
+
+SingleParticleScalarFunction
+y_func = [](double x, double y) {
+    return Complex(y, 0.);
+};
 
 Complex
 gaussian(double x, double y, double r) {
@@ -193,10 +234,10 @@ gaussian(double x, double y, double r) {
 
 std::vector<Complex>
 fft2d(const std::vector<Complex> &, int width, int height) {
-
+    return std::vector<Complex>();
 }
 
 std::vector<Complex>
 ifft2d(const std::vector<Complex> &, int width, int height) {
-
+    return std::vector<Complex>();
 }

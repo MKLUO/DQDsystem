@@ -93,6 +93,8 @@ public:
         // "*": Inner product of two State
         State operator+(const State &) const;
 
+        State operator-(const State &) const;
+
         State operator*(Complex) const;
 
         Complex operator*(const State &) const;

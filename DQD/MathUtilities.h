@@ -22,6 +22,8 @@ public:
 
     ScalarField operator+(const ScalarField &) const;
 
+    ScalarField operator-(const ScalarField &) const;
+
     ScalarField operator*(Complex) const;
 
     Complex operator*(const ScalarField &) const;
@@ -69,5 +71,13 @@ laplacian(const ScalarField &);
 ScalarField
 angularMomentum(const ScalarField &);
 
+extern SingleParticleScalarFunction
+x_func;
+
+extern SingleParticleScalarFunction
+y_func;
+
 Complex
 gaussian(double, double, double);
+
+

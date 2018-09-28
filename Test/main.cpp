@@ -20,12 +20,12 @@ int main()
 	SPState spState1 =
 			hilbertSpace.createSingleParticleState(
 					[](double x, double y) {
-						return gaussian(x, y, 1.);
+						return gaussian(x, y, .5);
 					});
 
-	State dpState = (spState1 ^ spState1);
+	State dpState = (spState1 ^ spState1) + (spState1 ^ spState1);
 
-	Complex c = spState1 * spState1;
+	Complex c = dpState * dpState;
 
 	return 0;
 }

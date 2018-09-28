@@ -142,6 +142,19 @@ State::operator+(const State &state) const {
 }
 
 State
+State::operator-(const State &state) const {
+    std::vector<SPStatePair> v1 = this->getState();
+    std::vector<SPStatePair> v2 = state.getState();
+
+    for (SPStatePair &pair : v2)
+        pair = pair * Complex(-1., 0.);
+
+    v1.insert(v1.end(), v2.begin(), v2.end());
+
+    return State(v1);
+}
+
+State
 State::operator*(Complex c) const {
     std::vector<SPStatePair> states = this->getState();
     for (SPStatePair &pair : states)
