@@ -1,8 +1,11 @@
 #pragma once
 
+// TODO: Abstraction of Coordinate (x & y)
+
 #include <functional>
 #include <vector>
 #include <complex>
+
 typedef std::complex<double> Complex;
 
 class ScalarField;
@@ -52,7 +55,7 @@ public:
 
 
 private:
-    Complex& at(int, int);
+    Complex &at(int, int);
 
     std::vector<Complex> data;
     int width, height;
@@ -71,13 +74,32 @@ laplacian(const ScalarField &);
 ScalarField
 angularMomentum(const ScalarField &);
 
-extern SingleParticleScalarFunction
-x_func;
+// ScalarFields
 
 extern SingleParticleScalarFunction
-y_func;
+        x_field;
 
-Complex
-gaussian(double, double, double);
+extern SingleParticleScalarFunction
+        y_field;
+
+extern SingleParticleScalarFunction
+        xx_field;
+
+extern SingleParticleScalarFunction
+        yy_field;
+
+extern SingleParticleScalarFunction
+        sho_field;
+
+extern DoubleParticleScalarFunction
+        rInv_field;
+
+// ScalarFields with settings
+
+extern SingleParticleScalarFunction
+        scalar(Complex);
+
+extern SingleParticleScalarFunction
+        gaussian(double);
 
 

@@ -2,6 +2,8 @@
 
 #include "HeitlerLondon.h"
 
+// TODO: unit tests
+
 // Abbreviations
 
 typedef HilbertSpace::SingleParticleState SPState;
@@ -100,18 +102,21 @@ fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
 
 ScalarField
 kineticEnergy(ScalarField field, const Setting &setting) {
-
-    return ScalarField(0, 0, 0.0, std::vector<Complex>());
+    //TODO: Constants
+    return  laplacian(field) +
+            angularMomentum(field) +
+            field * sho_field;
 }
 
 ScalarField
 potentialEnergy(ScalarField field, const Setting &setting) {
-    //TODO:
-    return ScalarField(0, 0, 0.0, std::vector<Complex>());
+    //TODO: Constants
+    return
+            field * x_field;
 }
 
 Complex
-coulombEnergy(double, double, double, double, const Setting &setting) {
-    //TODO:
-    return Complex();
+coulombEnergy(double x1, double y1, double x2, double y2, const Setting &setting) {
+    //TODO: Constants
+    return  rInv_field(x1, y1, x2, y2);
 }

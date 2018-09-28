@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "MathUtilities.h"
 #include "Fourier.h"
 
@@ -193,7 +195,6 @@ angularMomentum(const ScalarField &field) {
 
     // Calculate 2D-"angular momentum" by FFT
 
-    // TODO:
     int width = field.getWidth();
     int height = field.getHeight();
     double gridSize = field.getGridSize();
@@ -214,30 +215,63 @@ angularMomentum(const ScalarField &field) {
     ScalarField gradX = ScalarField(width, height, gridSize, fourier::ifft2d(gradX_FT, width, height));
     ScalarField gradY = ScalarField(width, height, gridSize, fourier::ifft2d(gradY_FT, width, height));
 
-    return gradY * x_func - gradX * y_func;
+    return gradY * x_field - gradX * y_field;
 }
 
+// ScalarFields
+
 SingleParticleScalarFunction
-x_func = [](double x, double y) {
+        x_field = [](double x, double y) {
     return Complex(x, 0.);
 };
 
 SingleParticleScalarFunction
-y_func = [](double x, double y) {
+        y_field = [](double x, double y) {
     return Complex(y, 0.);
 };
 
-Complex
-gaussian(double x, double y, double r) {
-    return Complex(exp(-(x * x + y * y) / (2. * r * r)), 0.);
+SingleParticleScalarFunction
+        xx_field = [](double x, double y) {
+    return Complex(x * x, 0.);
+};
+
+SingleParticleScalarFunction
+        yy_field = [](double x, double y) {
+    return Complex(y * y, 0.);
+};
+
+SingleParticleScalarFunction
+        sho_field = [](double x, double y) {
+    return Complex(x * x + y * y, 0.);
+};
+
+DoubleParticleScalarFunction
+        rInv_field = [](double x1, double y1, double x2, double y2) {
+    return Complex(1. / hypot((x1 - x2), (y1 - y2)), 0.);
+};
+
+// ScalarFields with settings required
+
+SingleParticleScalarFunction
+scalar(Complex c) {
+    return [c](double x, double y) {
+        return c;
+    };
+}
+
+SingleParticleScalarFunction
+gaussian(double r) {
+    return [r](double x, double y) {
+        return Complex(exp(-(x * x + y * y) / (2. * r * r)), 0.);
+    };
 }
 
 std::vector<Complex>
 fft2d(const std::vector<Complex> &, int width, int height) {
-    return std::vector<Complex>();
+    return std::vector<Complex>(width * height);
 }
 
 std::vector<Complex>
 ifft2d(const std::vector<Complex> &, int width, int height) {
-    return std::vector<Complex>();
+    return std::vector<Complex>(width * height);
 }
