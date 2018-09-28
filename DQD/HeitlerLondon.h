@@ -2,26 +2,27 @@
 
 #include "HilbertSpace.h"
 
-struct Setting
-{
+struct Setting {
     static Setting defaultSetting();
 
     int width, height;
     double omega0;
 };
 
-enum class Orientation
-{
+enum class Orientation {
     Left,
     Right
 };
 
 double calculateJWithSetting_HL(const Setting &);
 
-Complex fockDarwin(double, double, const Setting &, Orientation);
+SingleParticleScalarFunction
+        fockDarwin(const Setting &, Orientation);
 
-ScalarField kineticEnergy(ScalarField field, const Setting & setting);
+SingleParticleFunction identity();
 
-ScalarField potentialEnergy(ScalarField field, const Setting & setting);
+SingleParticleFunction kineticEnergy(const Setting &setting);
 
-Complex coulombEnergy(double, double, double, double, const Setting & setting);
+SingleParticleFunction potentialEnergy(const Setting &setting);
+
+DoubleParticleScalarFunction coulombEnergy(const Setting &setting);

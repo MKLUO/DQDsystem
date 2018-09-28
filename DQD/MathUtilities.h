@@ -96,10 +96,10 @@ extern DoubleParticleScalarFunction
 
 // ScalarFields with settings
 
-extern SingleParticleScalarFunction
-        scalar(Complex);
+SingleParticleScalarFunction
+scalar(Complex);
 
-extern SingleParticleScalarFunction
-        gaussian(double);
+SingleParticleScalarFunction
+gaussian(double);
 
 

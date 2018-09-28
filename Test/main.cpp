@@ -18,7 +18,8 @@ int main()
 	// Build state
 
 	SPState spState1 =
-			hilbertSpace.createSingleParticleState(gaussian(.5));
+			hilbertSpace.createSingleParticleState(
+			        gaussian(.5));
 
 	State dpState = (spState1 ^ spState1) + (spState1 ^ spState1);
 

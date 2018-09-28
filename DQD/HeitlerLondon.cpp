@@ -24,99 +24,105 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     SPState left =
             hilbertSpace.createSingleParticleState(
-                    [setting](double x, double y) {
-                        return fockDarwin(x, y, setting, Orientation::Left);
-                    });
+                    fockDarwin(setting, Orientation::Left));
 
     SPState right =
             hilbertSpace.createSingleParticleState(
-                    [setting](double x, double y) {
-                        return fockDarwin(x, y, setting, Orientation::Right);
-                    });
+                    fockDarwin(setting, Orientation::Right));
 
     State state_FD_sym = (left ^ right) * sqrt(0.5) +
                          (right ^ left) * sqrt(0.5);
 
-    State state_FD_antisym = (left ^ right) * sqrt(0.5) +
-                             (right ^ left) * sqrt(0.5) * (-1.0);
+    State state_FD_antisym = (left ^ right) * sqrt(0.5) -
+                             (right ^ left) * sqrt(0.5);
 
     // Build Hamiltonian
 
     Operator kineticLeft =
             hilbertSpace.createOperator(
-                    [setting](ScalarField field) {
-                        return kineticEnergy(field, setting);
-                    },
-                    [](ScalarField field) {
-                        return field;
-                    });
+                    kineticEnergy(setting),
+                    identity());
 
     Operator kineticRight =
             hilbertSpace.createOperator(
-                    [](ScalarField field) {
-                        return field;
-                    },
-                    [setting](ScalarField field) {
-                        return kineticEnergy(field, setting);
-                    });
+                    identity(),
+                    kineticEnergy(setting));
+
 
     Operator potentialLeft =
             hilbertSpace.createOperator(
-                    [setting](ScalarField field) {
-                        return potentialEnergy(field, setting);
-                    },
-                    [](ScalarField field) {
-                        return field;
-                    });
+                    potentialEnergy(setting),
+                    identity());
 
     Operator potentialRight =
             hilbertSpace.createOperator(
-                    [](ScalarField field) {
-                        return field;
-                    },
-                    [setting](ScalarField field) {
-                        return potentialEnergy(field, setting);
-                    });
+                    identity(),
+                    potentialEnergy(setting));
 
     Operator coulomb =
             hilbertSpace.createOperator(
-                    [setting](double x1, double y1, double x2, double y2) {
-                        return coulombEnergy(x1, y1, x2, y2, setting);
-                    });
+                    coulombEnergy(setting));
 
-    Operator hamiltonian = kineticLeft + kineticRight + potentialLeft + potentialRight + coulomb;
+    Operator hamiltonian =  kineticLeft +
+                            kineticRight +
+                            potentialLeft +
+                            potentialRight +
+                            coulomb;
 
     // Evaluate energy.
 
-    double energy_sym = hilbertSpace.expectationValue(state_FD_sym, hamiltonian);
-    double energy_antisym = hilbertSpace.expectationValue(state_FD_antisym, hamiltonian);
+    double energy_sym     = hilbertSpace.expectationValue(
+                                                state_FD_sym,
+                                                hamiltonian);
+    double energy_antisym = hilbertSpace.expectationValue(
+                                                state_FD_antisym,
+                                                hamiltonian);
 
     return (energy_antisym - energy_sym);
 }
 
-Complex
-fockDarwin(double x, double y, const Setting &setting, Orientation direction) {
+SingleParticleScalarFunction
+fockDarwin(const Setting &setting, Orientation direction) {
     //TODO:
-    return Complex();
+    return [setting, direction](double x, double y) {
+        return Complex();
+    };
 }
 
-ScalarField
-kineticEnergy(ScalarField field, const Setting &setting) {
+SingleParticleFunction
+identity() {
     //TODO: Constants
-    return  laplacian(field) +
+    return [](ScalarField field) {
+        return field;
+    };
+}
+
+
+SingleParticleFunction
+kineticEnergy(const Setting &setting) {
+    //TODO: Constants
+    return [setting](ScalarField field) {
+        return
+            laplacian(field) +
             angularMomentum(field) +
             field * sho_field;
+    };
+
 }
 
-ScalarField
-potentialEnergy(ScalarField field, const Setting &setting) {
+SingleParticleFunction
+potentialEnergy(const Setting &setting) {
     //TODO: Constants
-    return
-            field * x_field;
+    return [setting](ScalarField field) {
+        return
+                field * x_field;
+    };
 }
 
-Complex
-coulombEnergy(double x1, double y1, double x2, double y2, const Setting &setting) {
+DoubleParticleScalarFunction
+coulombEnergy(const Setting &setting) {
     //TODO: Constants
-    return  rInv_field(x1, y1, x2, y2);
+    return [setting](double x1, double y1, double x2, double y2) {
+        return rInv_field(x1, y1, x2, y2);
+    };
 }
