@@ -140,14 +140,12 @@ fockDarwin(const Setting &setting, Orientation direction) {
         switch (direction) {
             case Orientation::Left:
                 return setting.FDConstant() *
-                   exp(-0.5i * y * a) *
+                   exp(Complex(-0.5i) * y * a) *
                    exp(-0.25 * sho_field((x + a), y) * (setting.omega() / setting.omegaL()));
             case Orientation::Right:
                 return setting.FDConstant() *
-                   exp(+0.5i * y * a) *
+                   exp(Complex(+0.5i) * y * a) *
                    exp(-0.25 * sho_field((x - a), y) * (setting.omega() / setting.omegaL()));
-            default:
-                return 0.+0.i;
         }
     };
 }
