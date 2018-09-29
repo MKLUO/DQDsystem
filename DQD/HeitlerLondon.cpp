@@ -157,7 +157,7 @@ kineticEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         return
                 laplacian       * field  * -1.0 +
-                angularMomentum * field  * 1.i +
+                angularMomentum * field  * Complex(1.i) +
                 sho_field       * field  * 0.25;
     };
 }

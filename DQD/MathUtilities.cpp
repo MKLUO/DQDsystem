@@ -293,8 +293,8 @@ angularMomentum = [](ScalarField field) {
             double kx = double(x) / (2. * M_PI * double(width));
             double ky = double(y) / (2. * M_PI * double(height));
 
-            gradX_FT[x + y * width] = field_FT[x + y * width] * kx * 1.i;
-            gradY_FT[x + y * width] = field_FT[x + y * width] * ky * 1.i;
+            gradX_FT[x + y * width] = field_FT[x + y * width] * kx * Complex(1.i);
+            gradY_FT[x + y * width] = field_FT[x + y * width] * ky * Complex(1.i);
         }
 
     ScalarField gradX = ScalarField(width, height, gridSize, fourier::ifft2d(gradX_FT, width, height));
