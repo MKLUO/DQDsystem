@@ -145,12 +145,12 @@ ScalarField::at(int x, int y) {
 // Some more operators
 
 ScalarField
-operator*(Complex c, const ScalarField &field) const {
+operator*(Complex c, const ScalarField &field) {
     return field * c;
 }
 
 ScalarField
-operator*(double d, const ScalarField &field) const {
+operator*(double d, const ScalarField &field) {
     return field * d;
 }
 
@@ -160,7 +160,7 @@ operator*(const SingleParticleScalarFunction &function, const ScalarField &field
 }
 
 ScalarField
-operator*(const SingleParticleFunction &function, const ScalarField &field) const {
+operator*(const SingleParticleFunction &function, const ScalarField &field) {
     return field * function;
 }
 

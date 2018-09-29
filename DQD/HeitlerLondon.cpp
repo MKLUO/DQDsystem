@@ -146,6 +146,8 @@ fockDarwin(const Setting &setting, Orientation direction) {
                 return setting.FDConstant() *
                    exp(+0.5i * y * a) *
                    exp(-0.25 * sho_field((x - a), y) * (setting.omega() / setting.omegaL()));
+            default:
+                return 0.+0.i;
         }
     };
 }
