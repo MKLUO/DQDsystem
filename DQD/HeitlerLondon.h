@@ -5,8 +5,23 @@
 struct Setting {
     static Setting defaultSetting();
 
+    // effectiveE:
+    // effectiveA:
+    // B:
+    // alpha: omega0 / omegaL
+
+    // IMPORTANT: Distances are scaled with magneticLength (lb).
     int width, height;
-    double omega0;
+    double gridSize;
+
+    double effectiveE, effectiveA, B, alpha, kappa;
+
+    double omegaL() const;
+    double omega0() const;
+    double omega() const;
+    double coulombConstant() const;
+    double FDConstant() const;
+    double magneticLength() const;
 };
 
 enum class Orientation {
@@ -14,15 +29,17 @@ enum class Orientation {
     Right
 };
 
-double calculateJWithSetting_HL(const Setting &);
+double
+calculateJWithSetting_HL(const Setting &);
 
 SingleParticleScalarFunction
-        fockDarwin(const Setting &, Orientation);
+fockDarwin(const Setting &, Orientation);
 
-SingleParticleFunction identity();
+SingleParticleFunction
+kineticEnergy(const Setting &setting);
 
-SingleParticleFunction kineticEnergy(const Setting &setting);
+SingleParticleFunction
+potentialEnergy(const Setting &setting);
 
-SingleParticleFunction potentialEnergy(const Setting &setting);
-
-DoubleParticleScalarFunction coulombEnergy(const Setting &setting);
+DoubleParticleScalarFunction
+coulombEnergy(const Setting &setting);

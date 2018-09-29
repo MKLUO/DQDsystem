@@ -5,7 +5,6 @@
 
 #include "MathUtilities.h"
 
-
 // HilbertSpace: Implements 2D two particle Hilbert space with finite size.
 class HilbertSpace {
 public:

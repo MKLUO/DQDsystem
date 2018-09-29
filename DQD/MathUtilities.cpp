@@ -51,6 +51,24 @@ ScalarField::operator-(const ScalarField &field) const {
 }
 
 ScalarField
+ScalarField::operator*(const SingleParticleScalarFunction &function) const {
+
+    std::vector<Complex> newData;
+    newData.resize(data.size());
+
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y)
+            newData[getIndex(x, y)] = function(getX(x), getY(y)) * getData(x, y);
+
+    return ScalarField(width, height, gridSize, newData);
+}
+
+ScalarField
+ScalarField::operator*(const SingleParticleFunction &function) const {
+    return function(*this);
+}
+
+ScalarField
 ScalarField::operator*(Complex c) const {
     std::vector<Complex> newData;
     newData.resize(data.size());
@@ -62,6 +80,11 @@ ScalarField::operator*(Complex c) const {
     return ScalarField(width, height, gridSize, newData);
 }
 
+ScalarField
+ScalarField::operator*(double d) const {
+    return *this * Complex(d, 0.);
+}
+
 Complex
 ScalarField::operator*(const ScalarField &field) const {
     Complex result;
@@ -71,23 +94,6 @@ ScalarField::operator*(const ScalarField &field) const {
             result += std::conj(this->getData(x, y)) * field.getData(x, y) * gridSize * gridSize;
 
     return result;
-}
-
-ScalarField
-ScalarField::operator*(const SingleParticleScalarFunction &function) const {
-    std::vector<Complex> newData;
-    newData.resize(data.size());
-
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = function(getX(x), getY(y)) * this->getData(x, y);
-
-    return ScalarField(width, height, gridSize, newData);
-}
-
-ScalarField
-ScalarField::operator*(const SingleParticleFunction &function) const {
-    return function(*this);
 }
 
 std::vector<Complex>
@@ -136,6 +142,27 @@ ScalarField::at(int x, int y) {
     return data[x + y * width];
 }
 
+// Some more operators
+
+ScalarField
+operator*(Complex c, const ScalarField &field) const {
+    return field * c;
+}
+
+ScalarField
+operator*(double d, const ScalarField &field) const {
+    return field * d;
+}
+
+ScalarField
+operator*(const SingleParticleScalarFunction &function, const ScalarField &field) {
+    return field * function;
+}
+
+ScalarField
+operator*(const SingleParticleFunction &function, const ScalarField &field) const {
+    return field * function;
+}
 
 //////////////////////////////
 //        Utilities        	//
@@ -165,13 +192,73 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
            gridSize * gridSize * gridSize * gridSize;
 }
 
+// ScalarFields
 
-ScalarField
-laplacian(const ScalarField &field) {
+SingleParticleScalarFunction
+        x_field = [](double x, double y) {
+    return x;
+};
 
-    // Calculate 2D-Laplacian by FFT
+SingleParticleScalarFunction
+        y_field = [](double x, double y) {
+    return y;
+};
 
-    //TODO: FFT
+SingleParticleScalarFunction
+        xx_field = [](double x, double y) {
+    return x * x;
+};
+
+SingleParticleScalarFunction
+        yy_field = [](double x, double y) {
+    return y * y;
+};
+
+SingleParticleScalarFunction
+        sho_field = [](double x, double y) {
+    return x * x + y * y;
+};
+
+DoubleParticleScalarFunction
+        rInv_field = [](double x1, double y1, double x2, double y2) {
+    return 1. / hypot((x1 - x2), (y1 - y2));
+};
+
+// ScalarFields with settings required
+
+SingleParticleScalarFunction
+scalar(Complex c) {
+    return [c](double x, double y) {
+        return c;
+    };
+}
+
+SingleParticleScalarFunction
+gaussian(double r) {
+    return [r](double x, double y) {
+        return exp(-(x * x + y * y) / (2. * r * r));
+    };
+}
+
+SingleParticleScalarFunction
+quartic(double a) {
+    return [a](double x, double y) {
+        return pow((x * x - a * a), 2.0) / (4. * a * a) + y * y;
+    };
+}
+
+// ScalarFunction
+
+SingleParticleFunction
+identity = [](ScalarField field) {
+    return field;
+};
+
+
+// Calculate 2D-Laplacian via FFT
+// TODO: FFT
+SingleParticleFunction
+laplacian = [](ScalarField field) {
     int width = field.getWidth();
     int height = field.getHeight();
     double gridSize = field.getGridSize();
@@ -188,13 +275,11 @@ laplacian(const ScalarField &field) {
         }
 
     return ScalarField(width, height, gridSize, fourier::ifft2d(result_FT, width, height));
-}
+};
 
-ScalarField
-angularMomentum(const ScalarField &field) {
-
-    // Calculate 2D-"angular momentum" by FFT
-
+// Calculate 2D-"angular momentum" via FFT
+SingleParticleFunction
+angularMomentum = [](ScalarField field) {
     int width = field.getWidth();
     int height = field.getHeight();
     double gridSize = field.getGridSize();
@@ -208,70 +293,14 @@ angularMomentum(const ScalarField &field) {
             double kx = double(x) / (2. * M_PI * double(width));
             double ky = double(y) / (2. * M_PI * double(height));
 
-            gradX_FT[x + y * width] = field_FT[x + y * width] * kx * Complex(0., 1.);
-            gradY_FT[x + y * width] = field_FT[x + y * width] * ky * Complex(0., 1.);
+            gradX_FT[x + y * width] = field_FT[x + y * width] * kx * 1.i;
+            gradY_FT[x + y * width] = field_FT[x + y * width] * ky * 1.i;
         }
 
     ScalarField gradX = ScalarField(width, height, gridSize, fourier::ifft2d(gradX_FT, width, height));
     ScalarField gradY = ScalarField(width, height, gridSize, fourier::ifft2d(gradY_FT, width, height));
 
-    return gradY * x_field - gradX * y_field;
-}
-
-// ScalarFields
-
-SingleParticleScalarFunction
-        x_field = [](double x, double y) {
-    return Complex(x, 0.);
+    return x_field * gradY - y_field * gradX;
 };
 
-SingleParticleScalarFunction
-        y_field = [](double x, double y) {
-    return Complex(y, 0.);
-};
 
-SingleParticleScalarFunction
-        xx_field = [](double x, double y) {
-    return Complex(x * x, 0.);
-};
-
-SingleParticleScalarFunction
-        yy_field = [](double x, double y) {
-    return Complex(y * y, 0.);
-};
-
-SingleParticleScalarFunction
-        sho_field = [](double x, double y) {
-    return Complex(x * x + y * y, 0.);
-};
-
-DoubleParticleScalarFunction
-        rInv_field = [](double x1, double y1, double x2, double y2) {
-    return Complex(1. / hypot((x1 - x2), (y1 - y2)), 0.);
-};
-
-// ScalarFields with settings required
-
-SingleParticleScalarFunction
-scalar(Complex c) {
-    return [c](double x, double y) {
-        return c;
-    };
-}
-
-SingleParticleScalarFunction
-gaussian(double r) {
-    return [r](double x, double y) {
-        return Complex(exp(-(x * x + y * y) / (2. * r * r)), 0.);
-    };
-}
-
-std::vector<Complex>
-fft2d(const std::vector<Complex> &, int width, int height) {
-    return std::vector<Complex>(width * height);
-}
-
-std::vector<Complex>
-ifft2d(const std::vector<Complex> &, int width, int height) {
-    return std::vector<Complex>(width * height);
-}

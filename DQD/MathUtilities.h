@@ -2,11 +2,14 @@
 
 // TODO: Abstraction of Coordinate (x & y)
 
+// TODO: design namespace
+
 #include <functional>
 #include <vector>
 #include <complex>
 
 typedef std::complex<double> Complex;
+using namespace std::complex_literals;
 
 class ScalarField;
 
@@ -14,6 +17,15 @@ typedef std::function<Complex(double, double)> SingleParticleScalarFunction;
 typedef std::function<Complex(double, double, double, double)> DoubleParticleScalarFunction;
 
 typedef std::function<ScalarField(ScalarField)> SingleParticleFunction;
+
+namespace Physics
+{
+    // TODO
+    const double e          = 1.60217662e-19;
+    const double m          = 9.10938356e-31 * 0.191;
+    const double hBar       = 1.0545718e-34;
+    const double epsilon    = 8.854187817e-12;
+}
 
 class ScalarField {
 public:
@@ -27,13 +39,15 @@ public:
 
     ScalarField operator-(const ScalarField &) const;
 
-    ScalarField operator*(Complex) const;
-
-    Complex operator*(const ScalarField &) const;
-
     ScalarField operator*(const SingleParticleScalarFunction &) const;
 
     ScalarField operator*(const SingleParticleFunction &) const;
+
+    ScalarField operator*(Complex) const;
+
+    ScalarField operator*(double) const;
+
+    Complex operator*(const ScalarField &) const;
 
     // Access
 
@@ -62,17 +76,19 @@ private:
     double gridSize;
 };
 
+ScalarField operator*(Complex, const ScalarField &);
+
+ScalarField operator*(double, const ScalarField &);
+
+ScalarField operator*(const SingleParticleScalarFunction &, const ScalarField &);
+
+ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
+
 // Math Utilities
 
 Complex
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
                 const ScalarField &);
-
-ScalarField
-laplacian(const ScalarField &);
-
-ScalarField
-angularMomentum(const ScalarField &);
 
 // ScalarFields
 
@@ -101,5 +117,21 @@ scalar(Complex);
 
 SingleParticleScalarFunction
 gaussian(double);
+
+SingleParticleScalarFunction
+quartic(double);
+
+// ScalarFunctions
+
+extern SingleParticleFunction
+identity;
+
+extern SingleParticleFunction
+laplacian;
+
+extern SingleParticleFunction
+angularMomentum;
+
+
 
 
