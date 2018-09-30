@@ -14,8 +14,19 @@ HilbertSpace::HilbertSpace(int width_, int height_, double gridSize_) {
 
 SPState
 HilbertSpace::createSingleParticleState(const SPSFunction &function) const {
-    return SPState(ScalarField(width, height, gridSize, function));
+    return SPState(createScalarField(function));
 }
+
+ScalarField
+HilbertSpace::createScalarField(const std::vector<Complex> &field) const {
+    return ScalarField(width, height, gridSize, field);
+}
+
+ScalarField
+HilbertSpace::createScalarField(const SPSFunction &function) const {
+    return ScalarField(width, height, gridSize, function);
+}
+
 
 Operator
 HilbertSpace::createOperator(const SingleParticleFunction &function1, const SingleParticleFunction &function2) const {
@@ -47,31 +58,31 @@ HilbertSpace::expectationValue(const State &state, const Operator &ops) const {
 //////////////////////////////
 //   SingleParticleState    //
 //////////////////////////////
-SPState::SingleParticleState(const ScalarField &field_) :
+HilbertSpace::SingleParticleState::SingleParticleState(const ScalarField &field_) :
         field(field_) {}
 
 ScalarField
-SPState::getField() const {
+HilbertSpace::SingleParticleState::getField() const {
     return field;
 }
 
 SPState
-SPState::operator+(const SPState &state) const {
+HilbertSpace::SingleParticleState::operator+(const SPState &state) const {
     return SPState(this->getField() + state.getField());
 }
 
 SPState
-SPState::operator*(Complex c) const {
+HilbertSpace::SingleParticleState::operator*(Complex c) const {
     return SPState(field * c);
 }
 
 Complex
-SPState::operator*(const SPState &state) const {
+HilbertSpace::SingleParticleState::operator*(const SPState &state) const {
     return (this->getField() * state.getField());
 }
 
 State
-SPState::operator^(const SPState &state) const {
+HilbertSpace::SingleParticleState::operator^(const SPState &state) const {
     return State(*this, state);
 }
 
@@ -79,22 +90,22 @@ SPState::operator^(const SPState &state) const {
 // SingleParticleStatePair  //
 //////////////////////////////
 
-SPStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2) :
+HilbertSpace::SingleParticleStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2) :
         first(state1),
         second(state2) {}
 
 SPState
-SPStatePair::getFirstField() const {
+HilbertSpace::SingleParticleStatePair::getFirstField() const {
     return first;
 }
 
 SPState
-SPStatePair::getSecondField() const {
+HilbertSpace::SingleParticleStatePair::getSecondField() const {
     return second;
 }
 
 SPStatePair
-SPStatePair::operator*(Complex c) const {
+HilbertSpace::SingleParticleStatePair::operator*(Complex c) const {
     return SPStatePair(first * c, second);
 }
 
@@ -103,20 +114,20 @@ SPStatePair::operator*(Complex c) const {
 //          State           //
 //////////////////////////////
 
-State::State(const SPState &state1, const SPState &state2) :
+HilbertSpace::State::State(const SPState &state1, const SPState &state2) :
         states({SingleParticleStatePair(state1, state2)}) {}
 
-State::State(const std::vector<SPStatePair> &states_) {
+HilbertSpace::State::State(const std::vector<SPStatePair> &states_) {
     states = states_;
 }
 
 std::vector<SPStatePair>
-State::getState() const {
+HilbertSpace::State::getState() const {
     return states;
 }
 
 State
-State::operator+(const State &state) const {
+HilbertSpace::State::operator+(const State &state) const {
     std::vector<SPStatePair> v1 = this->getState();
     std::vector<SPStatePair> v2 = state.getState();
 
@@ -126,7 +137,7 @@ State::operator+(const State &state) const {
 }
 
 State
-State::operator-(const State &state) const {
+HilbertSpace::State::operator-(const State &state) const {
     std::vector<SPStatePair> v1 = this->getState();
     std::vector<SPStatePair> v2 = state.getState();
 
@@ -139,7 +150,7 @@ State::operator-(const State &state) const {
 }
 
 State
-State::operator*(Complex c) const {
+HilbertSpace::State::operator*(Complex c) const {
     std::vector<SPStatePair> states = this->getState();
     for (SPStatePair &pair : states)
         pair = pair * c;
@@ -147,7 +158,7 @@ State::operator*(Complex c) const {
 }
 
 Complex
-State::operator*(const State &state) const {
+HilbertSpace::State::operator*(const State &state) const {
     std::vector<SPStatePair> states1 = this->getState();
     std::vector<SPStatePair> states2 = state.getState();
 
@@ -171,14 +182,14 @@ State::operator*(const State &state) const {
 //  SingleParticleOperator  //
 //////////////////////////////
 
-SPOperator::SingleParticleOperator(const SingleParticleFunction &left_,
+HilbertSpace::SingleParticleOperator::SingleParticleOperator(const SingleParticleFunction &left_,
                                    const SingleParticleFunction &right_) {
     left = left_;
     right = right_;
 }
 
 State
-SPOperator::operator*(const State &state) const {
+HilbertSpace::SingleParticleOperator::operator*(const State &state) const {
     std::vector<SPStatePair> states = state.getState();
 
     for (SPStatePair &pair : states)
@@ -188,13 +199,13 @@ SPOperator::operator*(const State &state) const {
 }
 
 SPStatePair
-SPOperator::operator*(const SPStatePair &pair) const {
+HilbertSpace::SingleParticleOperator::operator*(const SPStatePair &pair) const {
     return SPStatePair(SPState(pair.getFirstField().getField() * left),
                        SPState(pair.getSecondField().getField() * right));
 }
 
 Complex
-SPOperator::operatorValue(const State &left, const State &right) const {
+HilbertSpace::SingleParticleOperator::operatorValue(const State &left, const State &right) const {
     return left * (*this * right);
 }
 
@@ -202,7 +213,7 @@ SPOperator::operatorValue(const State &left, const State &right) const {
 // DoubleParticleScalarOperator //
 //////////////////////////////////
 
-DPSOperator::DoubleParticleScalarOperator(const DoubleParticleScalarFunction &func_) {
+HilbertSpace::DoubleParticleScalarOperator::DoubleParticleScalarOperator(const DoubleParticleScalarFunction &func_) {
     func = func_;
 }
 
@@ -214,7 +225,7 @@ DPSOperator::operator*(const State &) const {
 */
 
 Complex
-DPSOperator::operatorValue(const State &left, const State &right) const {
+HilbertSpace::DoubleParticleScalarOperator::operatorValue(const State &left, const State &right) const {
     std::vector<SPStatePair> states1 = left.getState();
     std::vector<SPStatePair> states2 = right.getState();
 
@@ -238,17 +249,17 @@ DPSOperator::operatorValue(const State &left, const State &right) const {
 //         Operator         //
 //////////////////////////////
 
-Operator::Operator(const std::vector<SingleOperator *> &operators_) {
+HilbertSpace::Operator::Operator(const std::vector<SingleOperator *> &operators_) {
     operators = operators_;
 }
 
-Operator::~Operator() {
+HilbertSpace::Operator::~Operator() {
     for (auto op : operators)
         delete (op);
 }
 
 Operator
-Operator::operator+(const Operator &ops) const {
+HilbertSpace::Operator::operator+(const Operator &ops) const {
     std::vector<SingleOperator *> v1 = this->getOperator();
     std::vector<SingleOperator *> v2 = ops.getOperator();
 
@@ -258,6 +269,6 @@ Operator::operator+(const Operator &ops) const {
 }
 
 std::vector<SingleOperator *>
-Operator::getOperator() const {
+HilbertSpace::Operator::getOperator() const {
     return operators;
 }

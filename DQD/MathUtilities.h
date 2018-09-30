@@ -48,6 +48,8 @@ public:
 
     Complex operator*(const ScalarField &) const;
 
+    ScalarField operator^(const ScalarField &) const;
+
     // Access
 
     std::vector<Complex> getDatas() const;
@@ -66,6 +68,7 @@ public:
 
     double getGridSize() const;
 
+    std::vector<double> norm() const;
 
 private:
     Complex &at(int, int);
@@ -88,6 +91,9 @@ ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
 Complex
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
                 const ScalarField &);
+
+std::vector<Complex>
+reverse(const std::vector<Complex>&);
 
 // ScalarFields
 

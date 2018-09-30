@@ -5,5 +5,5 @@
 namespace plotter {
     void plotTest();
     void plotFieldAbs(const ScalarField &);
-    void outputToFile(const ScalarField &, std::string);
+    void outputToFile(const std::vector<double> &, int, int, std::string);
 }

@@ -15,6 +15,9 @@ namespace fourier {
     std::vector<Complex>
     ifft2d(const std::vector<Complex> &, int, int);
 
+    std::vector<Complex>
+    convolution(const std::vector<Complex> &, int, int, const std::vector<Complex> &, int, int);
+
     std::vector<AFComplex>
     convertCtoAFC(const std::vector<Complex> &);
 

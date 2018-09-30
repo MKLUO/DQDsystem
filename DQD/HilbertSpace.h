@@ -170,6 +170,10 @@ public:
 
     SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &) const;
 
+    ScalarField createScalarField(const std::vector<Complex> &) const;
+
+    ScalarField createScalarField(const SingleParticleScalarFunction &) const;
+
     Operator createOperator(const SingleParticleFunction &, const SingleParticleFunction &) const;
 
     Operator createOperator(const DoubleParticleScalarFunction &) const;

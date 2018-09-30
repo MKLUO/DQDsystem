@@ -1,4 +1,5 @@
 #define _USE_MATH_DEFINES
+
 #include <math.h>
 
 #include "MathUtilities.h"
@@ -97,6 +98,17 @@ ScalarField::operator*(const ScalarField &field) const {
     return result;
 }
 
+ScalarField
+ScalarField::operator^(const ScalarField &field) const {
+    std::vector<Complex> newData(width * height);
+
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y)
+            newData[getIndex(x, y)] = this->getData(x, y) * field.getData(x, y);
+
+    return ScalarField(width, height, gridSize, newData);
+}
+
 std::vector<Complex>
 ScalarField::getDatas() const {
     return data;
@@ -138,6 +150,16 @@ ScalarField::getGridSize() const {
     return gridSize;
 }
 
+std::vector<double>
+ScalarField::norm() const {
+    std::vector<double> result(width * height);
+
+    for (int i = 0; i < width * height; ++i)
+        result[i] = std::norm(data[i]);
+
+    return result;
+}
+
 Complex &
 ScalarField::at(int x, int y) {
     return data[x + y * width];
@@ -169,28 +191,53 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 //        Utilities        	//
 //////////////////////////////
 
-// TODO: It is supposed to be the most time-consuming part. Consider implement with GPU(CUDA).
+// TODO: It should be the most time-consuming part. Check the result carefully.
 
 Complex
 twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 const DoubleParticleScalarFunction &function,
                 const ScalarField &right1, const ScalarField &right2) {
-    Complex result;
+
+    // Construct Convolution Input
 
     int width = left1.getWidth();
     int height = left1.getHeight();
     double gridSize = left1.getGridSize();
 
-    for (int x1 = 0; x1 < width; ++x1)
-        for (int y1 = 0; y1 < height; ++y1)
-            for (int x2 = 0; x2 < width; ++x2)
-                for (int y2 = 0; y2 < height; ++y2)
-                    result += std::conj(left1.getData(x1, y1) * left2.getData(x2, y2)) *
-                              function(x1, y1, x2, y2) *
-                              right1.getData(x1, y1) * right2.getData(x2, y2);
+    std::vector<Complex> img(width * height * 4);
+    std::vector<Complex> filter = (left1 ^ right1).getDatas();
+    std::vector<Complex> weight = (left2 ^ right2).getDatas();
 
-    return result *
-           gridSize * gridSize * gridSize * gridSize;
+    for (int i = 0; i < 2 * width; ++i)
+        for (int j = 0; j < 2 * height; ++j) {
+            double x = double(i - width + 1) * gridSize;
+            double y = double(j - height + 1) * gridSize;
+            img[i + j * 2 * width] = 1. / hypot(abs(x), abs(y));
+        }
+
+    std::vector<Complex> convResult = fourier::convolution(img, width * 2, height * 2,
+                                                           filter, width, height);
+
+    convResult = reverse(convResult);
+
+    Complex result;
+
+    for (int i = 0; i < width; ++i)
+        for (int j = 0; j < height; ++j) {
+            int index = i + j * width;
+            result += weight[i + j * width] * convResult[i + j * width];
+        }
+    return result;
+}
+
+std::vector<Complex>
+reverse(const std::vector<Complex>& vec) {
+    std::vector<Complex> result(vec);
+
+    for (int i = 0; i < vec.size(); ++i)
+        result[i] = vec[vec.size() - i - 1];
+
+    return result;
 }
 
 // ScalarFields
@@ -251,14 +298,14 @@ quartic(double a) {
 // ScalarFunction
 
 SingleParticleFunction
-identity = [](ScalarField field) {
+        identity = [](ScalarField field) {
     return field;
 };
 
 
 // Calculate 2D-Laplacian via FFT
 SingleParticleFunction
-laplacian = [](ScalarField field) {
+        laplacian = [](ScalarField field) {
     int width = field.getWidth();
     int height = field.getHeight();
     double gridSize = field.getGridSize();
@@ -268,7 +315,7 @@ laplacian = [](ScalarField field) {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width)  * gridSize);
+            double kx = double(x) / (2. * M_PI * double(width) * gridSize);
             double ky = double(y) / (2. * M_PI * double(height) * gridSize);
 
             result_FT[x + y * width] = -field_FT[x + y * width] * (kx * kx + ky * ky);
@@ -279,7 +326,7 @@ laplacian = [](ScalarField field) {
 
 // Calculate 2D-"angular momentum" via FFT
 SingleParticleFunction
-angularMomentum = [](ScalarField field) {
+        angularMomentum = [](ScalarField field) {
     int width = field.getWidth();
     int height = field.getHeight();
     double gridSize = field.getGridSize();
@@ -290,7 +337,7 @@ angularMomentum = [](ScalarField field) {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width)  * gridSize);
+            double kx = double(x) / (2. * M_PI * double(width) * gridSize);
             double ky = double(y) / (2. * M_PI * double(height) * gridSize);
 
             gradX_FT[x + y * width] = field_FT[x + y * width] * kx * Complex(1.i);
