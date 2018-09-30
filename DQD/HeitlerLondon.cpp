@@ -1,29 +1,26 @@
 #include <functional>
 
+#define _USE_MATH_DEFINES
+
+#include <math.h>
+
 #include "HeitlerLondon.h"
 #include "MathUtilities.h"
 
 // TODO: unit tests
 
-// Abbreviations
-
-typedef HilbertSpace::SingleParticleState SPState;
-typedef HilbertSpace::State State;
-
-typedef HilbertSpace::Operator Operator;
-
 Setting
 Setting::defaultSetting() {
     Setting setting;
 
-    setting.width        = 100;
-    setting.height       = 50;
-    setting.gridSize     = 0.1;
-    setting.effectiveE   = 0.;
-    setting.effectiveA   = 2;
-    setting.B            = 1.;
-    setting.alpha        = 1.;
-    setting.kappa        = 1.;
+    setting.width = 100;
+    setting.height = 50;
+    setting.gridSize = 0.1;
+    setting.effectiveE = 0.;
+    setting.effectiveA = 2;
+    setting.B = 1.;
+    setting.alpha = 1.;
+    setting.kappa = 1.;
 
     return setting;
 }
@@ -47,7 +44,7 @@ Setting::omega() const {
 double
 Setting::coulombConstant() const {
     return pow(Physics::e, 2.) / (4. * M_PI * Physics::epsilon * Physics::hBar *
-                                kappa * magneticLength() * omegaL());
+                                  kappa * magneticLength() * omegaL());
 }
 
 double
@@ -110,22 +107,22 @@ calculateJWithSetting_HL(const Setting &setting) {
             hilbertSpace.createOperator(
                     coulombEnergy(setting));
 
-    Operator hamiltonian =  kineticLeft +
-                            kineticRight +
-                            potentialLeft +
-                            potentialRight +
-                            coulomb;
+    Operator hamiltonian = kineticLeft +
+                           kineticRight +
+                           potentialLeft +
+                           potentialRight +
+                           coulomb;
 
     // TODO: Zeeman energy
 
     // Evaluate energy.
 
-    double energy_sym     = hilbertSpace.expectationValue(
-                                                state_FD_sym,
-                                                hamiltonian);
+    double energy_sym = hilbertSpace.expectationValue(
+            state_FD_sym,
+            hamiltonian);
     double energy_antisym = hilbertSpace.expectationValue(
-                                                state_FD_antisym,
-                                                hamiltonian);
+            state_FD_antisym,
+            hamiltonian);
 
     return (energy_antisym - energy_sym) * Physics::hBar * setting.omegaL();
 }
@@ -140,12 +137,12 @@ fockDarwin(const Setting &setting, Orientation direction) {
         switch (direction) {
             case Orientation::Left:
                 return setting.FDConstant() *
-                   exp(Complex(-0.5i) * y * a) *
-                   exp(-0.25 * sho_field((x + a), y) * (setting.omega() / setting.omegaL()));
+                       exp(Complex(-0.5i) * y * a) *
+                       exp(-0.25 * sho_field((x + a), y) * (setting.omega() / setting.omegaL()));
             case Orientation::Right:
                 return setting.FDConstant() *
-                   exp(Complex(+0.5i) * y * a) *
-                   exp(-0.25 * sho_field((x - a), y) * (setting.omega() / setting.omegaL()));
+                       exp(Complex(+0.5i) * y * a) *
+                       exp(-0.25 * sho_field((x - a), y) * (setting.omega() / setting.omegaL()));
         }
     };
 }
@@ -154,9 +151,9 @@ SingleParticleFunction
 kineticEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         return
-                laplacian       * field  * -1.0 +
-                angularMomentum * field  * Complex(1.i) +
-                sho_field       * field  * 0.25;
+                laplacian * field * -1.0 +
+                angularMomentum * field * Complex(1.i) +
+                sho_field * field * 0.25;
     };
 }
 
@@ -164,7 +161,7 @@ SingleParticleFunction
 potentialEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         return
-                x_field                     * field * setting.effectiveE +
+                x_field * field * setting.effectiveE +
                 quartic(setting.effectiveA) * field * 0.25 * pow(setting.alpha, 2.0);
     };
 }

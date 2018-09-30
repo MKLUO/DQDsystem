@@ -120,6 +120,7 @@ public:
         // Operators
         // "*": Operation of SingleParticleOperator on State
         State operator*(const State &) const;
+
         SingleParticleStatePair operator*(const SingleParticleStatePair &) const;
 
         Complex operatorValue(const State &, const State &) const override;
@@ -182,3 +183,18 @@ private:
     int width, height;
     double gridSize;
 };
+
+// Abbreviations
+using SPSFunction   = SingleParticleScalarFunction;
+using DPSFunction   = DoubleParticleScalarFunction;
+
+using SPFunction    = SingleParticleFunction;
+
+using SPState       = HilbertSpace::SingleParticleState;
+using SPStatePair   = HilbertSpace::SingleParticleStatePair;
+using State         = HilbertSpace::State;
+
+using SingleOperator    = HilbertSpace::SingleOperator;
+using SPOperator        = HilbertSpace::SingleParticleOperator;
+using DPSOperator       = HilbertSpace::DoubleParticleScalarOperator;
+using Operator          = HilbertSpace::Operator;

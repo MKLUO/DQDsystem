@@ -2,22 +2,6 @@
 
 #include "HilbertSpace.h"
 
-// Abbreviations
-typedef SingleParticleScalarFunction SPSFunction;
-typedef DoubleParticleScalarFunction DPSFunction;
-
-typedef SingleParticleFunction SPFunction;
-
-typedef HilbertSpace::SingleParticleState SPState;
-typedef HilbertSpace::SingleParticleStatePair SPStatePair;
-typedef HilbertSpace::State State;
-
-typedef HilbertSpace::SingleOperator SingleOperator;
-typedef HilbertSpace::SingleParticleOperator SPOperator;
-typedef HilbertSpace::DoubleParticleScalarOperator DPSOperator;
-typedef HilbertSpace::Operator Operator;
-
-
 //////////////////////////////
 //       HilbertSpace       //
 //////////////////////////////
@@ -260,7 +244,7 @@ Operator::Operator(const std::vector<SingleOperator *> &operators_) {
 
 Operator::~Operator() {
     for (auto op : operators)
-        delete(op);
+        delete (op);
 }
 
 Operator

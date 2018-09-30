@@ -8,23 +8,22 @@
 #include <vector>
 #include <complex>
 
-typedef std::complex<double> Complex;
+using Complex = std::complex<double>;
 using namespace std::complex_literals;
 
 class ScalarField;
 
-typedef std::function<Complex(double, double)> SingleParticleScalarFunction;
-typedef std::function<Complex(double, double, double, double)> DoubleParticleScalarFunction;
+using SingleParticleScalarFunction = std::function<Complex(double, double)>;
+using DoubleParticleScalarFunction = std::function<Complex(double, double, double, double)>;
 
-typedef std::function<ScalarField(ScalarField)> SingleParticleFunction;
+using SingleParticleFunction = std::function<ScalarField(ScalarField)>;
 
-namespace Physics
-{
+namespace Physics {
     // TODO
-    const double e          = 1.60217662e-19;
-    const double m          = 9.10938356e-31 * 0.191;
-    const double hBar       = 1.0545718e-34;
-    const double epsilon    = 8.854187817e-12;
+    const double e = 1.60217662e-19;
+    const double m = 9.10938356e-31 * 0.191;
+    const double hBar = 1.0545718e-34;
+    const double epsilon = 8.854187817e-12;
 }
 
 class ScalarField {
@@ -124,13 +123,13 @@ quartic(double);
 // ScalarFunctions
 
 extern SingleParticleFunction
-identity;
+        identity;
 
 extern SingleParticleFunction
-laplacian;
+        laplacian;
 
 extern SingleParticleFunction
-angularMomentum;
+        angularMomentum;
 
 
 

@@ -17,10 +17,15 @@ struct Setting {
     double effectiveE, effectiveA, B, alpha, kappa;
 
     double omegaL() const;
+
     double omega0() const;
+
     double omega() const;
+
     double coulombConstant() const;
+
     double FDConstant() const;
+
     double magneticLength() const;
 };
 

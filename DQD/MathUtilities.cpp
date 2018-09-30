@@ -1,4 +1,5 @@
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "MathUtilities.h"
 #include "Fourier.h"
@@ -256,7 +257,6 @@ identity = [](ScalarField field) {
 
 
 // Calculate 2D-Laplacian via FFT
-// TODO: FFT
 SingleParticleFunction
 laplacian = [](ScalarField field) {
     int width = field.getWidth();
@@ -268,8 +268,8 @@ laplacian = [](ScalarField field) {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width));
-            double ky = double(y) / (2. * M_PI * double(height));
+            double kx = double(x) / (2. * M_PI * double(width)  * gridSize);
+            double ky = double(y) / (2. * M_PI * double(height) * gridSize);
 
             result_FT[x + y * width] = -field_FT[x + y * width] * (kx * kx + ky * ky);
         }
@@ -290,8 +290,8 @@ angularMomentum = [](ScalarField field) {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width));
-            double ky = double(y) / (2. * M_PI * double(height));
+            double kx = double(x) / (2. * M_PI * double(width)  * gridSize);
+            double ky = double(y) / (2. * M_PI * double(height) * gridSize);
 
             gradX_FT[x + y * width] = field_FT[x + y * width] * kx * Complex(1.i);
             gradY_FT[x + y * width] = field_FT[x + y * width] * ky * Complex(1.i);

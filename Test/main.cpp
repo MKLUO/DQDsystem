@@ -2,28 +2,30 @@
 #include "Plot.h"
 #include "Fourier.h"
 
-// Abbreviations
 
-typedef HilbertSpace::SingleParticleState SPState;
-typedef HilbertSpace::State State;
+int main() {
 
-typedef HilbertSpace::Operator Operator;
+    HilbertSpace hilbertSpace = HilbertSpace(40, 40, 0.1);
 
+    // Build state
 
-int main()
-{
+    SPState spState1 =
+            hilbertSpace.createSingleParticleState(
+                    gaussian(.5));
 
-	HilbertSpace hilbertSpace = HilbertSpace(40, 40, 0.1);
+    State dpState = (spState1 ^ spState1) + (spState1 ^ spState1);
 
-	// Build state
+    Complex c = dpState * dpState;
 
-	SPState spState1 =
-			hilbertSpace.createSingleParticleState(
-			        gaussian(.5));
+    fourier::test();
 
-	State dpState = (spState1 ^ spState1) + (spState1 ^ spState1);
+    ScalarField field(40, 40, 0.1, gaussian(.5));
 
-	Complex c = dpState * dpState;
+    std::vector<Complex> field_data = field.getDatas();
+    std::vector<Complex> field_FT =
+            fourier::fft2d(field_data, field.getWidth(), field.getHeight());
+    std::vector<Complex> field_FT_IFT =
+            fourier::ifft2d(field_FT, field.getWidth(), field.getHeight());
 
-	return 0;
+    return 0;
 }
