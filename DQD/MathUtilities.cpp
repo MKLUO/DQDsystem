@@ -210,9 +210,9 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
 
     for (int i = 0; i < 2 * width; ++i)
         for (int j = 0; j < 2 * height; ++j) {
-            double x = double(i - width + 1) * gridSize;
-            double y = double(j - height + 1) * gridSize;
-            img[i + j * 2 * width] = 1. / hypot(abs(x), abs(y));
+            double x = gridSize * (i - width + 1);
+            double y = gridSize * (j - height + 1);
+            img[i + j * 2 * width] = function(x, y, 0., 0.);
         }
 
     std::vector<Complex> convResult = fourier::convolution(img, width * 2, height * 2,

@@ -33,9 +33,14 @@ target_link_libraries(DQD Fourier)
 #------ArrayFire & CUDA
 
 find_package(ArrayFire)
-include_directories(${ArrayFire_INCLUDE_DIRS})
+IF(${ArrayFire_FOUND})
+    include_directories(${ArrayFire_INCLUDE_DIRS})
+ELSE()
+    message(STATUS "ArrayFire not found. Please install ArrayFire.")
+ENDIF()
 
-
+set(CUDA_TOOLKIT_ROOT_DIR
+        "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0")
 find_package(CUDA)
 # ArrayFire CUDA backend
 IF(${ArrayFire_CUDA_FOUND} AND ${CUDA_FOUND})
