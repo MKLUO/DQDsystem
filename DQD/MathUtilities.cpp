@@ -227,7 +227,7 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
             int index = i + j * width;
             result += weight[i + j * width] * convResult[i + j * width];
         }
-    return result;
+    return result * pow(gridSize, 4.0);
 }
 
 std::vector<Complex>
