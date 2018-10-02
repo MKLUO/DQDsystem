@@ -19,7 +19,7 @@ void plotter::outputToFile(const ScalarField &field, std::string path) {
 
     int width = field.getWidth();
     int height = field.getHeight();
-    std::vector<double> data = field.norm();
+    std::vector<Complex> data = field.getDatas();
 
     std::ofstream outputFile(path);
     outputFile << std::scientific;

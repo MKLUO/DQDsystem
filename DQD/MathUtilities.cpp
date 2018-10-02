@@ -341,6 +341,9 @@ SingleParticleFunction
 // Calculate 2D-"angular momentum" via FFT
 SingleParticleFunction
         angularMomentum = [](ScalarField field) {
+
+    // TODO: gridSize should be redesigned. It shouldn't be used outside of the HilbertSpace.
+
     int width = field.getWidth();
     int height = field.getHeight();
     double gridSize = field.getGridSize();

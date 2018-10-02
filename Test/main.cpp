@@ -53,8 +53,8 @@ int main() {
 //            coulomb);*/
 //
     // Convolution test
-    ScalarField img = ScalarField(40, 40, 0.1, scalar(1.));
-    ScalarField filter = ScalarField(20, 20, 0.1, scalar(1.));
+    ScalarField img = ScalarField(80, 40, 0.1, scalar(3.));
+    ScalarField filter = ScalarField(30, 20, 0.1, scalar(2.));
 
     ScalarField result = fourier::convolution(img, filter);
 
