@@ -7,7 +7,7 @@
 using AFComplex = af::cdouble;
 
 namespace fourier {
-    void test();
+    void info();
 
     ScalarField
     fft2d(const ScalarField &);

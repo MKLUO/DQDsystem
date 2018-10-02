@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <chrono>
+
 #include "HilbertSpace.h"
 #include "HeitlerLondon.h"
 #include "Plot.h"
@@ -7,7 +9,7 @@
 
 int main() {
 
-    fourier::test();
+    fourier::info();
 
     int width = 100;
     int height = 40;
@@ -53,12 +55,16 @@ int main() {
 //            coulomb);*/
 //
     // Convolution test
-    ScalarField img = ScalarField(80, 40, 0.1, scalar(3.));
-    ScalarField filter = ScalarField(30, 20, 0.1, scalar(2.));
+    ScalarField img = ScalarField(200, 200, 0.1, scalar(3.));
+    ScalarField filter = ScalarField(100, 100, 0.1, scalar(2.));
 
+    auto start = std::chrono::high_resolution_clock::now();
     ScalarField result = fourier::convolution(img, filter);
+    auto end = std::chrono::high_resolution_clock::now();
 
-    plotter::outputToFile(result, "./CONVCAR");
+    //plotter::outputToFile(result, "./CONVCAR");
+
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
     return 0;
 }

@@ -131,7 +131,6 @@ calculateJWithSetting_HL(const Setting &setting) {
 
 SingleParticleScalarFunction
 fockDarwin(const Setting &setting, Orientation direction) {
-    //TODO:
     return [setting, direction](double x, double y) {
         double a = setting.effectiveA;
         switch (direction) {

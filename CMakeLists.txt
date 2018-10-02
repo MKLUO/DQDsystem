@@ -36,37 +36,28 @@ find_package(ArrayFire)
 IF(${ArrayFire_FOUND})
     include_directories(${ArrayFire_INCLUDE_DIRS})
 ELSE()
-    message(STATUS "ArrayFire not found. Please install ArrayFire.")
+    message(FATAL_ERROR "ArrayFire not found. Please install ArrayFire.")
 ENDIF()
 
-set(CUDA_TOOLKIT_ROOT_DIR
-        "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0")
 find_package(CUDA)
 # ArrayFire CUDA backend
+# set(CUDA_FOUND FALSE)
 IF(${ArrayFire_CUDA_FOUND} AND ${CUDA_FOUND})
-    # We need to find CUDA and NVVM as transitive linking is disabled on some OSes
-    find_package(CUDA REQUIRED)
-    #find_package(NVVM REQUIRED)
-    set(NVVM_LIB
-            "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/nvvm/lib/x64/nvvm.lib")
-    #set(ArrayFire_CUDA_LIBRARIES "C:/Program Files/ArrayFire/v3/lib/afcuda.lib")
-    message(STATUS ${CUDA_TOOLKIT_ROOT_DIR})
     message(STATUS "ArrayFire CUDA found. Enabling CUDA benchmark")
-    message(STATUS ${ArrayFire_CUDA_LIBRARIES})
-    message(STATUS ${CMAKE_THREAD_LIBS_INIT})
-    message(STATUS ${CUDA_LIBRARIES})
-    message(STATUS ${NVVM_LIB})
+
     target_link_libraries(Fourier ${ArrayFire_CUDA_LIBRARIES}
-            ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES} ${NVVM_LIB})
+            ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES})
 
     target_link_libraries(DQDSystem Fourier DQD Plot ${ArrayFire_CUDA_LIBRARIES}
-            ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES} ${NVVM_LIB})
+            ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES})
 
 # ArrayFire CPU backend
 ELSE()
     message(STATUS "ArrayFire CUDA not found. Using CPU backend instead.")
+
     target_link_libraries(Fourier ${ArrayFire_CPU_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT})
+
     target_link_libraries(DQDSystem Fourier DQD Plot ${ArrayFire_CPU_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT})
 

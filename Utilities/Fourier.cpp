@@ -7,7 +7,7 @@
 
 
 void
-fourier::test() {
+fourier::info() {
     af::setDevice(0);
     af::info();
 }
