@@ -281,13 +281,6 @@ SingleParticleScalarFunction
     return x * x + y * y;
 };
 
-DoubleParticleScalarFunction
-        rInv_field = [](double x1, double y1, double x2, double y2) {
-
-    //TODO: ZERO DIVIDE!
-    return 1. / hypot((x1 - x2), (y1 - y2));
-};
-
 // ScalarFields with settings required
 
 SingleParticleScalarFunction
@@ -308,6 +301,17 @@ SingleParticleScalarFunction
 quartic(double a) {
     return [a](double x, double y) {
         return pow((x * x - a * a), 2.0) / (4. * a * a) + y * y;
+    };
+}
+
+DoubleParticleScalarFunction
+rInv_field(double gridSize) {
+    return [gridSize](double x1, double y1, double x2, double y2) {
+        // An approximation is applied around the r=0 point, in which the HilbertSpace gridSize is needed.
+        if ((x1 == x2) & (y1 == y2))
+            return 2. * sqrt(M_PI) / gridSize;
+        else
+            return 1. / hypot((x1 - x2), (y1 - y2));
     };
 }
 

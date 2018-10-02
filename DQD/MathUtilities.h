@@ -116,10 +116,7 @@ extern SingleParticleScalarFunction
 extern SingleParticleScalarFunction
         sho_field;
 
-extern DoubleParticleScalarFunction
-        rInv_field;
-
-// ScalarFields with settings
+// ScalarFields with settings needed
 
 SingleParticleScalarFunction
 scalar(Complex);
@@ -129,6 +126,9 @@ gaussian(double);
 
 SingleParticleScalarFunction
 quartic(double);
+
+DoubleParticleScalarFunction
+rInv_field(double);
 
 // ScalarFunctions
 

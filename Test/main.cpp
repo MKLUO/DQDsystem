@@ -55,16 +55,16 @@ int main() {
 //            coulomb);*/
 //
     // Convolution test
-    ScalarField img = ScalarField(200, 200, 0.1, scalar(3.));
-    ScalarField filter = ScalarField(100, 100, 0.1, scalar(2.));
-
-    auto start = std::chrono::high_resolution_clock::now();
-    ScalarField result = fourier::convolution(img, filter);
-    auto end = std::chrono::high_resolution_clock::now();
-
-    //plotter::outputToFile(result, "./CONVCAR");
-
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+//    ScalarField img = ScalarField(200, 200, 0.1, scalar(3.));
+//    ScalarField filter = ScalarField(100, 100, 0.1, scalar(2.));
+//
+//    auto start = std::chrono::high_resolution_clock::now();
+//    ScalarField result = fourier::convolution(img, filter);
+//    auto end = std::chrono::high_resolution_clock::now();
+//
+//    //plotter::outputToFile(result, "./CONVCAR");
+//
+//    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
     return 0;
 }

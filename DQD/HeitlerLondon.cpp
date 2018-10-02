@@ -170,6 +170,6 @@ coulombEnergy(const Setting &setting) {
     //TODO: Constants
     return [setting](double x1, double y1, double x2, double y2) {
         return
-                rInv_field(x1, y1, x2, y2) * setting.coulombConstant();
+                rInv_field(setting.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
     };
 }

@@ -53,7 +53,7 @@ IF(${ArrayFire_CUDA_FOUND} AND ${CUDA_FOUND})
 
 # ArrayFire CPU backend
 ELSE()
-    message(STATUS "ArrayFire CUDA not found. Using CPU backend instead.")
+    message(STATUS "ArrayFire CUDA not found. Using CPU backend.")
 
     target_link_libraries(Fourier ${ArrayFire_CPU_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT})
