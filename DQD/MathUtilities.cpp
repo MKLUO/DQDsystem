@@ -283,6 +283,8 @@ SingleParticleScalarFunction
 
 DoubleParticleScalarFunction
         rInv_field = [](double x1, double y1, double x2, double y2) {
+
+    //TODO: ZERO DIVIDE!
     return 1. / hypot((x1 - x2), (y1 - y2));
 };
 
