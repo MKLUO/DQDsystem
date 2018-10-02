@@ -28,6 +28,8 @@ namespace Physics {
 
 class ScalarField {
 public:
+    ScalarField(int, int, double);
+
     ScalarField(int, int, double, const std::vector<Complex> &);
 
     ScalarField(int, int, double, const SingleParticleScalarFunction &);
@@ -56,6 +58,8 @@ public:
 
     Complex getData(int, int) const;
 
+    Complex &setData(int, int);
+
     double getX(int) const;
 
     double getY(int) const;
@@ -71,7 +75,7 @@ public:
     std::vector<double> norm() const;
 
 private:
-    Complex &at(int, int);
+
 
     std::vector<Complex> data;
     int width, height;
@@ -92,8 +96,8 @@ Complex
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
                 const ScalarField &);
 
-std::vector<Complex>
-reverse(const std::vector<Complex>&);
+ScalarField
+reverse(const ScalarField&);
 
 // ScalarFields
 

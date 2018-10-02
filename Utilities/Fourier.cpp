@@ -3,6 +3,7 @@
 #include <arrayfire.h>
 
 #include "Fourier.h"
+#include "MathUtilities.h"
 
 
 void
@@ -11,40 +12,58 @@ fourier::test() {
     af::info();
 }
 
-std::vector<Complex>
-fourier::fft2d(const std::vector<Complex> &field, int width, int height) {
-    af::array input(width, height, convertCtoAFC(field).data());
-    AFComplex *output = af::fft2(input, width, height).host<AFComplex>();
+ScalarField
+fourier::fft2d(const ScalarField &field) {
+    int width = field.getWidth();
+    int height = field.getHeight();
 
-    return convertAFCtoC(std::vector<AFComplex>(output, output + width * height));
+    af::array input(width, height, convertCtoAFC(field.getDatas()).data());
+    AFComplex *output_AFC = af::fft2(input, width, height).host<AFComplex>();
+
+    std::vector<Complex> output_AC = convertAFCtoC(std::vector<AFComplex>(output_AFC, output_AFC + width * height));
+
+    return ScalarField(width, height, field.getGridSize(), output_AC);
 }
 
-std::vector<Complex>
-fourier::ifft2d(const std::vector<Complex> &field, int width, int height) {
-    af::array input(width, height, convertCtoAFC(field).data());
-    AFComplex *output = af::ifft2(input, width, height).host<AFComplex>();
+ScalarField
+fourier::ifft2d(const ScalarField &field) {
+    int width = field.getWidth();
+    int height = field.getHeight();
 
-    return convertAFCtoC(std::vector<AFComplex>(output, output + width * height));
+    af::array input(width, height, convertCtoAFC(field.getDatas()).data());
+    AFComplex *output_AFC = af::ifft2(input, width, height).host<AFComplex>();
+
+    std::vector<Complex> output_AC = convertAFCtoC(std::vector<AFComplex>(output_AFC, output_AFC + width * height));
+
+    return ScalarField(width, height, field.getGridSize(), output_AC);
 }
 
 #include <iostream>
 
-std::vector<Complex>
-fourier::convolution(   const std::vector<Complex> & img,    int img_width,     int img_height,
-                        const std::vector<Complex> & filter, int filter_width,  int filter_height) {
-    af::array input_img(    img_width,      img_height,     convertCtoAFC(img).data());
-    af::array input_filter( filter_width,   filter_height,  convertCtoAFC(filter).data());
+ScalarField
+fourier::convolution(   const ScalarField & img,
+                        const ScalarField & filter) {
+    af::array input_img(    img.getWidth(),      img.getHeight(),     convertCtoAFC(img.getDatas()).data());
+    af::array input_filter( filter.getWidth(),   filter.getHeight(),  convertCtoAFC(filter.getDatas()).data());
 
-    int width   = img_width -   filter_width;
-    int height  = img_height -  filter_height;
+    int img_width   = input_img.dims(0);
+    int img_height  = input_img.dims(1);
+
+    int filter_width   = input_filter.dims(0);
+    int filter_height  = input_filter.dims(1);
 
     af::array output = af::fftConvolve2(input_img, input_filter).
-            rows(0, width - 1).
-            cols(0, height - 1);
+            rows(filter_width / 2 - 1 , img_width - filter_width / 2 - 2).
+            cols(filter_height / 2 - 1 , img_height - filter_height / 2 - 2);
 
-    AFComplex *output_data = output.host<AFComplex>();
+    int width   = output.dims(0);
+    int height  = output.dims(1);
 
-    return convertAFCtoC(std::vector<AFComplex>(output_data, output_data + width * height));
+    AFComplex *output_AFC = output.host<AFComplex>();
+
+    std::vector<Complex> output_AC = convertAFCtoC(std::vector<AFComplex>(output_AFC, output_AFC + width * height));
+
+    return ScalarField(width, height, img.getGridSize(), output_AC);
 }
 
 std::vector<AFComplex>

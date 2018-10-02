@@ -9,14 +9,14 @@ using AFComplex = af::cdouble;
 namespace fourier {
     void test();
 
-    std::vector<Complex>
-    fft2d(const std::vector<Complex> &, int, int);
+    ScalarField
+    fft2d(const ScalarField &);
 
-    std::vector<Complex>
-    ifft2d(const std::vector<Complex> &, int, int);
+    ScalarField
+    ifft2d(const ScalarField &);
 
-    std::vector<Complex>
-    convolution(const std::vector<Complex> &, int, int, const std::vector<Complex> &, int, int);
+    ScalarField
+    convolution(const ScalarField &, const ScalarField &);
 
     std::vector<AFComplex>
     convertCtoAFC(const std::vector<Complex> &);

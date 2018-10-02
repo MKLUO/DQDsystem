@@ -53,16 +53,12 @@ int main() {
 //            coulomb);*/
 //
     // Convolution test
-    std::vector<Complex> img = ScalarField(40, 40, 0.1, scalar(1.)).getDatas();
-    std::vector<Complex> filter = ScalarField(20, 20, 0.1, scalar(1.)).getDatas();
+    ScalarField img = ScalarField(40, 40, 0.1, scalar(1.));
+    ScalarField filter = ScalarField(20, 20, 0.1, scalar(1.));
 
-    std::vector<Complex> result = fourier::convolution(img, 40, 40,
-                                                       filter, 20, 20);
+    ScalarField result = fourier::convolution(img, filter);
 
-    ScalarField field_result = ScalarField(20, 20, 0.1, result);
-
-    plotter::outputToFile(field_result, "./CONVCAR");
-
+    plotter::outputToFile(result, "./CONVCAR");
 
     return 0;
 }

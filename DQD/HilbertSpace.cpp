@@ -18,6 +18,11 @@ HilbertSpace::createSingleParticleState(const SPSFunction &function) const {
 }
 
 ScalarField
+HilbertSpace::createScalarField() const {
+    return ScalarField(width, height, gridSize);
+}
+
+ScalarField
 HilbertSpace::createScalarField(const std::vector<Complex> &field) const {
     return ScalarField(width, height, gridSize, field);
 }

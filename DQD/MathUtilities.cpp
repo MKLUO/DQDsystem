@@ -11,6 +11,16 @@
 
 ScalarField::ScalarField(int width_,
                          int height_,
+                         double gridSize_) {
+    width = width_;
+    height = height_;
+    gridSize = gridSize_;
+
+    data = std::vector<Complex>(width_ * height_);
+}
+
+ScalarField::ScalarField(int width_,
+                         int height_,
                          double gridSize_,
                          const std::vector<Complex> &data_) {
     width = width_;
@@ -119,6 +129,11 @@ ScalarField::getData(int x, int y) const {
     return data[x + y * width];
 }
 
+Complex &
+ScalarField::setData(int x, int y) {
+    return data[x + y * width];
+}
+
 double
 ScalarField::getX(int i) const {
     return (i - double(width) / 2) * gridSize;
@@ -160,11 +175,6 @@ ScalarField::norm() const {
     return result;
 }
 
-Complex &
-ScalarField::at(int x, int y) {
-    return data[x + y * width];
-}
-
 // Some more operators
 
 ScalarField
@@ -204,19 +214,18 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     int height = left1.getHeight();
     double gridSize = left1.getGridSize();
 
-    std::vector<Complex> img(width * height * 4);
-    std::vector<Complex> filter = (left1 ^ right1).getDatas();
-    std::vector<Complex> weight = (left2 ^ right2).getDatas();
+    ScalarField img(width * 2, height * 2, gridSize);
+    ScalarField filter = left1 ^ right1;
+    ScalarField weight = left2 ^ right2;
 
     for (int i = 0; i < 2 * width; ++i)
         for (int j = 0; j < 2 * height; ++j) {
             double x = gridSize * (i - width + 1);
             double y = gridSize * (j - height + 1);
-            img[i + j * 2 * width] = function(x, y, 0., 0.);
+            img.setData(i, j) = function(x, y, 0., 0.);
         }
 
-    std::vector<Complex> convResult = fourier::convolution(img, width * 2, height * 2,
-                                                           filter, width, height);
+    ScalarField convResult = fourier::convolution(img, filter);
 
     convResult = reverse(convResult);
 
@@ -225,17 +234,22 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j) {
             int index = i + j * width;
-            result += weight[i + j * width] * convResult[i + j * width];
+            result += weight.getData(i, j) * convResult.getData(i, j);
         }
     return result * pow(gridSize, 4.0);
 }
 
-std::vector<Complex>
-reverse(const std::vector<Complex>& vec) {
-    std::vector<Complex> result(vec);
+ScalarField
+reverse(const ScalarField& field) {
+    ScalarField result(field);
 
-    for (int i = 0; i < vec.size(); ++i)
-        result[i] = vec[vec.size() - i - 1];
+    int width = field.getWidth();
+    int height = field.getHeight();
+
+    for (int i = 0; i < width; ++i)
+        for (int j = 0; j < height; ++j)
+            result.setData(i, j) = field.getData(width - 1 - i,
+                                                height - 1 - j);
 
     return result;
 }
@@ -310,18 +324,18 @@ SingleParticleFunction
     int height = field.getHeight();
     double gridSize = field.getGridSize();
 
-    std::vector<Complex> field_FT = fourier::fft2d(field.getDatas(), width, height);
-    std::vector<Complex> result_FT(width * height);
+    ScalarField field_FT = fourier::fft2d(field);
+    ScalarField result_FT(field_FT);
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
             double kx = double(x) / (2. * M_PI * double(width) * gridSize);
             double ky = double(y) / (2. * M_PI * double(height) * gridSize);
 
-            result_FT[x + y * width] = -field_FT[x + y * width] * (kx * kx + ky * ky);
+            result_FT.setData(x, y) = -field_FT.getData(x, y) * (kx * kx + ky * ky);
         }
 
-    return ScalarField(width, height, gridSize, fourier::ifft2d(result_FT, width, height));
+    return fourier::ifft2d(result_FT);
 };
 
 // Calculate 2D-"angular momentum" via FFT
@@ -331,21 +345,21 @@ SingleParticleFunction
     int height = field.getHeight();
     double gridSize = field.getGridSize();
 
-    std::vector<Complex> field_FT = fourier::fft2d(field.getDatas(), width, height);
-    std::vector<Complex> gradX_FT(width * height);
-    std::vector<Complex> gradY_FT(width * height);
+    ScalarField field_FT = fourier::fft2d(field);
+    ScalarField gradX_FT(field_FT);
+    ScalarField gradY_FT(field_FT);
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
             double kx = double(x) / (2. * M_PI * double(width) * gridSize);
             double ky = double(y) / (2. * M_PI * double(height) * gridSize);
 
-            gradX_FT[x + y * width] = field_FT[x + y * width] * kx * Complex(1.i);
-            gradY_FT[x + y * width] = field_FT[x + y * width] * ky * Complex(1.i);
+            gradX_FT.setData(x, y) = field_FT.getData(x, y) * kx * Complex(1.i);
+            gradY_FT.setData(x, y) = field_FT.getData(x, y) * ky * Complex(1.i);
         }
 
-    ScalarField gradX = ScalarField(width, height, gridSize, fourier::ifft2d(gradX_FT, width, height));
-    ScalarField gradY = ScalarField(width, height, gridSize, fourier::ifft2d(gradY_FT, width, height));
+    ScalarField gradX = fourier::ifft2d(gradX_FT);
+    ScalarField gradY = fourier::ifft2d(gradY_FT);
 
     return x_field * gradY - y_field * gradX;
 };

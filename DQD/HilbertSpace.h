@@ -170,6 +170,8 @@ public:
 
     SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &) const;
 
+    ScalarField createScalarField() const;
+
     ScalarField createScalarField(const std::vector<Complex> &) const;
 
     ScalarField createScalarField(const SingleParticleScalarFunction &) const;
