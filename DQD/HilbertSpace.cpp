@@ -259,8 +259,10 @@ HilbertSpace::Operator::Operator(const std::vector<SingleOperator *> &operators_
 }
 
 HilbertSpace::Operator::~Operator() {
-    for (auto op : operators)
-        delete (op);
+
+    //TODO: HACK!
+    /*for (auto op : operators)
+        delete (op);*/
 }
 
 Operator

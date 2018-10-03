@@ -13,14 +13,14 @@ Setting
 Setting::defaultSetting() {
     Setting setting;
 
-    setting.width = 100;
-    setting.height = 50;
-    setting.gridSize = 0.1;
-    setting.effectiveE = 0.;
-    setting.effectiveA = 2;
-    setting.B = 1.;
-    setting.alpha = 1.;
-    setting.kappa = 1.;
+    setting.width = 200;
+    setting.height = 100;
+    setting.gridSize = 0.01;
+    setting.E = 0.0;
+    setting.a = 0.3;
+    setting.B = 0.000000000001;
+    setting.alpha = 10.;
+    setting.kappa = 11.7;
 
     return setting;
 }
@@ -31,10 +31,14 @@ Setting::omegaL() const {
 }
 
 double
-Setting::omega0() const {
-    return alpha * omegaL();
+Setting::omegaL(double B) const {
+    return Physics::e * B / (2. * Physics::m);
 }
 
+double
+Setting::omega0() const {
+    return alpha * omegaL(1.0);
+}
 
 double
 Setting::omega() const {
@@ -43,7 +47,7 @@ Setting::omega() const {
 
 double
 Setting::coulombConstant() const {
-    return pow(Physics::e, 2.) / (4. * M_PI * Physics::epsilon * Physics::hBar *
+    return pow(B, -0.5) * pow(Physics::e, 2.) / (4. * M_PI * Physics::epsilon * Physics::hBar *
                                   kappa * magneticLength() * omegaL());
 }
 
@@ -54,6 +58,11 @@ Setting::FDConstant() const {
 
 double
 Setting::magneticLength() const {
+    return sqrt(Physics::hBar / (Physics::e * B));
+}
+
+double
+Setting::magneticLength(double B) const {
     return sqrt(Physics::hBar / (Physics::e * B));
 }
 
@@ -132,36 +141,43 @@ calculateJWithSetting_HL(const Setting &setting) {
 SingleParticleScalarFunction
 fockDarwin(const Setting &setting, Orientation direction) {
     return [setting, direction](double x, double y) {
-        double a = setting.effectiveA;
+        double a = setting.a;
+        double B = setting.B;
+        double sign;
         switch (direction) {
             case Orientation::Left:
-                return setting.FDConstant() *
-                       exp(Complex(-0.5i) * y * a) *
-                       exp(-0.25 * sho_field((x + a), y) * (setting.omega() / setting.omegaL()));
+                sign = +1.0;
+                break;
             case Orientation::Right:
-                return setting.FDConstant() *
-                       exp(Complex(+0.5i) * y * a) *
-                       exp(-0.25 * sho_field((x - a), y) * (setting.omega() / setting.omegaL()));
+                sign = -1.0;
+                break;
         }
+        return setting.FDConstant() * setting.magneticLength(1.) *
+            exp(Complex(-0.5i) * y * a * sign * B) *
+            exp(-0.25 * sho_field((x + a * sign), y) * B * (setting.omega() / setting.omegaL()));
     };
 }
 
 SingleParticleFunction
 kineticEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
+        double B = setting.B;
         return
-                laplacian * field * -1.0 +
+                laplacian * field * (-1.0 / B) +
                 angularMomentum * field * Complex(1.i) +
-                sho_field * field * 0.25;
+                sho_field * field * 0.25 * B;
     };
 }
 
 SingleParticleFunction
 potentialEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
+        double a = setting.a;
+        double B = setting.B;
+        double E = setting.E;
         return
-                x_field * field * setting.effectiveE +
-                quartic(setting.effectiveA) * field * 0.25 * pow(setting.alpha, 2.0);
+                x_field * field * (E / B) +
+                quartic(a) * field * 0.25 * (pow(setting.alpha, 2.0) / B);
     };
 }
 

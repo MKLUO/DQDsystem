@@ -40,15 +40,15 @@ ELSE()
 ENDIF()
 
 find_package(CUDA)
-# ArrayFire CUDA backend
+# ArrayFire CUDA/CPU backend
 # set(CUDA_FOUND FALSE)
-IF(${ArrayFire_CUDA_FOUND} AND ${CUDA_FOUND})
-    message(STATUS "ArrayFire CUDA found. Enabling CUDA benchmark")
+IF(${CUDA_FOUND})
+    message(STATUS "ArrayFire CUDA found. Enabling CUDA/CPU benchmark")
 
-    target_link_libraries(Fourier ${ArrayFire_CUDA_LIBRARIES}
+    target_link_libraries(Fourier ${ArrayFire_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES})
 
-    target_link_libraries(DQDSystem Fourier DQD Plot ${ArrayFire_CUDA_LIBRARIES}
+    target_link_libraries(DQDSystem Fourier DQD Plot ${ArrayFire_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES})
 
 # ArrayFire CPU backend

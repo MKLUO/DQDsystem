@@ -4,19 +4,25 @@
 
 struct Setting {
     static Setting defaultSetting();
+    
+    // NOTE: Parameters are scaled with dimensionless B=1T quantities.
+    // (e.g. magnetic length at 1 Tesla, cyclotron freq. at 1 Tesla)
 
-    // effectiveE:
-    // effectiveA:
-    // B:
-    // alpha: omega0 / omegaL
+    // gridSize:    Inter-dot distance / lb(1T)
+    // E:           E-field (scaled)
+    // a:           Inter-dot distance / lb(1T)
+    // B:           B-field / (1T)
+    // alpha:       omega0 / omegaL(1T)
+    // kappa:       relative dielectric constant
 
-    // IMPORTANT: Distances are scaled with magneticLength (lb).
     int width, height;
     double gridSize;
 
-    double effectiveE, effectiveA, B, alpha, kappa;
+    double E, a, B, alpha, kappa;
 
     double omegaL() const;
+
+    double omegaL(double) const;
 
     double omega0() const;
 
@@ -27,6 +33,8 @@ struct Setting {
     double FDConstant() const;
 
     double magneticLength() const;
+
+    double magneticLength(double) const;
 };
 
 enum class Orientation {
