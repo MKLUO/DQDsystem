@@ -86,6 +86,8 @@ public:
 
         std::vector<SingleParticleStatePair> getState() const;
 
+        State normalize() const;
+
         // Operators
         // "+": Addition of two State
         // "*": Multiply with a scalar

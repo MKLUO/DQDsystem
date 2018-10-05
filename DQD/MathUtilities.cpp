@@ -328,15 +328,14 @@ SingleParticleFunction
         laplacian = [](ScalarField field) {
     int width = field.getWidth();
     int height = field.getHeight();
-    double gridSize = field.getGridSize();
 
     ScalarField field_FT = fourier::fft2d(field);
     ScalarField result_FT(field_FT);
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width) * gridSize);
-            double ky = double(y) / (2. * M_PI * double(height) * gridSize);
+            double kx = double(x) / (2. * M_PI * double(width));
+            double ky = double(y) / (2. * M_PI * double(height));
 
             result_FT.setData(x, y) = -field_FT.getData(x, y) * (kx * kx + ky * ky);
         }
@@ -352,7 +351,6 @@ SingleParticleFunction
 
     int width = field.getWidth();
     int height = field.getHeight();
-    double gridSize = field.getGridSize();
 
     ScalarField field_FT = fourier::fft2d(field);
     ScalarField gradX_FT(field_FT);
@@ -360,8 +358,8 @@ SingleParticleFunction
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width) * gridSize);
-            double ky = double(y) / (2. * M_PI * double(height) * gridSize);
+            double kx = double(x) / (2. * M_PI * double(width));
+            double ky = double(y) / (2. * M_PI * double(height));
 
             gradX_FT.setData(x, y) = field_FT.getData(x, y) * kx * Complex(1.i);
             gradY_FT.setData(x, y) = field_FT.getData(x, y) * ky * Complex(1.i);

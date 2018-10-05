@@ -18,7 +18,7 @@ Setting::defaultSetting() {
     setting.gridSize = 0.01;
     setting.E = 0.0;
     setting.a = 0.3;
-    setting.B = 0.000000000001;
+    setting.B = 0.00000000000000001;
     setting.alpha = 10.;
     setting.kappa = 11.7;
 
@@ -53,7 +53,8 @@ Setting::coulombConstant() const {
 
 double
 Setting::FDConstant() const {
-    return sqrt(Physics::m * omega() / (M_PI * Physics::hBar));
+    // NOTE: F-D state wave function is scaled with lb(1).
+    return sqrt(Physics::m * omega() / (M_PI * Physics::hBar)) * magneticLength(1.);
 }
 
 double
@@ -70,6 +71,7 @@ double
 calculateJWithSetting_HL(const Setting &setting) {
 
     // TODO: check if setting matches constraint
+    // TODO: check if system is too small that the F-D wave functions are not covered.
 
     HilbertSpace hilbertSpace = HilbertSpace(setting.width, setting.height, setting.gridSize);
 
@@ -83,11 +85,10 @@ calculateJWithSetting_HL(const Setting &setting) {
             hilbertSpace.createSingleParticleState(
                     fockDarwin(setting, Orientation::Right));
 
-    State state_FD_sym = (left ^ right) * sqrt(0.5) +
-                         (right ^ left) * sqrt(0.5);
+    // TODO: Normalization!
+    State state_FD_sym =        ((left ^ right) + (right ^ left)).normalize();
 
-    State state_FD_antisym = (left ^ right) * sqrt(0.5) -
-                             (right ^ left) * sqrt(0.5);
+    State state_FD_antisym =    ((left ^ right) - (right ^ left)).normalize();
 
     // Build Hamiltonian
 
@@ -133,7 +134,7 @@ calculateJWithSetting_HL(const Setting &setting) {
             state_FD_antisym,
             hamiltonian);
 
-    return (energy_antisym - energy_sym) * Physics::hBar * setting.omegaL();
+    return (energy_antisym - energy_sym) * setting.omegaL() / setting.omega0();
 }
 
 // ScalarFunctions
@@ -152,7 +153,7 @@ fockDarwin(const Setting &setting, Orientation direction) {
                 sign = -1.0;
                 break;
         }
-        return setting.FDConstant() * setting.magneticLength(1.) *
+        return setting.FDConstant() *
             exp(Complex(-0.5i) * y * a * sign * B) *
             exp(-0.25 * sho_field((x + a * sign), y) * B * (setting.omega() / setting.omegaL()));
     };

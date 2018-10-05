@@ -131,6 +131,12 @@ HilbertSpace::State::getState() const {
     return states;
 }
 
+State 
+HilbertSpace::State::normalize() const {
+    double norm = ((*this) * (*this)).real();
+    return (*this) * (1. / sqrt(norm));
+}
+
 State
 HilbertSpace::State::operator+(const State &state) const {
     std::vector<SPStatePair> v1 = this->getState();
