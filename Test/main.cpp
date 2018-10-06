@@ -4,6 +4,7 @@
 #include "Plot.h"
 
 #include <iostream>
+#include <corecrt_math_defines.h>
 
 void test1();
 void test2();
@@ -65,13 +66,22 @@ void test2() {
 
     ScalarField gauss_lap = laplacian(gauss1.getField());
 
-    plotter::outputToFile(gauss_lap, "./FIELDCAR_FIELDCAR_gausslap");
-    plotter::outputToFile(gauss1.getField(), "./FIELDCAR_gauss");
-
     Complex a = hilbertSpace.operatorValue(state2, identityOp + identityOp, state1);
     Complex b = hilbertSpace.expectationValue(state2, identityOp + identityOp);
     Complex c = hilbertSpace.expectationValue(state3, identityOp);
     Complex d = hilbertSpace.expectationValue(state3, laplaceOp1);
+
+    plotter::outputToFile(gauss_lap, "./FIELDCAR_gausslap");
+    plotter::outputToFile(gauss1.getField(), "./FIELDCAR_gauss");
+
+    ScalarField wave1 = hilbertSpace.createScalarField(planeWave(   
+        2. * M_PI * 80. / 2.,
+        2. * M_PI * 10. / 2.));
+
+    ScalarField wave1_lap = laplacian(wave1);
+
+    plotter::outputToFile(wave1, "./FIELDCAR_wave1");
+    plotter::outputToFile(wave1_lap, "./FIELDCAR_wave1_lap");
 
     return;
 }

@@ -122,6 +122,9 @@ SingleParticleScalarFunction
 scalar(Complex);
 
 SingleParticleScalarFunction
+planeWave(double, double);
+
+SingleParticleScalarFunction
 gaussian(double);
 
 SingleParticleScalarFunction

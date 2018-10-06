@@ -291,6 +291,13 @@ scalar(Complex c) {
 }
 
 SingleParticleScalarFunction
+planeWave(double kx, double ky) {
+    return [kx, ky](double x, double y) {
+        return exp(Complex(1.i) * (kx * x + ky * y));
+    };
+}
+
+SingleParticleScalarFunction
 gaussian(double r) {
     return [r](double x, double y) {
         return exp(-(x * x + y * y) / (2. * r * r));
@@ -326,16 +333,26 @@ SingleParticleFunction
 // Calculate 2D-Laplacian via FFT
 SingleParticleFunction
         laplacian = [](ScalarField field) {
+
     int width = field.getWidth();
     int height = field.getHeight();
+    double gridSize = field.getGridSize();
 
     ScalarField field_FT = fourier::fft2d(field);
+
     ScalarField result_FT(field_FT);
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width));
-            double ky = double(y) / (2. * M_PI * double(height));
+            double kx, ky;
+            if (x > width / 2 - 1)
+                kx = 2. * M_PI * double(x - width) / (double(width) * gridSize);
+            else
+                kx = 2. * M_PI * double(x) / (double(width) * gridSize);
+            if (y > height / 2 - 1)
+                ky = 2. * M_PI * double(y - height) / (double(height) * gridSize);
+            else
+                ky = 2. * M_PI * double(y) / (double(height) * gridSize);
 
             result_FT.setData(x, y) = -field_FT.getData(x, y) * (kx * kx + ky * ky);
         }
@@ -351,15 +368,24 @@ SingleParticleFunction
 
     int width = field.getWidth();
     int height = field.getHeight();
+    double gridSize = field.getGridSize();
 
     ScalarField field_FT = fourier::fft2d(field);
+
     ScalarField gradX_FT(field_FT);
-    ScalarField gradY_FT(field_FT);
+    ScalarField gradY_FT(field_FT);    
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y) {
-            double kx = double(x) / (2. * M_PI * double(width));
-            double ky = double(y) / (2. * M_PI * double(height));
+            double kx, ky;
+            if (x > width / 2 - 1)
+                kx = 2. * M_PI * double(x - width) / (double(width) * gridSize);
+            else
+                kx = 2. * M_PI * double(x) / (double(width) * gridSize);
+            if (y > height / 2 - 1)
+                ky = 2. * M_PI * double(y - height) / (double(height) * gridSize);
+            else
+                ky = 2. * M_PI * double(y) / (double(height) * gridSize);
 
             gradX_FT.setData(x, y) = field_FT.getData(x, y) * kx * Complex(1.i);
             gradY_FT.setData(x, y) = field_FT.getData(x, y) * ky * Complex(1.i);
