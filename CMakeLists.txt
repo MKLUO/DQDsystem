@@ -18,8 +18,8 @@ add_library(DQD
         DQD/MathUtilities.cpp
         DQD/MathUtilities.h
 
-        DQD/HeitlerLondon.cpp
-        DQD/HeitlerLondon.h)
+        DQD/HL_HM.cpp
+        DQD/HL_HM.h)
 
 add_library(Plot
         Utilities/Plot.h

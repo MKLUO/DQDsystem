@@ -1,4 +1,4 @@
-#include "HeitlerLondon.h"
+#include "HL_HM.h"
 #include "HilbertSpace.h"
 
 #include "Plot.h"
@@ -11,14 +11,14 @@ void test2();
 
 int main() {
     
-    //test1();
-    test2();
+    test1();
+    // test2();
 
     return 0;
 }
 
 void test1() {
-    int cases = 5;
+    int cases = 20;
     double max_B = 8.;
 
     std::vector<double> Bs;
@@ -29,16 +29,13 @@ void test1() {
 
     for (double B : Bs) {
         setting.B = B;
-        std::cout << B << " " << calculateJWithSetting_HL(setting) << std::endl << std::endl;
+        std::cout << B << " : " << calculateJWithSetting_HL(setting) << std::endl << std::endl;
     }
 }
 
 void test2() {
     
     Setting setting = Setting::defaultSetting();
-    setting.width = 100;
-    setting.height = 100;
-    setting.gridSize = 0.02;
 
     HilbertSpace hilbertSpace = HilbertSpace(setting.width, setting.height, setting.gridSize);
 
@@ -46,7 +43,7 @@ void test2() {
         hilbertSpace.createSingleParticleState(scalar(1.));
 
     SPState gauss1 =
-        hilbertSpace.createSingleParticleState(gaussian(0.2));
+        hilbertSpace.createSingleParticleState(gaussian(10E-9));
 
     State state1 = (scalarState ^ scalarState).normalize();
     State state2 = (scalarState ^ scalarState).normalize() * 2;
@@ -75,8 +72,8 @@ void test2() {
     plotter::outputToFile(gauss1.getField(), "./FIELDCAR_gauss");
 
     ScalarField wave1 = hilbertSpace.createScalarField(planeWave(   
-        2. * M_PI * 80. / 2.,
-        2. * M_PI * 10. / 2.));
+        2. * M_PI * 1. / 200E-9,
+        2. * M_PI * 0. / 2.));
 
     ScalarField wave1_lap = laplacian(wave1);
 

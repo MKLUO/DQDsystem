@@ -9,7 +9,7 @@
 #include <complex>
 
 using Complex = std::complex<double>;
-using namespace std::complex_literals;
+using namespace std::literals::complex_literals;
 
 class ScalarField;
 
@@ -19,67 +19,72 @@ using DoubleParticleScalarFunction = std::function<Complex(double, double, doubl
 using SingleParticleFunction = std::function<ScalarField(ScalarField)>;
 
 namespace Physics {
-    // TODO
-    const double e = 1.60217662e-19;
-    const double m = 9.10938356e-31 * 0.191;
-    const double hBar = 1.0545718e-34;
-    const double epsilon = 8.854187817e-12;
+
+	// TODO: Physics related entities shouldn't be here
+
+	const double e = 1.60217662e-19;
+	const double me = 9.10938356e-31;
+	const double hBar = 1.0545718e-34;
+	const double epsilon = 8.854187817e-12;
+
+	// For Silicon
+	const double m = me * 0.191;
+	const double kappa = 7.64;
 }
 
 class ScalarField {
 public:
-    ScalarField(int, int, double);
+	ScalarField(int, int, double);
 
-    ScalarField(int, int, double, const std::vector<Complex> &);
+	ScalarField(int, int, double, const std::vector<Complex> &);
 
-    ScalarField(int, int, double, const SingleParticleScalarFunction &);
+	ScalarField(int, int, double, const SingleParticleScalarFunction &);
 
-    // Operators
+	// Operators
 
-    ScalarField operator+(const ScalarField &) const;
+	ScalarField operator+(const ScalarField &) const;
 
-    ScalarField operator-(const ScalarField &) const;
+	ScalarField operator-(const ScalarField &) const;
 
-    ScalarField operator*(const SingleParticleScalarFunction &) const;
+	ScalarField operator*(const SingleParticleScalarFunction &) const;
 
-    ScalarField operator*(const SingleParticleFunction &) const;
+	ScalarField operator*(const SingleParticleFunction &) const;
 
-    ScalarField operator*(Complex) const;
+	ScalarField operator*(Complex) const;
 
-    ScalarField operator*(double) const;
+	ScalarField operator*(double) const;
 
-    Complex operator*(const ScalarField &) const;
+	Complex operator*(const ScalarField &) const;
 
-    ScalarField operator^(const ScalarField &) const;
+	ScalarField operator^(const ScalarField &) const;
 
-    // Access
+	// Access
 
-    std::vector<Complex> getDatas() const;
+	std::vector<Complex> getDatas() const;
 
-    Complex getData(int, int) const;
+	Complex getData(int, int) const;
 
-    Complex &setData(int, int);
+	Complex &setData(int, int);
 
-    double getX(int) const;
+	double getX(int) const;
 
-    double getY(int) const;
+	double getY(int) const;
 
-    int getIndex(int, int) const;
+	int getIndex(int, int) const;
 
-    int getWidth() const;
+	int getWidth() const;
 
-    int getHeight() const;
+	int getHeight() const;
 
-    double getGridSize() const;
+	double getGridSize() const;
 
-    std::vector<double> norm() const;
+	std::vector<double> norm() const;
 
 private:
 
-
-    std::vector<Complex> data;
-    int width, height;
-    double gridSize;
+	std::vector<Complex> data;
+	int width, height;
+	double gridSize;
 };
 
 ScalarField operator*(Complex, const ScalarField &);
@@ -94,7 +99,7 @@ ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
 
 Complex
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
-                const ScalarField &);
+				const ScalarField &);
 
 ScalarField
 reverse(const ScalarField&);
@@ -102,19 +107,19 @@ reverse(const ScalarField&);
 // ScalarFields
 
 extern SingleParticleScalarFunction
-        x_field;
+		x_field;
 
 extern SingleParticleScalarFunction
-        y_field;
+		y_field;
 
 extern SingleParticleScalarFunction
-        xx_field;
+		xx_field;
 
 extern SingleParticleScalarFunction
-        yy_field;
+		yy_field;
 
 extern SingleParticleScalarFunction
-        sho_field;
+		sho_field;
 
 // ScalarFields with settings needed
 
@@ -136,13 +141,13 @@ rInv_field(double);
 // ScalarFunctions
 
 extern SingleParticleFunction
-        identity;
+		identity;
 
 extern SingleParticleFunction
-        laplacian;
+		laplacian;
 
 extern SingleParticleFunction
-        angularMomentum;
+		angularMomentum;
 
 
 

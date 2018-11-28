@@ -2,7 +2,5 @@
     "cmake.generator": "Visual Studio 15 2017 Win64",
     "cmake.preferredGenerators": [
     "Visual Studio 15 2017 Win64"
-    ],
-
-    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
+    ]
 }

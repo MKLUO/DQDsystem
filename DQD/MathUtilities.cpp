@@ -234,7 +234,7 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j) {
             int index = i + j * width;
-            result += weight.getData(i, j) * convResult.getData(i, j);
+            result += std::conj(weight.getData(i, j)) * convResult.getData(i, j);
         }
     return result * pow(gridSize, 4.0);
 }

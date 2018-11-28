@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-#include "HeitlerLondon.h"
+#include "HL_HM.h"
 #include "MathUtilities.h"
 
 // TODO: unit tests
@@ -15,14 +15,13 @@ Setting
 Setting::defaultSetting() {
     Setting setting;
 
-    setting.width = 200;
-    setting.height = 100;
-    setting.gridSize = 0.01;
-    setting.E = 0.0;
-    setting.a = 0.3;
-    setting.B = 0.00000000000000001;
-    setting.alpha = 10.;
-    setting.kappa = 11.7;
+    setting.width       = 200;
+    setting.height      = 100;
+    setting.gridSize    = 1.E-9;
+    
+    setting.a           = 20E-9;
+    setting.d           = 100E-9;
+    setting.B           = 1.0;
 
     return setting;
 }
@@ -33,13 +32,8 @@ Setting::omegaL() const {
 }
 
 double
-Setting::omegaL(double B) const {
-    return Physics::e * B / (2. * Physics::m);
-}
-
-double
 Setting::omega0() const {
-    return alpha * omegaL(1.0);
+    return Physics::hBar / (Physics::m * pow(a, 2));
 }
 
 double
@@ -49,23 +43,16 @@ Setting::omega() const {
 
 double
 Setting::coulombConstant() const {
-    return pow(B, -0.5) * pow(Physics::e, 2.) / (4. * M_PI * Physics::epsilon * Physics::hBar *
-                                  kappa * magneticLength() * omegaL());
+    return pow(Physics::e, 2) / (Physics::kappa * 4. * M_PI * Physics::epsilon);
 }
 
 double
 Setting::FDConstant() const {
-    // NOTE: F-D state wave function is scaled with lb(1).
-    return sqrt(Physics::m * omega() / (M_PI * Physics::hBar)) * magneticLength(1.);
+    return sqrt(Physics::m * omega() / (M_PI * Physics::hBar));
 }
 
 double
 Setting::magneticLength() const {
-    return sqrt(Physics::hBar / (Physics::e * B));
-}
-
-double
-Setting::magneticLength(double B) const {
     return sqrt(Physics::hBar / (Physics::e * B));
 }
 
@@ -129,10 +116,12 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     // Evaluate energy.
 
+    // TODO: Float point data distortion!!!
+
     double result_sym = 0., result_asym = 0.;
     for (SingleOperator *op : hamiltonian.getOperator()) {
-        double temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real() * setting.omegaL() / setting.omega0();
-        double temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real() * setting.omegaL() / setting.omega0();
+        double temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real();
+        double temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real();
         result_sym += temp1;
         result_asym += temp2;
 
@@ -140,15 +129,6 @@ calculateJWithSetting_HL(const Setting &setting) {
     }
 
     return result_asym - result_sym;
-
-    /*double energy_sym = hilbertSpace.expectationValue(
-            state_FD_sym,
-            hamiltonian);
-    double energy_antisym = hilbertSpace.expectationValue(
-            state_FD_antisym,
-            hamiltonian);*/
-
-    //return (energy_antisym - energy_sym) * setting.omegaL() / setting.omega0();
 }
 
 // ScalarFunctions
@@ -156,20 +136,28 @@ calculateJWithSetting_HL(const Setting &setting) {
 SingleParticleScalarFunction
 fockDarwin(const Setting &setting, Orientation direction) {
     return [setting, direction](double x, double y) {
-        double a = setting.a;
+        double d = setting.d;
         double B = setting.B;
+        double lb = setting.magneticLength();
+        double omega = setting.omega();
         double sign;
         switch (direction) {
             case Orientation::Left:
-                sign = +1.0;
-                break;
-            case Orientation::Right:
                 sign = -1.0;
                 break;
+            case Orientation::Right:
+                sign = +1.0;
+                break;
         }
-        return setting.FDConstant() *
-            exp(Complex(-0.5i) * y * a * sign * B) *
-            exp(-0.25 * sho_field((x + a * sign), y) * B * (setting.omega() / setting.omegaL()));
+        if (B == 0)
+            return setting.FDConstant() *
+                exp(- Physics::m * omega * sho_field((x - d * sign / 2), y) / 
+                    (2.0 * Physics::hBar));
+        else
+            return setting.FDConstant() *
+                exp(1.i * sign * y * d  / (4.0 * pow(lb, 2))) *
+                exp(- Physics::m * omega * sho_field((x - d * sign / 2), y) / 
+                    (2.0 * Physics::hBar));
     };
 }
 
@@ -177,22 +165,20 @@ SingleParticleFunction
 kineticEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         double B = setting.B;
-        return
-                laplacian * field * (-1.0 / B) +
-                angularMomentum * field * Complex(1.i) +
-                sho_field * field * 0.25 * B;
+        return  1.0 / (2.0 * Physics::m) * (
+                laplacian * field * (- pow(Physics::hBar, 2)) +
+                angularMomentum * field * (1.i * Physics::hBar * Physics::e * B)  +
+                sho_field * field * (pow(0.5 * Physics::e * B, 2)) );
     };
 }
 
 SingleParticleFunction
 potentialEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
-        double a = setting.a;
+        double d = setting.d;
         double B = setting.B;
-        double E = setting.E;
-        return
-                x_field * field * (E / B) +
-                quartic(a) * field * 0.25 * (pow(setting.alpha, 2.0) / B);
+        double omega0 = setting.omega0();
+        return quartic(0.5 * d) * field * (0.5 * Physics::m * pow(omega0, 2));
     };
 }
 
