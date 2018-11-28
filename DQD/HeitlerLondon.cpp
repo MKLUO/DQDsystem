@@ -9,6 +9,8 @@
 
 // TODO: unit tests
 
+#include <iostream>
+
 Setting
 Setting::defaultSetting() {
     Setting setting;
@@ -127,14 +129,26 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     // Evaluate energy.
 
-    double energy_sym = hilbertSpace.expectationValue(
+    double result_sym = 0., result_asym = 0.;
+    for (SingleOperator *op : hamiltonian.getOperator()) {
+        double temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real() * setting.omegaL() / setting.omega0();
+        double temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real() * setting.omegaL() / setting.omega0();
+        result_sym += temp1;
+        result_asym += temp2;
+
+        std::cout << temp1 << " " << temp2 << std::endl;
+    }
+
+    return result_asym - result_sym;
+
+    /*double energy_sym = hilbertSpace.expectationValue(
             state_FD_sym,
             hamiltonian);
     double energy_antisym = hilbertSpace.expectationValue(
             state_FD_antisym,
-            hamiltonian);
+            hamiltonian);*/
 
-    return (energy_antisym - energy_sym) * setting.omegaL() / setting.omega0();
+    //return (energy_antisym - energy_sym) * setting.omegaL() / setting.omega0();
 }
 
 // ScalarFunctions

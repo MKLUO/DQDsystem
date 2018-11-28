@@ -29,7 +29,7 @@ void test1() {
 
     for (double B : Bs) {
         setting.B = B;
-        std::cout << calculateJWithSetting_HL(setting) << std::endl;
+        std::cout << B << " " << calculateJWithSetting_HL(setting) << std::endl << std::endl;
     }
 }
 
@@ -82,6 +82,4 @@ void test2() {
 
     plotter::outputToFile(wave1, "./FIELDCAR_wave1");
     plotter::outputToFile(wave1_lap, "./FIELDCAR_wave1_lap");
-
-    return;
 }
