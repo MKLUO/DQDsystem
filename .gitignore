@@ -266,3 +266,5 @@ __pycache__/
 /cmake-build-debug
 Test/
 temp/
+.vscode/cquery_cached_index/
+compile_commands.json.lnk

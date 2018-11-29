@@ -4,8 +4,8 @@
 
 #include <math.h>
 
-#include "HL_HM.h"
-#include "MathUtilities.h"
+#include "HL_HM.hpp"
+#include "MathUtilities.hpp"
 
 // TODO: unit tests
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HilbertSpace.h"
+#include "HilbertSpace.hpp"
 
 struct Setting {
     static Setting defaultSetting();

@@ -1,28 +1,28 @@
 cmake_minimum_required(VERSION 3.12)
 project(DQDSystem)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(DQD
         Utilities)
 
 add_library(Fourier
-        Utilities/Fourier.h
+        Utilities/Fourier.hpp
         Utilities/Fourier.cpp)
 
 add_library(DQD
         DQD/HilbertSpace.cpp
-        DQD/HilbertSpace.h
+        DQD/HilbertSpace.hpp
 
         DQD/MathUtilities.cpp
-        DQD/MathUtilities.h
+        DQD/MathUtilities.hpp
 
         DQD/HL_HM.cpp
-        DQD/HL_HM.h)
+        DQD/HL_HM.hpp)
 
 add_library(Plot
-        Utilities/Plot.h
+        Utilities/Plot.hpp
         Utilities/Plot.cpp)
 
 add_executable(DQDSystem

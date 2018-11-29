@@ -4,8 +4,8 @@
 #include <string>
 #include <iomanip>
 
-#include "Plot.h"
-#include "MathUtilities.h"
+#include "Plot.hpp"
+#include "MathUtilities.hpp"
 
 void plotter::plotTest() {
 
