@@ -26,7 +26,7 @@ add_library(Plot
         Utilities/Plot.cpp)
 
 add_executable(DQDSystem
-        Test/main.cpp)
+        Test/test.cpp)
 
 target_link_libraries(DQD Fourier)
 

@@ -264,5 +264,5 @@ __pycache__/
 *.pyc
 /build
 /cmake-build-debug
-/Test
-/temp
+Test/
+temp/
