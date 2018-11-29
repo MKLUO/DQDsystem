@@ -1,6 +1,6 @@
 #include "HL_HM.h"
 #include "HilbertSpace.h"
-
+#include "Fourier.h"
 #include "Plot.h"
 
 #include <iostream>
@@ -8,11 +8,15 @@
 
 void test1();
 void test2();
+void test_FD();
+void test_CONV();
 
 int main() {
     
-    test1();
+    // test1();
     // test2();
+    test_FD();
+    // test_CONV();
 
     return 0;
 }
@@ -79,4 +83,49 @@ void test2() {
 
     plotter::outputToFile(wave1, "./FIELDCAR_wave1");
     plotter::outputToFile(wave1_lap, "./FIELDCAR_wave1_lap");
+}
+
+void test_FD() {
+    Setting setting = Setting::defaultSetting();
+    setting.height = 100;
+    setting.gridSize = 1.E-9;
+
+    setting.a = 15.E-9;
+
+    HilbertSpace hilbertSpace = HilbertSpace(setting.width, setting.height, setting.gridSize);
+
+    SPState left =
+            hilbertSpace.createSingleParticleState(
+                    fockDarwin(setting, Orientation::Left));
+
+    SPState right =
+            hilbertSpace.createSingleParticleState(
+                    fockDarwin(setting, Orientation::Right));
+
+    ScalarField left_sf = left.getField();
+    ScalarField right_sf = right.getField();
+
+    plotter::outputToFile(left_sf, "./temp/FIELDCAR_FDL");
+    plotter::outputToFile(right_sf, "./temp/FIELDCAR_FDR");
+    plotter::outputToFile(left_sf ^ right_sf, "./temp/FIELDCAR_FDLR");         
+
+    Complex test1 = (left ^ right) * (left ^ right);
+
+    Operator i_ts =
+            hilbertSpace.createOperator(
+                    identity_twoSite(setting));   
+
+    
+    Complex result = (i_ts.getOperator()[0])->operatorValue(left ^ right, left ^ right);   
+
+    return;                        
+}
+
+void test_CONV() {
+    ScalarField c1 = ScalarField(130, 150, 1.0, scalar(1.0));
+    ScalarField c2 = ScalarField(100, 100, 1.0, scalar(1.0));
+
+    ScalarField c3 = fourier::convolution(c1, c2);
+
+    plotter::outputToFile(c3, "./temp/C3");
 }

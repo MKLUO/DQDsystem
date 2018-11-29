@@ -26,7 +26,7 @@ void plotter::outputToFile(const ScalarField &field, std::string path) {
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
-            outputFile << i << " " << j << " " << data[i + j * width].real() << std::endl;
+            outputFile << i << " " << j << " " << data[i + j * width].real() << " " << data[i + j * width].imag() << std::endl;
 
     outputFile.close();
 }

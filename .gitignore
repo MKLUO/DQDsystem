@@ -265,7 +265,4 @@ __pycache__/
 /build
 /cmake-build-debug
 /Test
-FIELDCAR_wave1_lap
-FIELDCAR_gauss
-FIELDCAR_gausslap
-FIELDCAR_wave1
+/temp

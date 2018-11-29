@@ -58,6 +58,8 @@ public:
 
 	ScalarField operator^(const ScalarField &) const;
 
+	ScalarField conj() const;
+
 	// Access
 
 	std::vector<Complex> getDatas() const;

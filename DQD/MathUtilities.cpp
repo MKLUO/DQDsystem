@@ -119,6 +119,17 @@ ScalarField::operator^(const ScalarField &field) const {
     return ScalarField(width, height, gridSize, newData);
 }
 
+ScalarField
+ScalarField::conj() const {
+    std::vector<Complex> newData(width * height);
+
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y)
+            newData[getIndex(x, y)] = std::conj(this->getData(x, y));
+
+    return ScalarField(width, height, gridSize, newData);
+}
+
 std::vector<Complex>
 ScalarField::getDatas() const {
     return data;
@@ -215,8 +226,8 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     double gridSize = left1.getGridSize();
 
     ScalarField img(width * 2, height * 2, gridSize);
-    ScalarField filter = left1 ^ right1;
-    ScalarField weight = left2 ^ right2;
+    ScalarField filter = left1.conj() ^ right1;
+    ScalarField weight = left2.conj() ^ right2;
 
     for (int i = 0; i < 2 * width; ++i)
         for (int j = 0; j < 2 * height; ++j) {
@@ -232,11 +243,10 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     Complex result;
 
     for (int i = 0; i < width; ++i)
-        for (int j = 0; j < height; ++j) {
-            int index = i + j * width;
-            result += std::conj(weight.getData(i, j)) * convResult.getData(i, j);
-        }
-    return result * pow(gridSize, 4.0);
+        for (int j = 0; j < height; ++j)
+            result += weight.getData(i, j) * convResult.getData(i, j) * pow(gridSize, 4.0);
+
+    return result;
 }
 
 ScalarField

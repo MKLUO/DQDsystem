@@ -116,6 +116,17 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     // Evaluate energy.
 
+
+    // TEST
+    // State state_FD_LR = (left ^ right).normalize();
+    // State state_FD_RL = (right ^ left).normalize();
+    // Complex test1 = (coulomb.getOperator()[0])->operatorValue(state_FD_LR, state_FD_LR);
+    // Complex test2 = (coulomb.getOperator()[0])->operatorValue(state_FD_RL, state_FD_RL);
+    // Complex test3 = (coulomb.getOperator()[0])->operatorValue(state_FD_LR, state_FD_RL);
+    // Complex test4 = (coulomb.getOperator()[0])->operatorValue(state_FD_RL, state_FD_LR);
+    // Complex testss = (coulomb.getOperator()[0])->operatorValue(state_FD_sym, state_FD_sym);
+    // Complex testsa = (coulomb.getOperator()[0])->operatorValue(state_FD_antisym, state_FD_antisym);
+
     // TODO: Float point data distortion!!!
 
     double result_sym = 0., result_asym = 0.;
@@ -184,9 +195,16 @@ potentialEnergy(const Setting &setting) {
 
 DoubleParticleScalarFunction
 coulombEnergy(const Setting &setting) {
-    //TODO: Constants
     return [setting](double x1, double y1, double x2, double y2) {
         return
                 rInv_field(setting.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
+    };
+}
+
+// For test
+DoubleParticleScalarFunction
+identity_twoSite(const Setting &setting) {
+    return [](double x1, double y1, double x2, double y2) {
+        return 1.0;
     };
 }

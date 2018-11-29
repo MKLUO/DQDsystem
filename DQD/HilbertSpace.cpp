@@ -249,7 +249,7 @@ HilbertSpace::DoubleParticleScalarOperator::operatorValue(const State &left, con
             ScalarField field2Left = pair2.getFirstField().getField();
             ScalarField field2Right = pair2.getSecondField().getField();
 
-            result += twoSiteIntegral(field1Left, field2Left, func, field1Right, field2Right);
+            result += twoSiteIntegral(field1Left, field1Right, func, field2Left, field2Right);
         }
     }
 

@@ -51,3 +51,7 @@ potentialEnergy(const Setting &setting);
 
 DoubleParticleScalarFunction
 coulombEnergy(const Setting &setting);
+
+// For test
+DoubleParticleScalarFunction
+identity_twoSite(const Setting &setting);
