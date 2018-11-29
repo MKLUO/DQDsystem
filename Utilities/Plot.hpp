@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MathUtilities.h"
+#include "MathUtilities.hpp"
 
 namespace plotter {
     void plotTest();

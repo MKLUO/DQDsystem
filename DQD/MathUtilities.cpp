@@ -2,8 +2,8 @@
 
 #include <math.h>
 
-#include "MathUtilities.h"
-#include "Fourier.h"
+#include "MathUtilities.hpp"
+#include "Fourier.hpp"
 
 //////////////////////////////
 //      ScalarField        	//

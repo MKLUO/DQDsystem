@@ -1,6 +1,6 @@
 {
-    "cmake.generator": "Visual Studio 15 2017 Win64",
+    "cmake.generator": "Ninja",
     "cmake.preferredGenerators": [
-    "Visual Studio 15 2017 Win64"
+    "Ninja"
     ]
 }

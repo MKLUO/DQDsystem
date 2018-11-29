@@ -2,7 +2,7 @@
 
 #include <arrayfire.h>
 
-#include "MathUtilities.h"
+#include "MathUtilities.hpp"
 
 using AFComplex = af::cdouble;
 

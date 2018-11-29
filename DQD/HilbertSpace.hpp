@@ -3,7 +3,7 @@
 #include <vector>
 #include <complex>
 
-#include "MathUtilities.h"
+#include "MathUtilities.hpp"
 
 // HilbertSpace: Implements 2D two particle Hilbert space with finite size.
 class HilbertSpace {

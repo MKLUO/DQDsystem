@@ -2,8 +2,8 @@
 
 #include <arrayfire.h>
 
-#include "Fourier.h"
-#include "MathUtilities.h"
+#include "Fourier.hpp"
+#include "MathUtilities.hpp"
 
 
 void
