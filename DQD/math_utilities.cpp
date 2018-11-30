@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 
 #include <math.h>
+#include <algorithm>
 
 #include "math_utilities.hpp"
 #include "fourier.hpp"
@@ -10,7 +11,7 @@
 //////////////////////////////
 
 Complex::Complex() {
-    data = std::vector<std::complex<double>>({});
+    data = std::vector<std::complex<double>>({0.0 + 0.0i});
 }
 
 Complex::Complex(std::complex<double> input) {
@@ -33,62 +34,150 @@ Complex::Complex(std::vector<std::complex<double>> data_) {
 
 Complex
 Complex::operator+(const Complex & comp) const {
-    // TODO: check new size!
+    
     std::vector<std::complex<double>> newData = data;
-    newData.insert(newData.end(), comp.data.begin(), comp.data.end());
+    if (isZero()) 
+        newData = comp.data;
+    else 
+        newData.insert(newData.end(), comp.data.begin(), comp.data.end());
+
+    Complex newComp(newData);
+
+    // Shrinking after operation
+    if (newComp.size() > COMPLEX_MAX_SIZE) 
+        newComp.shrink(COMPLEX_SHRINK_RATIO * double(COMPLEX_MAX_SIZE) / double(newComp.size()));
+
+    return newComp;
+}
+
+Complex
+Complex::operator-(const Complex & comp) const {
+    return *this + (-comp);
+}
+
+// When two Complex multiply and exceed max_size, shrink them inb4.
+Complex
+Complex::operator*(const Complex & comp) const {
+    
+    Complex comp1 = *this;
+    Complex comp2 = comp;
+
+    // Shrinking before operation
+    long long oldSize = LONGLONG(comp1.size()) * LONGLONG(comp2.size());
+    if (oldSize > LONGLONG(COMPLEX_MAX_SIZE)) {
+        double ratio = sqrt(double(COMPLEX_MAX_SIZE) / double(oldSize));
+        comp1.shrink(ratio);
+        comp2.shrink(ratio);
+    }
+
+    std::vector<std::complex<double>> newData;
+    for (std::complex<double> val1 : comp1.data)
+        for (std::complex<double> val2 : comp2.data)
+            newData.push_back(val1 * val2);
+
     return Complex(newData);
 }
 
 Complex
-Complex::operator-(const Complex &) const {
-    return Complex();
-}
-
-// When two Complex with data size > 1 multiply, collapse them.
-Complex
-Complex::operator*(const Complex &) const {
-    return Complex();
+Complex::operator/(const Complex & comp) const {
+   return *this * (1.0 / comp.value());
 }
 
 Complex
-Complex::operator/(const Complex &) const {
-    return Complex();
+Complex::operator-() const {
+    Complex newComp = *this;
+    for (std::complex<double>& val : newComp.data)
+        val = val * -1.0;
+
+    return newComp;
 }
 
 void 
-Complex::operator+=(const Complex &) {
-
+Complex::operator+=(const Complex & comp) {
+    data = (*this + comp).data;
 }
 
 double 
 Complex::real() const {
-    return 0.0;
+    return value().real();
 }
 
 double 
 Complex::imag() const {
-    return 0.0;
-}
-
-Complex 
-Complex::conj() const {
-    return Complex();
+    return value().imag();
 }
 
 double
 Complex::norm() const {
-    return 0.0;
+    return std::norm(value());
+}
+
+Complex 
+Complex::conj() const {
+    Complex newComp = *this;
+    for (std::complex<double>& val : newComp.data)
+        val = std::conj(val);
+
+    return newComp;
+}
+
+int
+Complex::size() const {
+    return data.size();
+}
+
+bool
+Complex::isZero() const {
+    return (data.size() == 1) && (data[0] == 0.0 + 0.0i);
 }
 
 std::complex<double> 
 Complex::value() const {
-    return std::complex<double>();
+    Complex comp = *this;
+    comp.shrink(1);
+
+    return comp.data[0];
+}
+
+void 
+Complex::shrink(double ratio) { 
+    int newSize = int(std::floor(ratio * double(size())));
+    if (newSize < 1) newSize = 1;
+
+    shrink(newSize);
+}
+
+void 
+Complex::shrink(int newSize) { 
+
+    if (newSize < 1) newSize = 1;
+
+    //============TEST: Naive method:============
+
+    auto newData = data;
+
+    // sort from big to small norm
+    std::sort(newData.begin(), newData.end(), 
+        [](auto val1, auto val2) {
+            return std::norm(val1) > std::norm(val2);
+        }
+    );
+
+    while (newData.size() > newSize) {
+        newData.end()[-2] = newData.end()[-2] + newData.end()[-1];
+        newData.pop_back();
+    }
+    
+    // TODO: Pairwise reduction
+
+    data = newData;
 }
 
 Complex
-operator*(double, const Complex &) {
-    return Complex();
+operator*(double d, const Complex & comp) {
+    return comp * d;
 }
+
 
 //////////////////////////////
 //      ScalarField        	//
@@ -297,8 +386,8 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 //        Utilities        	//
 //////////////////////////////
 
-// TODO: It should be the most time-consuming part. Check the result carefully.
-// WARNING: According to the design of Complex object, it should return a Complex which has a data of size width * height. Handle it carefully!
+// It should be the most time-consuming part. Check the result carefully.
+// WARNING: According to the design of Complex object, it might return a Complex which has a data of size width * height. Handle it carefully!
 Complex
 twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 const DoubleParticleScalarFunction &function,
@@ -458,8 +547,6 @@ SingleParticleFunction
 // Calculate 2D-"angular momentum" via FFT
 SingleParticleFunction
         angularMomentum = [](ScalarField field) {
-
-    // TODO: gridSize should be redesigned. It shouldn't be used outside of the HilbertSpace.
 
     int width = field.getWidth();
     int height = field.getHeight();

@@ -2,8 +2,6 @@
 
 // TODO: Abstraction of Coordinate (x & y)
 
-// TODO: design namespace
-
 #include <functional>
 #include <vector>
 #include <complex>
@@ -11,6 +9,10 @@
 using namespace std::literals::complex_literals;
 
 class Complex;
+// TODO: What is a reasonable max size?
+const int COMPLEX_MAX_SIZE = 50000;
+const double COMPLEX_SHRINK_RATIO = 0.8;
+
 class ScalarField;
 
 using SingleParticleScalarFunction = std::function<Complex(double, double)>;
@@ -23,7 +25,7 @@ namespace Physics {
 	// TODO: Physics related entities shouldn't be here
 
 	const double e = 1.60217662e-19;
-	const double me = 9.10938356e-31;
+		const double me = 9.10938356e-31;
 	const double hBar = 1.0545718e-34;
 	const double epsilon = 8.854187817e-12;
 
@@ -51,17 +53,29 @@ public:
 	Complex operator*(const Complex &) const;
 	Complex operator/(const Complex &) const;
 
-	void operator+=(const Complex &);
+	Complex operator-() const;
 
 	double real() const;
 
 	double imag() const;
 
-	Complex conj() const;
-
 	double norm() const;
 
+	Complex conj() const;
+
+	int size() const;
+
+	bool isZero() const;
+
 	std::complex<double> value() const;
+	
+	// Non-const methods.
+
+	void operator+=(const Complex &);
+
+	void shrink(double);
+
+	void shrink(int);
 
 private:
 	std::vector<std::complex<double>> data;
