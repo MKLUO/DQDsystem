@@ -3,7 +3,7 @@
 #include <vector>
 #include <complex>
 
-#include "MathUtilities.hpp"
+#include "math_utilities.hpp"
 
 // HilbertSpace: Implements 2D two particle Hilbert space with finite size.
 class HilbertSpace {
@@ -61,7 +61,7 @@ public:
     // SingleParticleStatePair: Represents a separable two-particle wavefunction.
     class SingleParticleStatePair {
     public:
-        SingleParticleStatePair(const SingleParticleState &, const SingleParticleState &);
+        explicit SingleParticleStatePair(const SingleParticleState &, const SingleParticleState &);
 
         SingleParticleState getFirstField() const;
 
@@ -114,10 +114,10 @@ public:
         virtual Complex operatorValue(const State &, const State &) const = 0;
     };
 
-    // SingleParticleOperator: Represents a one-particle operator.
+    // SingleParticleOperator: Represents a one-particle (separable) operator.
     class SingleParticleOperator : public SingleOperator {
     public:
-        SingleParticleOperator(const SingleParticleFunction &, const SingleParticleFunction &);
+        explicit SingleParticleOperator(const SingleParticleFunction &, const SingleParticleFunction &);
 
         // Operators
         // "*": Operation of SingleParticleOperator on State
@@ -168,7 +168,7 @@ public:
     };
 
     // Constructor input: width and height of the Hilbert space.
-    HilbertSpace(int, int, double);
+    explicit HilbertSpace(int, int, double);
 
     SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &) const;
 

@@ -1,6 +1,6 @@
 #include <utility>
 
-#include "HilbertSpace.hpp"
+#include "hilbert_space.hpp"
 
 //////////////////////////////
 //       HilbertSpace       //

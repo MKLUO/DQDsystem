@@ -8,22 +8,22 @@ include_directories(DQD
         Utilities)
 
 add_library(Fourier
-        Utilities/Fourier.hpp
-        Utilities/Fourier.cpp)
+        Utilities/fourier.hpp
+        Utilities/fourier.cpp)
 
 add_library(DQD
-        DQD/HilbertSpace.cpp
-        DQD/HilbertSpace.hpp
+        DQD/hilbert_space.cpp
+        DQD/hilbert_space.hpp
 
-        DQD/MathUtilities.cpp
-        DQD/MathUtilities.hpp
+        DQD/math_utilities.cpp
+        DQD/math_utilities.hpp
 
-        DQD/HL_HM.cpp
-        DQD/HL_HM.hpp)
+        DQD/hl_hm.cpp
+        DQD/hl_hm.hpp)
 
 add_library(Plot
-        Utilities/Plot.hpp
-        Utilities/Plot.cpp)
+        Utilities/plot.hpp
+        Utilities/plot.cpp)
 
 add_executable(DQDSystem
         Test/test.cpp)

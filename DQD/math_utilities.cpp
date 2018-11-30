@@ -2,8 +2,93 @@
 
 #include <math.h>
 
-#include "MathUtilities.hpp"
-#include "Fourier.hpp"
+#include "math_utilities.hpp"
+#include "fourier.hpp"
+
+//////////////////////////////
+//         Complex          //
+//////////////////////////////
+
+Complex::Complex() {
+    data = std::vector<std::complex<double>>({});
+}
+
+Complex::Complex(std::complex<double> input) {
+    data = std::vector<std::complex<double>>({input});
+}
+
+Complex::Complex(double real, double imag) {
+    std::complex<double> comp = std::complex<double>(real, imag);
+    data = std::vector<std::complex<double>>({comp});
+}
+
+Complex::Complex(double input) {
+    std::complex<double> comp = std::complex<double>(input);
+    data = std::vector<std::complex<double>>({comp});
+}
+
+Complex::Complex(std::vector<std::complex<double>> data_) {
+    data = data_;
+}
+
+Complex
+Complex::operator+(const Complex & comp) const {
+    // TODO: check new size!
+    std::vector<std::complex<double>> newData = data;
+    newData.insert(newData.end(), comp.data.begin(), comp.data.end());
+    return Complex(newData);
+}
+
+Complex
+Complex::operator-(const Complex &) const {
+    return Complex();
+}
+
+// When two Complex with data size > 1 multiply, collapse them.
+Complex
+Complex::operator*(const Complex &) const {
+    return Complex();
+}
+
+Complex
+Complex::operator/(const Complex &) const {
+    return Complex();
+}
+
+void 
+Complex::operator+=(const Complex &) {
+
+}
+
+double 
+Complex::real() const {
+    return 0.0;
+}
+
+double 
+Complex::imag() const {
+    return 0.0;
+}
+
+Complex 
+Complex::conj() const {
+    return Complex();
+}
+
+double
+Complex::norm() const {
+    return 0.0;
+}
+
+std::complex<double> 
+Complex::value() const {
+    return std::complex<double>();
+}
+
+Complex
+operator*(double, const Complex &) {
+    return Complex();
+}
 
 //////////////////////////////
 //      ScalarField        	//
@@ -103,7 +188,7 @@ ScalarField::operator*(const ScalarField &field) const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            result += std::conj(this->getData(x, y)) * field.getData(x, y) * gridSize * gridSize;
+            result += this->getData(x, y).conj() * field.getData(x, y) * gridSize * gridSize;
 
     return result;
 }
@@ -125,7 +210,7 @@ ScalarField::conj() const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = std::conj(this->getData(x, y));
+            newData[getIndex(x, y)] = this->getData(x, y).conj();
 
     return ScalarField(width, height, gridSize, newData);
 }
@@ -181,7 +266,7 @@ ScalarField::norm() const {
     std::vector<double> result(width * height);
 
     for (int i = 0; i < width * height; ++i)
-        result[i] = std::norm(data[i]);
+        result[i] = data[i].norm();
 
     return result;
 }
@@ -213,7 +298,7 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 //////////////////////////////
 
 // TODO: It should be the most time-consuming part. Check the result carefully.
-
+// WARNING: According to the design of Complex object, it should return a Complex which has a data of size width * height. Handle it carefully!
 Complex
 twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 const DoubleParticleScalarFunction &function,
@@ -303,7 +388,7 @@ scalar(Complex c) {
 SingleParticleScalarFunction
 planeWave(double kx, double ky) {
     return [kx, ky](double x, double y) {
-        return exp(Complex(1.i) * (kx * x + ky * y));
+        return exp(1.i * (kx * x + ky * y));
     };
 }
 
@@ -364,7 +449,7 @@ SingleParticleFunction
             else
                 ky = 2. * M_PI * double(y) / (double(height) * gridSize);
 
-            result_FT.setData(x, y) = -field_FT.getData(x, y) * (kx * kx + ky * ky);
+            result_FT.setData(x, y) = field_FT.getData(x, y) * (-1.) * (kx * kx + ky * ky);
         }
 
     return fourier::ifft2d(result_FT);

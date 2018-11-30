@@ -8,9 +8,9 @@
 #include <vector>
 #include <complex>
 
-using Complex = std::complex<double>;
 using namespace std::literals::complex_literals;
 
+class Complex;
 class ScalarField;
 
 using SingleParticleScalarFunction = std::function<Complex(double, double)>;
@@ -31,6 +31,43 @@ namespace Physics {
 	const double m = me * 0.191;
 	const double kappa = 7.64;
 }
+
+// This Complex class represents a complex number. While it performs addition or substraction, instead of directly evaluating the result, it stores a list of std::complex<double> values according to the input values. "data" may grow big so a check on every operation is a must.
+class Complex {
+public:
+
+	Complex();
+
+	Complex(std::complex<double>);
+
+	Complex(double, double);
+
+	Complex(double);
+
+	Complex(std::vector<std::complex<double>>);
+
+	Complex operator+(const Complex &) const;
+	Complex operator-(const Complex &) const;
+	Complex operator*(const Complex &) const;
+	Complex operator/(const Complex &) const;
+
+	void operator+=(const Complex &);
+
+	double real() const;
+
+	double imag() const;
+
+	Complex conj() const;
+
+	double norm() const;
+
+	std::complex<double> value() const;
+
+private:
+	std::vector<std::complex<double>> data;
+};
+
+Complex operator*(double, const Complex &);
 
 class ScalarField {
 public:
