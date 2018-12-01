@@ -13,15 +13,14 @@
 
 Setting
 Setting::defaultSetting() {
+
     Setting setting;
 
-    setting.width       = 200;
-    setting.height      = 100;
-    setting.gridSize    = 1.E-9;
+    setting.scale = HilbertSpace::SystemScale::defaultScale();
     
-    setting.a           = 20E-9;
-    setting.d           = 100E-9;
-    setting.B           = 1.0;
+    setting.a = 20E-9;
+    setting.d = 100E-9;
+    setting.B = 1.0;
 
     return setting;
 }
@@ -62,7 +61,7 @@ calculateJWithSetting_HL(const Setting &setting) {
     // TODO: check if setting matches constraint
     // TODO: check if system is too small that the F-D wave functions are not covered.
 
-    HilbertSpace hilbertSpace = HilbertSpace(setting.width, setting.height, setting.gridSize);
+    HilbertSpace hilbertSpace = HilbertSpace(setting.scale);
 
     // Build H-L singlet/triplet state
 
@@ -129,7 +128,7 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     // TODO: Float point data distortion!!!
 
-    ComplexContainer result_sym = 0., result_asym = 0.;
+    ComplexHighRes result_sym = 0., result_asym = 0.;
 
     // for (SingleOperator *op : hamiltonian.getOperator()) {
     //     Complex temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real();
@@ -200,7 +199,7 @@ DoubleParticleScalarFunction
 coulombEnergy(const Setting &setting) {
     return [setting](double x1, double y1, double x2, double y2) {
         return
-                rInv_field(setting.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
+                rInv_field(setting.scale.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
     };
 }
 

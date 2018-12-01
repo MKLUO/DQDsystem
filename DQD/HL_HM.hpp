@@ -7,15 +7,11 @@ struct Setting {
     
     // NOTE: Parameters are in SI unit system.
 
-    // width/height:    System grid.
-    // gridSize:        Size of a grid      (m)
-    //
     // a:               Width of FD state   (m)
     // d:               Inter-dot distance  (m)
     // B:               B-field             (T)
 
-    int width, height;
-    double gridSize;
+    HilbertSpace::SystemScale scale;
 
     double a, d, B;
 

@@ -6,11 +6,16 @@
 #include <vector>
 #include <complex>
 
-using namespace std::literals::complex_literals;
+// For i
+using namespace std::literals::complex_literals; 
 using Complex = std::complex<double>;
-
-
 class ComplexContainer;
+// ========================================================
+// ComplexHighRes can chosen as ComplexContainer or Complex
+// ========================================================
+// using ComplexHighRes = ComplexContainer;
+using ComplexHighRes = Complex;
+
 // TODO: What is a reasonable max size?
 const int COMPLEX_MAX_SIZE = 50000;
 const double COMPLEX_SHRINK_RATIO = 0.8;
@@ -49,6 +54,8 @@ public:
 	ComplexContainer(double);
 
 	ComplexContainer(std::vector<Complex>);
+
+	operator Complex() const;
 
 	ComplexContainer operator+(const ComplexContainer &) const;
 	ComplexContainer operator-(const ComplexContainer &) const;

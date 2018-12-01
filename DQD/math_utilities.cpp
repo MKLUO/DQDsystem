@@ -32,6 +32,10 @@ ComplexContainer::ComplexContainer(std::vector<Complex> data_) {
     data = data_;
 }
 
+ComplexContainer::operator Complex() const {
+    return value();
+}
+
 ComplexContainer
 ComplexContainer::operator+(const ComplexContainer & comp) const {
     
@@ -545,6 +549,7 @@ DoubleParticleScalarFunction
 rInv_field(double gridSize) {
     return [gridSize](double x1, double y1, double x2, double y2) {
         // An approximation is applied around the r=0 point, in which the HilbertSpace gridSize is needed.
+        // TODO: Verify this approx!
         if ((x1 == x2) & (y1 == y2))
             return 2. * sqrt(M_PI) / gridSize;
         else

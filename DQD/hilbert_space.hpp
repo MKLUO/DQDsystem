@@ -22,6 +22,13 @@ public:
     //
     // NOTE:
 
+    struct SystemScale {
+        static SystemScale defaultScale();
+
+        int width, height;
+        double gridSize;
+    };
+
     class SingleParticleState;
 
     class State;
@@ -50,7 +57,7 @@ public:
 
         SingleParticleState operator*(Complex) const;
 
-        ComplexContainer operator*(const SingleParticleState &) const;
+        ComplexHighRes operator*(const SingleParticleState &) const;
 
         State operator^(const SingleParticleState &) const;
 
@@ -98,7 +105,7 @@ public:
 
         State operator*(Complex) const;
 
-        ComplexContainer operator*(const State &) const;
+        ComplexHighRes operator*(const State &) const;
 
         // TODO: print(), normalization
 
@@ -111,7 +118,7 @@ public:
     public:
         //virtual State operator*(const State &) const = 0;
 
-        virtual ComplexContainer operatorValue(const State &, const State &) const = 0;
+        virtual ComplexHighRes operatorValue(const State &, const State &) const = 0;
     };
 
     // SingleParticleOperator: Represents a one-particle (separable) operator.
@@ -125,7 +132,7 @@ public:
 
         SingleParticleStatePair operator*(const SingleParticleStatePair &) const;
 
-        ComplexContainer operatorValue(const State &, const State &) const override;
+        ComplexHighRes operatorValue(const State &, const State &) const override;
 
     private:
         SingleParticleFunction left;
@@ -141,7 +148,7 @@ public:
         // "*": Operation of DoubleParticleScalarOperator on State
         //State operator*(const State &) const override;
 
-        ComplexContainer operatorValue(const State &, const State &) const override;
+        ComplexHighRes operatorValue(const State &, const State &) const override;
 
     private:
         DoubleParticleScalarFunction func;
@@ -168,7 +175,7 @@ public:
     };
 
     // Constructor input: width and height of the Hilbert space.
-    explicit HilbertSpace(int, int, double);
+    explicit HilbertSpace(SystemScale);
 
     SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &) const;
 
@@ -183,13 +190,12 @@ public:
     Operator createOperator(const DoubleParticleScalarFunction &) const;
 
     // TODO: proper naming of this function.
-    ComplexContainer operatorValue(const State &, const Operator &, const State &) const;
+    ComplexHighRes operatorValue(const State &, const Operator &, const State &) const;
 
     double expectationValue(const State &, const Operator &) const;
 
 private:
-    int width, height;
-    double gridSize;
+    SystemScale scale;
 };
 
 // Abbreviations
