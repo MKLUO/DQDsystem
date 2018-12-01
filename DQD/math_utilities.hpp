@@ -7,8 +7,10 @@
 #include <complex>
 
 using namespace std::literals::complex_literals;
+using Complex = std::complex<double>;
 
-class Complex;
+
+class ComplexContainer;
 // TODO: What is a reasonable max size?
 const int COMPLEX_MAX_SIZE = 50000;
 const double COMPLEX_SHRINK_RATIO = 0.8;
@@ -34,26 +36,26 @@ namespace Physics {
 	const double kappa = 7.64;
 }
 
-// This Complex class represents a complex number. While it performs addition or substraction, instead of directly evaluating the result, it stores a list of std::complex<double> values according to the input values. "data" may grow big so a check on every operation is a must.
-class Complex {
+// This ComplexContainer class represents a complex number. While it performs addition or substraction, instead of directly evaluating the result, it stores a list of std::complex<double> values according to the input values. "data" may grow big so a check on every operation is a must.
+class ComplexContainer {
 public:
 
-	Complex();
+	ComplexContainer();
 
-	Complex(std::complex<double>);
+	ComplexContainer(Complex);
 
-	Complex(double, double);
+	ComplexContainer(double, double);
 
-	Complex(double);
+	ComplexContainer(double);
 
-	Complex(std::vector<std::complex<double>>);
+	ComplexContainer(std::vector<Complex>);
 
-	Complex operator+(const Complex &) const;
-	Complex operator-(const Complex &) const;
-	Complex operator*(const Complex &) const;
-	Complex operator/(const Complex &) const;
+	ComplexContainer operator+(const ComplexContainer &) const;
+	ComplexContainer operator-(const ComplexContainer &) const;
+	ComplexContainer operator*(const ComplexContainer &) const;
+	ComplexContainer operator/(const ComplexContainer &) const;
 
-	Complex operator-() const;
+	ComplexContainer operator-() const;
 
 	double real() const;
 
@@ -61,16 +63,17 @@ public:
 
 	double norm() const;
 
-	Complex conj() const;
+	ComplexContainer conj() const;
 
 	int size() const;
 
 	bool isZero() const;
 
-	std::complex<double> value() const;
+	Complex value() const;
 	
 	// Non-const methods.
 
+	void operator+=(const ComplexContainer &);
 	void operator+=(const Complex &);
 
 	void shrink(double);
@@ -78,10 +81,10 @@ public:
 	void shrink(int);
 
 private:
-	std::vector<std::complex<double>> data;
+	std::vector<Complex> data;
 };
 
-Complex operator*(double, const Complex &);
+ComplexContainer operator*(double, const ComplexContainer &);
 
 class ScalarField {
 public:
@@ -105,7 +108,7 @@ public:
 
 	ScalarField operator*(double) const;
 
-	Complex operator*(const ScalarField &) const;
+	ComplexContainer operator*(const ScalarField &) const;
 
 	ScalarField operator^(const ScalarField &) const;
 
@@ -150,7 +153,7 @@ ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
 
 // Math Utilities
 
-Complex
+ComplexContainer
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
 				const ScalarField &);
 

@@ -50,7 +50,7 @@ public:
 
         SingleParticleState operator*(Complex) const;
 
-        Complex operator*(const SingleParticleState &) const;
+        ComplexContainer operator*(const SingleParticleState &) const;
 
         State operator^(const SingleParticleState &) const;
 
@@ -98,7 +98,7 @@ public:
 
         State operator*(Complex) const;
 
-        Complex operator*(const State &) const;
+        ComplexContainer operator*(const State &) const;
 
         // TODO: print(), normalization
 
@@ -111,7 +111,7 @@ public:
     public:
         //virtual State operator*(const State &) const = 0;
 
-        virtual Complex operatorValue(const State &, const State &) const = 0;
+        virtual ComplexContainer operatorValue(const State &, const State &) const = 0;
     };
 
     // SingleParticleOperator: Represents a one-particle (separable) operator.
@@ -125,7 +125,7 @@ public:
 
         SingleParticleStatePair operator*(const SingleParticleStatePair &) const;
 
-        Complex operatorValue(const State &, const State &) const override;
+        ComplexContainer operatorValue(const State &, const State &) const override;
 
     private:
         SingleParticleFunction left;
@@ -141,7 +141,7 @@ public:
         // "*": Operation of DoubleParticleScalarOperator on State
         //State operator*(const State &) const override;
 
-        Complex operatorValue(const State &, const State &) const override;
+        ComplexContainer operatorValue(const State &, const State &) const override;
 
     private:
         DoubleParticleScalarFunction func;
@@ -183,7 +183,7 @@ public:
     Operator createOperator(const DoubleParticleScalarFunction &) const;
 
     // TODO: proper naming of this function.
-    Complex operatorValue(const State &, const Operator &, const State &) const;
+    ComplexContainer operatorValue(const State &, const Operator &, const State &) const;
 
     double expectationValue(const State &, const Operator &) const;
 

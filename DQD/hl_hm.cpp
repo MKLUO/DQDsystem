@@ -129,15 +129,19 @@ calculateJWithSetting_HL(const Setting &setting) {
 
     // TODO: Float point data distortion!!!
 
-    Complex result_sym = 0., result_asym = 0.;
-    for (SingleOperator *op : hamiltonian.getOperator()) {
-        Complex temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real();
-        Complex temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real();
-        result_sym += temp1;
-        result_asym += temp2;
+    ComplexContainer result_sym = 0., result_asym = 0.;
 
-        //std::cout << temp1 << " " << temp2 << std::endl;
-    }
+    // for (SingleOperator *op : hamiltonian.getOperator()) {
+    //     Complex temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real();
+    //     Complex temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real();
+    //     result_sym += temp1;
+    //     result_asym += temp2;
+
+    //     //std::cout << temp1 << " " << temp2 << std::endl;
+    // }
+
+    result_sym = hilbertSpace.operatorValue(state_FD_sym, hamiltonian, state_FD_sym);
+    result_asym = hilbertSpace.operatorValue(state_FD_antisym, hamiltonian, state_FD_antisym);
 
     return (result_asym - result_sym).real();
 }
@@ -162,13 +166,13 @@ fockDarwin(const Setting &setting, Orientation direction) {
         }
         if (B == 0)
             return setting.FDConstant() *
-                exp((- Physics::m * omega * sho_field((x - d * sign / 2), y) / 
-                    (2.0 * Physics::hBar)).value());
+                exp(- Physics::m * omega * sho_field((x - d * sign / 2), y) / 
+                    (2.0 * Physics::hBar));
         else
             return setting.FDConstant() *
                 exp(1.i * sign * y * d  / (4.0 * pow(lb, 2))) *
-                exp((- Physics::m * omega * sho_field((x - d * sign / 2), y) / 
-                    (2.0 * Physics::hBar)).value());
+                exp(- Physics::m * omega * sho_field((x - d * sign / 2), y) / 
+                    (2.0 * Physics::hBar));
     };
 }
 

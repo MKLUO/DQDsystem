@@ -10,38 +10,38 @@
 //         Complex          //
 //////////////////////////////
 
-Complex::Complex() {
-    data = std::vector<std::complex<double>>({0.0 + 0.0i});
+ComplexContainer::ComplexContainer() {
+    data = std::vector<Complex>({0.0 + 0.0i});
 }
 
-Complex::Complex(std::complex<double> input) {
-    data = std::vector<std::complex<double>>({input});
+ComplexContainer::ComplexContainer(Complex input) {
+    data = std::vector<Complex>({input});
 }
 
-Complex::Complex(double real, double imag) {
-    std::complex<double> comp = std::complex<double>(real, imag);
-    data = std::vector<std::complex<double>>({comp});
+ComplexContainer::ComplexContainer(double real, double imag) {
+    Complex comp = Complex(real, imag);
+    data = std::vector<Complex>({comp});
 }
 
-Complex::Complex(double input) {
-    std::complex<double> comp = std::complex<double>(input);
-    data = std::vector<std::complex<double>>({comp});
+ComplexContainer::ComplexContainer(double input) {
+    Complex comp = Complex(input);
+    data = std::vector<Complex>({comp});
 }
 
-Complex::Complex(std::vector<std::complex<double>> data_) {
+ComplexContainer::ComplexContainer(std::vector<Complex> data_) {
     data = data_;
 }
 
-Complex
-Complex::operator+(const Complex & comp) const {
+ComplexContainer
+ComplexContainer::operator+(const ComplexContainer & comp) const {
     
-    std::vector<std::complex<double>> newData = data;
+    std::vector<Complex> newData = data;
     if (isZero()) 
         newData = comp.data;
     else 
         newData.insert(newData.end(), comp.data.begin(), comp.data.end());
 
-    Complex newComp(newData);
+    ComplexContainer newComp(newData);
 
     // Shrinking after operation
     if (newComp.size() > COMPLEX_MAX_SIZE) 
@@ -50,17 +50,17 @@ Complex::operator+(const Complex & comp) const {
     return newComp;
 }
 
-Complex
-Complex::operator-(const Complex & comp) const {
+ComplexContainer
+ComplexContainer::operator-(const ComplexContainer & comp) const {
     return *this + (-comp);
 }
 
-// When two Complex multiply and exceed max_size, shrink them inb4.
-Complex
-Complex::operator*(const Complex & comp) const {
+// When two ComplexContainer multiply and exceed max_size, shrink them inb4.
+ComplexContainer
+ComplexContainer::operator*(const ComplexContainer & comp) const {
     
-    Complex comp1 = *this;
-    Complex comp2 = comp;
+    ComplexContainer comp1 = *this;
+    ComplexContainer comp2 = comp;
 
     // Shrinking before operation
     long long oldSize = LONGLONG(comp1.size()) * LONGLONG(comp2.size());
@@ -70,77 +70,83 @@ Complex::operator*(const Complex & comp) const {
         comp2.shrink(ratio);
     }
 
-    std::vector<std::complex<double>> newData;
-    for (std::complex<double> val1 : comp1.data)
-        for (std::complex<double> val2 : comp2.data)
+    std::vector<Complex> newData;
+    for (Complex val1 : comp1.data)
+        for (Complex val2 : comp2.data)
             newData.push_back(val1 * val2);
 
-    return Complex(newData);
+    return ComplexContainer(newData);
 }
 
-Complex
-Complex::operator/(const Complex & comp) const {
+ComplexContainer
+ComplexContainer::operator/(const ComplexContainer & comp) const {
    return *this * (1.0 / comp.value());
 }
 
-Complex
-Complex::operator-() const {
-    Complex newComp = *this;
-    for (std::complex<double>& val : newComp.data)
+ComplexContainer
+ComplexContainer::operator-() const {
+    ComplexContainer newComp = *this;
+    for (Complex& val : newComp.data)
         val = val * -1.0;
 
     return newComp;
 }
 
 void 
-Complex::operator+=(const Complex & comp) {
+ComplexContainer::operator+=(const ComplexContainer & comp) {
     data = (*this + comp).data;
 }
 
+void 
+ComplexContainer::operator+=(const Complex & comp) {
+    data.push_back(comp);
+}
+
+
 double 
-Complex::real() const {
+ComplexContainer::real() const {
     return value().real();
 }
 
 double 
-Complex::imag() const {
+ComplexContainer::imag() const {
     return value().imag();
 }
 
 double
-Complex::norm() const {
+ComplexContainer::norm() const {
     return std::norm(value());
 }
 
-Complex 
-Complex::conj() const {
-    Complex newComp = *this;
-    for (std::complex<double>& val : newComp.data)
+ComplexContainer 
+ComplexContainer::conj() const {
+    ComplexContainer newComp = *this;
+    for (Complex& val : newComp.data)
         val = std::conj(val);
 
     return newComp;
 }
 
 int
-Complex::size() const {
+ComplexContainer::size() const {
     return data.size();
 }
 
 bool
-Complex::isZero() const {
+ComplexContainer::isZero() const {
     return (data.size() == 1) && (data[0] == 0.0 + 0.0i);
 }
 
-std::complex<double> 
-Complex::value() const {
-    Complex comp = *this;
+Complex 
+ComplexContainer::value() const {
+    ComplexContainer comp = *this;
     comp.shrink(1);
 
     return comp.data[0];
 }
 
 void 
-Complex::shrink(double ratio) { 
+ComplexContainer::shrink(double ratio) { 
     int newSize = int(std::floor(ratio * double(size())));
     if (newSize < 1) newSize = 1;
 
@@ -148,7 +154,7 @@ Complex::shrink(double ratio) {
 }
 
 void 
-Complex::shrink(int newSize) { 
+ComplexContainer::shrink(int newSize) { 
 
     if (newSize < 1) newSize = 1;
 
@@ -170,7 +176,7 @@ Complex::shrink(int newSize) {
     //============ Method 2 : Pairwise reduction ============
 
     std::vector<double> real_part, imag_part;
-    for (std::complex<double> val : data) {
+    for (Complex val : data) {
         real_part.push_back(val.real());
         imag_part.push_back(val.imag());
     }
@@ -203,15 +209,15 @@ Complex::shrink(int newSize) {
         imag_part = new_imag_part;
     }
 
-    std::vector<std::complex<double>> newData;
+    std::vector<Complex> newData;
     for (int i = 0; i < real_part.size(); i++)
         newData.push_back(real_part[i] + 1.0i * imag_part[i]);
 
     data = newData;
 }
 
-Complex
-operator*(double d, const Complex & comp) {
+ComplexContainer
+operator*(double d, const ComplexContainer & comp) {
     return comp * d;
 }
 
@@ -308,13 +314,13 @@ ScalarField::operator*(double d) const {
     return *this * Complex(d, 0.);
 }
 
-Complex
+ComplexContainer
 ScalarField::operator*(const ScalarField &field) const {
-    Complex result;
+    ComplexContainer result;
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            result += this->getData(x, y).conj() * field.getData(x, y) * gridSize * gridSize;
+            result += std::conj(this->getData(x, y)) * field.getData(x, y) * gridSize * gridSize;
 
     return result;
 }
@@ -336,7 +342,7 @@ ScalarField::conj() const {
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = this->getData(x, y).conj();
+            newData[getIndex(x, y)] = std::conj(this->getData(x, y));
 
     return ScalarField(width, height, gridSize, newData);
 }
@@ -392,7 +398,7 @@ ScalarField::norm() const {
     std::vector<double> result(width * height);
 
     for (int i = 0; i < width * height; ++i)
-        result[i] = data[i].norm();
+        result[i] = std::norm(data[i]);
 
     return result;
 }
@@ -425,7 +431,7 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 
 // It should be the most time-consuming part. Check the result carefully.
 // WARNING: According to the design of Complex object, it might return a Complex which has a data of size width * height. Handle it carefully!
-Complex
+ComplexContainer
 twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 const DoubleParticleScalarFunction &function,
                 const ScalarField &right1, const ScalarField &right2) {
@@ -451,7 +457,7 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
 
     convResult = reverse(convResult);
 
-    Complex result;
+    ComplexContainer result;
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
