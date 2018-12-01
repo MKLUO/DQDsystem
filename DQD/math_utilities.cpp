@@ -152,23 +152,60 @@ Complex::shrink(int newSize) {
 
     if (newSize < 1) newSize = 1;
 
-    //============TEST: Naive method:============
+    //============ (TEST) Method 1 : Naive method ============
 
-    auto newData = data;
+    // auto newData = data;
 
-    // sort from big to small norm
-    std::sort(newData.begin(), newData.end(), 
-        [](auto val1, auto val2) {
-            return std::norm(val1) > std::norm(val2);
-        }
-    );
+    // std::sort(newData.begin(), newData.end(), 
+    //     [](auto val1, auto val2) {
+    //         return std::norm(val1) > std::norm(val2);
+    //     }
+    // );
 
-    while (newData.size() > newSize) {
-        newData.end()[-2] = newData.end()[-2] + newData.end()[-1];
-        newData.pop_back();
-    }
+    // while (newData.size() > newSize) {
+    //     newData.end()[-2] = newData.end()[-2] + newData.end()[-1];
+    //     newData.pop_back();
+    // }
     
-    // TODO: Pairwise reduction
+    //============ Method 2 : Pairwise reduction ============
+
+    std::vector<double> real_part, imag_part;
+    for (std::complex<double> val : data) {
+        real_part.push_back(val.real());
+        imag_part.push_back(val.imag());
+    }
+
+    while (real_part.size() > newSize) {
+        for (auto newData : {&real_part, &imag_part})
+            std::sort(newData->begin(), newData->end(), 
+                [](auto val1, auto val2) {
+                    return std::abs(val1) > std::abs(val2);
+                }
+            );
+
+        int reductions;
+        if (real_part.size() > 2 * newSize)
+            reductions = int(std::floor(0.5 * (double(real_part.size()))));
+        else 
+            reductions = real_part.size() - newSize;
+
+        std::vector<double> new_real_part, new_imag_part;
+        for (int i = 0; i < reductions; i++) {
+            new_real_part.push_back(real_part[2*i] + real_part[2*i + 1]);
+            new_imag_part.push_back(imag_part[2*i] + imag_part[2*i + 1]);
+        }
+        for (int i = 2 * reductions; i < real_part.size(); i++) {
+            new_real_part.push_back(real_part[i]);
+            new_imag_part.push_back(imag_part[i]);
+        }
+
+        real_part = new_real_part;
+        imag_part = new_imag_part;
+    }
+
+    std::vector<std::complex<double>> newData;
+    for (int i = 0; i < real_part.size(); i++)
+        newData.push_back(real_part[i] + 1.0i * imag_part[i]);
 
     data = newData;
 }
