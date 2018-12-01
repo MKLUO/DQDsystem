@@ -52,7 +52,7 @@ ComplexContainer::operator+(const ComplexContainer & comp) const {
 
 ComplexContainer
 ComplexContainer::operator-(const ComplexContainer & comp) const {
-    return *this + (-comp);
+    return operator+(-comp);
 }
 
 // When two ComplexContainer multiply and exceed max_size, shrink them inb4.
@@ -80,26 +80,29 @@ ComplexContainer::operator*(const ComplexContainer & comp) const {
 
 ComplexContainer
 ComplexContainer::operator/(const ComplexContainer & comp) const {
-   return *this * (1.0 / comp.value());
+   return operator*(1.0 / comp.value());
 }
 
 ComplexContainer
 ComplexContainer::operator-() const {
-    ComplexContainer newComp = *this;
-    for (Complex& val : newComp.data)
+    auto newData = data;
+    for (Complex& val : newData)
         val = val * -1.0;
 
-    return newComp;
+    return ComplexContainer(newData);
 }
 
 void 
 ComplexContainer::operator+=(const ComplexContainer & comp) {
-    data = (*this + comp).data;
+    data = operator+(comp).data;
 }
 
 void 
 ComplexContainer::operator+=(const Complex & comp) {
-    data.push_back(comp);
+    if (isZero()) 
+        data = {comp};
+    else
+        data.push_back(comp);
 }
 
 
@@ -120,11 +123,11 @@ ComplexContainer::norm() const {
 
 ComplexContainer 
 ComplexContainer::conj() const {
-    ComplexContainer newComp = *this;
-    for (Complex& val : newComp.data)
+    auto newData = data;
+    for (Complex& val : newData)
         val = std::conj(val);
 
-    return newComp;
+    return ComplexContainer(newData);
 }
 
 int
@@ -185,7 +188,7 @@ ComplexContainer::shrink(int newSize) {
         for (auto newData : {&real_part, &imag_part})
             std::sort(newData->begin(), newData->end(), 
                 [](auto val1, auto val2) {
-                    return std::abs(val1) > std::abs(val2);
+                    return std::abs(val1) < std::abs(val2);
                 }
             );
 
