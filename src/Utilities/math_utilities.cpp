@@ -332,7 +332,9 @@ ComplexHighRes
 ScalarField::operator*(const ScalarField &field) const {
     ComplexHighRes result;
 
+    #ifdef HIGH_RES_COMPLEX
     result.reserve(width * height);
+    #endif
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
@@ -475,7 +477,9 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
 
     ComplexHighRes result;
 
+    #ifdef HIGH_RES_COMPLEX
     result.reserve(width * height);
+    #endif
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)

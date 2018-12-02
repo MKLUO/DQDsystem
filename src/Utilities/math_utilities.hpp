@@ -17,8 +17,13 @@ const double COMPLEX_SHRINK_RATIO = 0.8;
 // ========================================================
 // ComplexHighRes can chosen as ComplexContainer or Complex
 // ========================================================
-using ComplexHighRes = ComplexContainer;
-// using ComplexHighRes = Complex;
+#define HIGH_RES_COMPLEX
+
+#ifdef HIGH_RES_COMPLEX
+	using ComplexHighRes = ComplexContainer;
+#else
+	using ComplexHighRes = Complex;
+#endif
 
 enum class Spin {
 	Up,

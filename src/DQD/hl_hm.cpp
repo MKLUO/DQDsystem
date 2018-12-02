@@ -18,8 +18,8 @@ Setting::defaultSetting() {
 
     setting.scale = HilbertSpace::SystemScale::defaultScale();
     
-    setting.a = 20E-9;
-    setting.d = 100E-9;
+    setting.a = 10E-9;
+    setting.d = 50E-9;
     setting.B = 1.0;
 
     return setting;
@@ -81,10 +81,10 @@ coulombMatrix(const Setting & setting, Ansatz ansatz, Basis basis) {
             break;
 
         case Ansatz::HM:
-            states.push_back((left_up   ^ right_down).antisym());
-            states.push_back((left_down ^ right_up)  .antisym());
-            states.push_back((left_up   ^ left_down) .antisym());
-            states.push_back((right_up  ^ right_down).antisym());
+            states.push_back((left_up   ^ right_down).antisym()); // (up, down)
+            states.push_back((left_down ^ right_up)  .antisym()); // (down, up)
+            states.push_back((left_up   ^ left_down) .antisym()); // (2, 0)
+            states.push_back((right_up  ^ right_down).antisym()); // (0, 2)
             break;
     }                    
 
