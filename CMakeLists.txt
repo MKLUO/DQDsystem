@@ -4,31 +4,23 @@ project(DQDSystem)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(DQD
-        Utilities)
-
-add_library(Fourier
-        Utilities/fourier.hpp
-        Utilities/fourier.cpp)
+add_library(Math
+        src/Utilities/math_utilities.cpp
+        src/Utilities/fourier.cpp)
 
 add_library(DQD
-        DQD/hilbert_space.cpp
-        DQD/hilbert_space.hpp
-
-        DQD/math_utilities.cpp
-        DQD/math_utilities.hpp
-
-        DQD/hl_hm.cpp
-        DQD/hl_hm.hpp)
+        src/DQD/hilbert_space.cpp
+        src/DQD/hl_hm.cpp)
 
 add_library(Plot
-        Utilities/plot.hpp
-        Utilities/plot.cpp)
+        src/Utilities/plot.cpp)
 
-add_executable(DQDSystem
-        Test/test.cpp)
+target_link_libraries(DQD Math)
+target_link_libraries(Plot Math)
 
-target_link_libraries(DQD Fourier)
+target_include_directories(DQD PUBLIC 
+        src/Utilities
+        src/DQD)
 
 #------ArrayFire & CUDA
 
@@ -41,24 +33,17 @@ ENDIF()
 
 find_package(CUDA)
 # ArrayFire CUDA/CPU backend
-# set(CUDA_FOUND FALSE)
 IF(${CUDA_FOUND})
     message(STATUS "ArrayFire CUDA found. Enabling CUDA/CPU benchmark")
 
-    target_link_libraries(Fourier ${ArrayFire_LIBRARIES}
-            ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES})
-
-    target_link_libraries(DQDSystem Fourier DQD Plot ${ArrayFire_LIBRARIES}
+    target_link_libraries(Math ${ArrayFire_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT} ${CUDA_LIBRARIES})
 
 # ArrayFire CPU backend
 ELSE()
     message(STATUS "ArrayFire CUDA not found. Using CPU backend.")
 
-    target_link_libraries(Fourier ${ArrayFire_CPU_LIBRARIES}
-            ${CMAKE_THREAD_LIBS_INIT})
-
-    target_link_libraries(DQDSystem Fourier DQD Plot ${ArrayFire_CPU_LIBRARIES}
+    target_link_libraries(Math ${ArrayFire_CPU_LIBRARIES}
             ${CMAKE_THREAD_LIBS_INIT})
 
 ENDIF()

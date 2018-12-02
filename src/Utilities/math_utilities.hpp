@@ -8,17 +8,23 @@
 
 // For i
 using namespace std::literals::complex_literals; 
+
 using Complex = std::complex<double>;
 class ComplexContainer;
+const int COMPLEX_MAX_SIZE = 50000; // TODO: What is a reasonable max size?
+const double COMPLEX_SHRINK_RATIO = 0.8;
+
 // ========================================================
 // ComplexHighRes can chosen as ComplexContainer or Complex
 // ========================================================
-// using ComplexHighRes = ComplexContainer;
-using ComplexHighRes = Complex;
+using ComplexHighRes = ComplexContainer;
+// using ComplexHighRes = Complex;
 
-// TODO: What is a reasonable max size?
-const int COMPLEX_MAX_SIZE = 50000;
-const double COMPLEX_SHRINK_RATIO = 0.8;
+enum class Spin {
+	Up,
+	Down,
+	None
+};
 
 class ScalarField;
 
@@ -27,12 +33,14 @@ using DoubleParticleScalarFunction = std::function<Complex(double, double, doubl
 
 using SingleParticleFunction = std::function<ScalarField(ScalarField)>;
 
-namespace Physics {
+using Matrix = std::vector<std::vector<ComplexHighRes>>;
+
+namespace PhysicsContant {
 
 	// TODO: Physics related entities shouldn't be here
 
 	const double e = 1.60217662e-19;
-		const double me = 9.10938356e-31;
+	const double me = 9.10938356e-31;
 	const double hBar = 1.0545718e-34;
 	const double epsilon = 8.854187817e-12;
 
@@ -55,7 +63,7 @@ public:
 
 	ComplexContainer(std::vector<Complex>);
 
-	operator Complex() const;
+	// operator Complex() const;
 
 	ComplexContainer operator+(const ComplexContainer &) const;
 	ComplexContainer operator-(const ComplexContainer &) const;
@@ -87,11 +95,17 @@ public:
 
 	void shrink(int);
 
+	// Utils
+
+	void reserve(int);
+
 private:
 	std::vector<Complex> data;
 };
 
 ComplexContainer operator*(double, const ComplexContainer &);
+std::ostream & operator<<(std::ostream &, const ComplexContainer &);
+
 
 class ScalarField {
 public:
@@ -115,7 +129,7 @@ public:
 
 	ScalarField operator*(double) const;
 
-	ComplexContainer operator*(const ScalarField &) const;
+	ComplexHighRes operator*(const ScalarField &) const;
 
 	ScalarField operator^(const ScalarField &) const;
 
@@ -160,12 +174,15 @@ ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
 
 // Math Utilities
 
-ComplexContainer
+ComplexHighRes
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,
 				const ScalarField &);
 
 ScalarField
 reverse(const ScalarField&);
+
+// Complex
+// value(const ComplexHighRes&);
 
 // ScalarFields
 

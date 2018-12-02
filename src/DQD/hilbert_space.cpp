@@ -11,8 +11,8 @@ HilbertSpace::SystemScale::defaultScale() {
 
     HilbertSpace::SystemScale scale;
 
-    scale.width         = 100;
-    scale.height        = 200;
+    scale.width         = 200;
+    scale.height        = 100;
     scale.gridSize      = 1.0E-9;
 
     return scale;
@@ -24,7 +24,12 @@ HilbertSpace::HilbertSpace(HilbertSpace::SystemScale scale_) {
 
 SPState
 HilbertSpace::createSingleParticleState(const SPSFunction &function) const {
-    return SPState(createScalarField(function));
+    return SPState(createScalarField(function), Spin::None);
+}
+
+SPState
+HilbertSpace::createSingleParticleState(const SPSFunction &function, Spin spin) const {
+    return SPState(createScalarField(function), spin);
 }
 
 ScalarField
@@ -73,27 +78,53 @@ HilbertSpace::expectationValue(const State &state, const Operator &ops) const {
 //////////////////////////////
 //   SingleParticleState    //
 //////////////////////////////
-HilbertSpace::SingleParticleState::SingleParticleState(const ScalarField &field_) :
-        field(field_) {}
+
+HilbertSpace::SingleParticleState::SingleParticleState(const ScalarField &field_, Spin spin_) :
+        field(field_), spin(spin_) {}        
 
 ScalarField
 HilbertSpace::SingleParticleState::getField() const {
     return field;
 }
 
+Spin
+HilbertSpace::SingleParticleState::getSpin() const {
+    return spin;
+}
+
 SPState
 HilbertSpace::SingleParticleState::operator+(const SPState &state) const {
-    return SPState(this->getField() + state.getField());
+    if (spin == state.spin)
+        return SPState(this->getField() + state.getField(), spin);
+    else 
+        throw std::exception();
 }
 
 SPState
 HilbertSpace::SingleParticleState::operator*(Complex c) const {
-    return SPState(field * c);
+    return SPState(field * c, spin);
 }
 
+// Spin selection rule is implemented here. TODO: Is it a good practice?
 ComplexHighRes
 HilbertSpace::SingleParticleState::operator*(const SPState &state) const {
-    return (this->getField() * state.getField());
+    if ((spin == Spin::None) && (state.spin == Spin::None)) {
+        return (this->getField() * state.getField());
+
+    } else if ((spin != Spin::None) && (state.spin != Spin::None)) {
+        if (spin == state.spin)
+            return (this->getField() * state.getField());            
+        else 
+            return 0.0;
+
+    } else {
+        throw std::exception();
+    }
+}
+
+SPState 
+HilbertSpace::SingleParticleState::operator*(const SingleParticleFunction & op) const {
+    return SingleParticleState(field * op, spin);
 }
 
 State
@@ -145,6 +176,30 @@ State
 HilbertSpace::State::normalize() const {
     double norm = ((*this) * (*this)).real();
     return (*this) * (1. / sqrt(norm));
+}
+
+State 
+HilbertSpace::State::antisym() const {
+    State newState = *this;
+    for (const SPStatePair & pair : states)
+        newState.states.push_back(SPStatePair(
+            pair.getSecondField() * (-1.0),
+            pair.getFirstField()
+        ));
+
+    return newState.normalize();
+}
+
+State 
+HilbertSpace::State::sym() const {
+    State newState = *this;
+    for (const SPStatePair & pair : states)
+        newState.states.push_back(SPStatePair(
+            pair.getSecondField(),
+            pair.getFirstField()
+        ));
+
+    return newState.normalize();
 }
 
 State
@@ -221,8 +276,8 @@ HilbertSpace::SingleParticleOperator::operator*(const State &state) const {
 
 SPStatePair
 HilbertSpace::SingleParticleOperator::operator*(const SPStatePair &pair) const {
-    return SPStatePair(SPState(pair.getFirstField().getField() * left),
-                       SPState(pair.getSecondField().getField() * right));
+    return SPStatePair(pair.getFirstField() * left,
+                       pair.getSecondField() * right);
 }
 
 ComplexHighRes
@@ -254,12 +309,20 @@ HilbertSpace::DoubleParticleScalarOperator::operatorValue(const State &left, con
 
     for (const SPStatePair &pair1 : states1) {
         for (const SPStatePair &pair2 : states2) {
-            ScalarField field1Left = pair1.getFirstField().getField();
-            ScalarField field1Right = pair1.getSecondField().getField();
-            ScalarField field2Left = pair2.getFirstField().getField();
-            ScalarField field2Right = pair2.getSecondField().getField();
+            
+            SPState field1Left  = pair1.getFirstField();
+            SPState field1Right = pair1.getSecondField();
+            SPState field2Left  = pair2.getFirstField();
+            SPState field2Right = pair2.getSecondField();
 
-            result += twoSiteIntegral(field1Left, field1Right, func, field2Left, field2Right);
+            // TODO: It seems like Spin should be in MathUtilities, spin selection rule shouldn't be evaluated here!!!
+            if  ((field1Left.getSpin() == field2Left.getSpin()) &&
+                (field1Right.getSpin() == field2Right.getSpin()))
+                result += twoSiteIntegral(
+                    field1Left.getField(), field1Right.getField(), 
+                    func, 
+                    field2Left.getField(), field2Right.getField()
+            );
         }
     }
 

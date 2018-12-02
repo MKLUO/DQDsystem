@@ -30,3 +30,11 @@ void plotter::outputToFile(const ScalarField &field, std::string path) {
 
     outputFile.close();
 }
+
+void plotter::printMatrix(const Matrix & matrix) {
+    for (auto& row : matrix) {
+        for (auto& val : row)
+            std::cout << std::setprecision(5) << val << " ";
+        std::cout << std::endl;
+    }
+}

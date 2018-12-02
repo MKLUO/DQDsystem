@@ -32,9 +32,9 @@ ComplexContainer::ComplexContainer(std::vector<Complex> data_) {
     data = data_;
 }
 
-ComplexContainer::operator Complex() const {
-    return value();
-}
+// ComplexContainer::operator Complex() const {
+//     return value();
+// }
 
 ComplexContainer
 ComplexContainer::operator+(const ComplexContainer & comp) const {
@@ -103,10 +103,7 @@ ComplexContainer::operator+=(const ComplexContainer & comp) {
 
 void 
 ComplexContainer::operator+=(const Complex & comp) {
-    if (isZero()) 
-        data = {comp};
-    else
-        data.push_back(comp);
+    data.push_back(comp);
 }
 
 
@@ -223,11 +220,21 @@ ComplexContainer::shrink(int newSize) {
     data = newData;
 }
 
+void 
+ComplexContainer::reserve(int newSize) {
+    data.reserve(newSize);
+}
+
 ComplexContainer
 operator*(double d, const ComplexContainer & comp) {
     return comp * d;
 }
 
+std::ostream & 
+operator<<(std::ostream & os, const ComplexContainer & comp) {
+    os << "(" << comp.real() << ", " << comp.imag() << ")";
+    return os;
+}
 
 //////////////////////////////
 //      ScalarField        	//
@@ -321,9 +328,11 @@ ScalarField::operator*(double d) const {
     return *this * Complex(d, 0.);
 }
 
-ComplexContainer
+ComplexHighRes
 ScalarField::operator*(const ScalarField &field) const {
-    ComplexContainer result;
+    ComplexHighRes result;
+
+    result.reserve(width * height);
 
     for (int x = 0; x < width; ++x)
         for (int y = 0; y < height; ++y)
@@ -438,7 +447,7 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 
 // It should be the most time-consuming part. Check the result carefully.
 // WARNING: According to the design of Complex object, it might return a Complex which has a data of size width * height. Handle it carefully!
-ComplexContainer
+ComplexHighRes
 twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 const DoubleParticleScalarFunction &function,
                 const ScalarField &right1, const ScalarField &right2) {
@@ -464,7 +473,9 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
 
     convResult = reverse(convResult);
 
-    ComplexContainer result;
+    ComplexHighRes result;
+
+    result.reserve(width * height);
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
@@ -487,6 +498,11 @@ reverse(const ScalarField& field) {
 
     return result;
 }
+
+// Complex
+// value(const ComplexHighRes& comp) {
+//     return Complex(comp);
+// }
 
 // ScalarFields
 

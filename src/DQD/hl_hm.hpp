@@ -28,10 +28,23 @@ struct Setting {
     double magneticLength() const;
 };
 
+enum class Ansatz {
+    HL,     // Heitler-London
+    HM     // Hund-Mulliken
+    // HMp     // Hund-Mulliken + (1+,1) & (1,1+)
+};
+
+enum class Basis {
+    FD      // Fock-Darwin
+};
+
 enum class Orientation {
     Left,
     Right
 };
+
+Matrix
+coulombMatrix(const Setting &, Ansatz, Basis);
 
 double
 calculateJWithSetting_HL(const Setting &);
@@ -47,6 +60,11 @@ potentialEnergy(const Setting &setting);
 
 DoubleParticleScalarFunction
 coulombEnergy(const Setting &setting);
+
+// Util
+
+SPState
+fockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin);
 
 // For test
 DoubleParticleScalarFunction

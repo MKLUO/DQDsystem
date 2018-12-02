@@ -6,4 +6,5 @@ namespace plotter {
     void plotTest();
     void plotFieldAbs(const ScalarField &);
     void outputToFile(const ScalarField &field, std::string path);
+    void printMatrix(const Matrix &);
 }

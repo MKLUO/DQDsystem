@@ -44,9 +44,11 @@ public:
     // SingleParticleState: Represents a one-particle wavefunction.
     class SingleParticleState {
     public:
-        explicit SingleParticleState(const ScalarField &);
+        explicit SingleParticleState(const ScalarField &, Spin);
 
         ScalarField getField() const;
+
+        Spin getSpin() const;
 
         // Operators
         // "+": Addition of two SingleParticleState
@@ -59,10 +61,13 @@ public:
 
         ComplexHighRes operator*(const SingleParticleState &) const;
 
+        SingleParticleState operator*(const SingleParticleFunction &) const;
+
         State operator^(const SingleParticleState &) const;
 
     private:
         ScalarField field;
+        Spin spin;
     };
 
     // SingleParticleStatePair: Represents a separable two-particle wavefunction.
@@ -95,6 +100,10 @@ public:
 
         State normalize() const;
 
+        State antisym() const;
+
+        State sym() const;
+
         // Operators
         // "+": Addition of two State
         // "*": Multiply with a scalar
@@ -106,8 +115,6 @@ public:
         State operator*(Complex) const;
 
         ComplexHighRes operator*(const State &) const;
-
-        // TODO: print(), normalization
 
     private:
         std::vector<SingleParticleStatePair> states;
@@ -178,6 +185,7 @@ public:
     explicit HilbertSpace(SystemScale);
 
     SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &) const;
+    SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &, Spin) const;
 
     ScalarField createScalarField() const;
 
