@@ -166,6 +166,10 @@ public:
 
 	std::vector<double> norm() const;
 
+	// Utils
+
+	void plotTemp() const; // For DEBUG
+
 private:
 
 	std::vector<Complex> data;

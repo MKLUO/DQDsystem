@@ -6,6 +6,8 @@
 #include "math_utilities.hpp"
 #include "fourier.hpp"
 
+#include "plot.hpp"
+
 //////////////////////////////
 //           Spin           //
 //////////////////////////////
@@ -434,6 +436,11 @@ ScalarField::norm() const {
         result[i] = std::norm(data[i]);
 
     return result;
+}
+
+void 
+ScalarField::plotTemp() const {
+    plotter::plotField(*this, 5, plotter::tempPath);
 }
 
 // Some more operators

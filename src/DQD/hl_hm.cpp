@@ -11,6 +11,9 @@
 
 #include <iostream>
 
+// DEBUG:
+#include <plot.hpp>
+
 Setting
 Setting::defaultSetting() {
 
