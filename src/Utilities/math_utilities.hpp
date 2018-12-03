@@ -3,6 +3,7 @@
 // TODO: Abstraction of Coordinate (x & y)
 
 #include <functional>
+#include <string>
 #include <vector>
 #include <complex>
 
@@ -30,6 +31,8 @@ enum class Spin {
 	Down,
 	None
 };
+
+std::string spinSign(const Spin &);
 
 class ScalarField;
 

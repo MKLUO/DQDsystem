@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string> 
 #include <vector>
 #include <complex>
 
@@ -44,11 +45,14 @@ public:
     // SingleParticleState: Represents a one-particle wavefunction.
     class SingleParticleState {
     public:
-        explicit SingleParticleState(const ScalarField &, Spin);
+        explicit SingleParticleState(const ScalarField &, const Spin &, const std::string &);
+        explicit SingleParticleState(const ScalarField &, const Spin &);
 
         ScalarField getField() const;
 
         Spin getSpin() const;
+
+        std::string getLabel() const;
 
         // Operators
         // "+": Addition of two SingleParticleState
@@ -72,16 +76,21 @@ public:
     private:
         ScalarField field;
         Spin spin;
+        std::string label;
+
+        static int auto_index;
     };
 
     // SingleParticleStatePair: Represents a separable two-particle wavefunction.
     class SingleParticleStatePair {
     public:
-        explicit SingleParticleStatePair(const SingleParticleState &, const SingleParticleState &);
+        explicit SingleParticleStatePair(const SingleParticleState &, const SingleParticleState &, const std::string & label = "");
 
         SingleParticleState getFirstField() const;
 
         SingleParticleState getSecondField() const;
+
+        std::string getLabel() const;
 
         // Operators
         // "*": Multiply with a scalar
@@ -90,17 +99,20 @@ public:
     private:
         SingleParticleState first;
         SingleParticleState second;
+        std::string label_override;
     };
 
     // State: Represents a general two-particle wavefunction.
     class State {
     public:
 
-        explicit State(const SingleParticleState &, const SingleParticleState &);
+        explicit State(const SingleParticleState &, const SingleParticleState &, const std::string & label = "");
 
-        explicit State(const std::vector<SingleParticleStatePair> &);
+        explicit State(const std::vector<SingleParticleStatePair> &, const std::string & label = "");
 
         std::vector<SingleParticleStatePair> getState() const;
+
+        std::string getLabel() const;
 
         State normalize() const;
 
@@ -122,6 +134,7 @@ public:
 
     private:
         std::vector<SingleParticleStatePair> states;
+        std::string label_override;
     };
 
     // Operator: A interface for both Single/DoubleParticlOoperator.
@@ -188,8 +201,7 @@ public:
     // Constructor input: width and height of the Hilbert space.
     explicit HilbertSpace(SystemScale);
 
-    SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &) const;
-    SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &, Spin) const;
+    SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &, const Spin & spin = Spin::None, const std::string & label = "") const;
 
     ScalarField createScalarField() const;
 

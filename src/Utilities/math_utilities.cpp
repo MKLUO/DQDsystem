@@ -7,6 +7,21 @@
 #include "fourier.hpp"
 
 //////////////////////////////
+//           Spin           //
+//////////////////////////////
+
+std::string 
+spinSign(const Spin & spin) {
+    switch (spin) {
+        // case Spin::Up: return "↑";
+        // case Spin::Down: return "↓";
+        case Spin::Up: return "(+)";
+        case Spin::Down: return "(-)";
+        case Spin::None: return "";
+    }
+}
+
+//////////////////////////////
 //         Complex          //
 //////////////////////////////
 

@@ -23,13 +23,8 @@ HilbertSpace::HilbertSpace(HilbertSpace::SystemScale scale_) {
 }
 
 SPState
-HilbertSpace::createSingleParticleState(const SPSFunction &function) const {
-    return SPState(createScalarField(function), Spin::None);
-}
-
-SPState
-HilbertSpace::createSingleParticleState(const SPSFunction &function, Spin spin) const {
-    return SPState(createScalarField(function), spin);
+HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin & spin, const std::string & label) const {
+    return SPState(createScalarField(function), spin, label);
 }
 
 ScalarField
@@ -79,8 +74,13 @@ HilbertSpace::expectationValue(const State &state, const Operator &ops) const {
 //   SingleParticleState    //
 //////////////////////////////
 
-HilbertSpace::SingleParticleState::SingleParticleState(const ScalarField &field_, Spin spin_) :
-        field(field_), spin(spin_) {}        
+int SPState::auto_index = 1;
+
+HilbertSpace::SingleParticleState::SingleParticleState(const ScalarField &field_, const Spin & spin_, const std::string & label_) :
+        field(field_), spin(spin_), label(label_) {}        
+
+HilbertSpace::SingleParticleState::SingleParticleState(const ScalarField &field_, const Spin & spin_) :
+        field(field_), spin(spin_), label("(" + std::to_string(auto_index++) + ")") {}        
 
 ScalarField
 HilbertSpace::SingleParticleState::getField() const {
@@ -92,10 +92,15 @@ HilbertSpace::SingleParticleState::getSpin() const {
     return spin;
 }
 
+std::string
+HilbertSpace::SingleParticleState::getLabel() const {
+    return label + spinSign(spin);
+}
+
 SPState
 HilbertSpace::SingleParticleState::operator+(const SPState &state) const {
     if (spin == state.spin)
-        return SPState(this->getField() + state.getField(), spin);
+        return SPState(this->getField() + state.getField(), spin, label + "*");
     else 
         throw std::exception();
 }
@@ -107,7 +112,7 @@ HilbertSpace::SingleParticleState::operator-(const SPState &state) const {
 
 SPState
 HilbertSpace::SingleParticleState::operator*(Complex c) const {
-    return SPState(field * c, spin);
+    return SPState(field * c, spin, label);
 }
 
 SPState
@@ -146,9 +151,10 @@ HilbertSpace::SingleParticleState::operator^(const SPState &state) const {
 // SingleParticleStatePair  //
 //////////////////////////////
 
-HilbertSpace::SingleParticleStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2) :
+HilbertSpace::SingleParticleStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2, const std::string & label) :
         first(state1),
-        second(state2) {}
+        second(state2),
+        label_override(label) {}
 
 SPState
 HilbertSpace::SingleParticleStatePair::getFirstField() const {
@@ -158,6 +164,13 @@ HilbertSpace::SingleParticleStatePair::getFirstField() const {
 SPState
 HilbertSpace::SingleParticleStatePair::getSecondField() const {
     return second;
+}
+
+std::string
+HilbertSpace::SingleParticleStatePair::getLabel() const {
+    if (label_override != "") return label_override;
+ 
+    return ("[" + first.getLabel() + " " + second.getLabel() + "]");
 }
 
 SPStatePair
@@ -170,16 +183,31 @@ HilbertSpace::SingleParticleStatePair::operator*(Complex c) const {
 //          State           //
 //////////////////////////////
 
-HilbertSpace::State::State(const SPState &state1, const SPState &state2) :
-        states({SingleParticleStatePair(state1, state2)}) {}
+HilbertSpace::State::State(const SPState &state1, const SPState &state2, const std::string & label) :
+        states({SingleParticleStatePair(state1, state2)}), 
+        label_override(label) {}
 
-HilbertSpace::State::State(const std::vector<SPStatePair> &states_) {
-    states = states_;
-}
+HilbertSpace::State::State(const std::vector<SPStatePair> &states_, const std::string & label) :
+        states(states_),
+        label_override(label) {}
 
 std::vector<SPStatePair>
 HilbertSpace::State::getState() const {
     return states;
+}
+
+std::string
+HilbertSpace::State::getLabel() const {
+    if (label_override != "") return label_override;
+    std::string label = std::string();
+
+    label += "{ ";
+    for (const SPStatePair & pair : states) {
+        label += pair.getLabel() + " ";
+    }
+    label += "}";
+
+    return label;
 }
 
 State 

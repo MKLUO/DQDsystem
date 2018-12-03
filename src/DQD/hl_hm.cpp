@@ -261,9 +261,9 @@ fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientati
 SPState
 OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin spin) {
     SPState left = hilbertSpace.createSingleParticleState(
-                    fockDarwin(setting, Orientation::Left), spin);
+                    fockDarwin(setting, Orientation::Left), spin, "L");
     SPState right = hilbertSpace.createSingleParticleState(
-                    fockDarwin(setting, Orientation::Right), spin);
+                    fockDarwin(setting, Orientation::Right), spin, "R");
 
     // TODO: Implement divide
     left = left / sqrt((left * left).real());
