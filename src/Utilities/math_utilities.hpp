@@ -88,8 +88,6 @@ public:
 	int size() const;
 
 	bool isZero() const;
-
-	Complex value() const;
 	
 	// Non-const methods.
 
@@ -105,6 +103,9 @@ public:
 	void reserve(int);
 
 private:
+	// Debug only
+	Complex value() const;
+
 	std::vector<Complex> data;
 };
 
@@ -185,6 +186,9 @@ twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleSc
 
 ScalarField
 reverse(const ScalarField&);
+
+double 
+oneMinus_sqrtOneMinusXX_divideX(const double&);
 
 // Complex
 // value(const ComplexHighRes&);

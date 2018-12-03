@@ -101,8 +101,18 @@ HilbertSpace::SingleParticleState::operator+(const SPState &state) const {
 }
 
 SPState
+HilbertSpace::SingleParticleState::operator-(const SPState &state) const {
+    return operator+(state * (-1.));
+}
+
+SPState
 HilbertSpace::SingleParticleState::operator*(Complex c) const {
     return SPState(field * c, spin);
+}
+
+SPState
+HilbertSpace::SingleParticleState::operator/(Complex c) const {
+    return operator*(1./c);
 }
 
 // Spin selection rule is implemented here. TODO: Is it a good practice?
@@ -174,8 +184,9 @@ HilbertSpace::State::getState() const {
 
 State 
 HilbertSpace::State::normalize() const {
-    double norm = ((*this) * (*this)).real();
-    return (*this) * (1. / sqrt(norm));
+    State newState = *this;
+    double norm = (newState * newState).real();
+    return newState * (1. / sqrt(norm));
 }
 
 State 

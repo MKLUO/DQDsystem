@@ -9,13 +9,14 @@
 
 void plotter::plotTest() {
 
+
 }
 
 void plotter::plotFieldAbs(const ScalarField &field) {
 
 }
 
-void plotter::outputToFile(const ScalarField &field, std::string path) {
+void plotter::plotField(const ScalarField &field, const int trunc, std::string path) {
 
     int width = field.getWidth();
     int height = field.getHeight();
@@ -26,7 +27,9 @@ void plotter::outputToFile(const ScalarField &field, std::string path) {
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
-            outputFile << i << " " << j << " " << data[i + j * width].real() << " " << data[i + j * width].imag() << std::endl;
+            if (((i + j) % trunc == 0) || ((i - j) % trunc == 0))
+                outputFile << i << " " << j << " " << data[i + j * width].real() << " " << data[i + j * width].imag() << std::endl;                
+
 
     outputFile.close();
 }

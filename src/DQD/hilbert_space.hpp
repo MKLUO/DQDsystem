@@ -57,7 +57,11 @@ public:
         // "^": Tensor product of two SingleParticleState
         SingleParticleState operator+(const SingleParticleState &) const;
 
+        SingleParticleState operator-(const SingleParticleState &) const;
+
         SingleParticleState operator*(Complex) const;
+
+        SingleParticleState operator/(Complex) const;
 
         ComplexHighRes operator*(const SingleParticleState &) const;
 

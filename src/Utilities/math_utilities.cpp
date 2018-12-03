@@ -503,6 +503,33 @@ reverse(const ScalarField& field) {
     return result;
 }
 
+double 
+oneMinus_sqrtOneMinusXX_divideX(const double& x) {
+    ComplexHighRes result;
+    double lastValue;
+    double lastLastValue;
+    for (int n = 1; n < 100; n++) {
+        double fact1 = 1., fact2 = 1.;
+        if (n > 1)
+            for (int m = 0; m < n - 1; m++)
+                fact1 = fact1 * (m + 2);
+        if (n > 2)
+            for (int m = 0; m < n - 2; m++)
+                fact2 = fact2 * (2.*m + 3);
+
+        double inc = 
+            pow(x, 2*n - 1) * fact2 / fact1 / pow(2., n);
+
+        lastLastValue = lastValue;
+        lastValue = result.real();
+        result += Complex(inc);
+
+        if ((n % 2) && (result.real() == lastLastValue))
+            return lastValue;
+    }
+    return result.real();
+}
+
 // Complex
 // value(const ComplexHighRes& comp) {
 //     return Complex(comp);
