@@ -1,7 +1,5 @@
 #include <functional>
 
-#define _USE_MATH_DEFINES
-
 #include <math.h>
 
 #include "hl_hm.hpp"
@@ -159,33 +157,7 @@ calculateJWithSetting_HL(const Setting &setting) {
                            potentialRight +
                            coulomb;
 
-    // TODO: Zeeman energy
-
-    // Evaluate energy.
-
-
-    // TEST
-    // State state_FD_LR = (left ^ right).normalize();
-    // State state_FD_RL = (right ^ left).normalize();
-    // Complex test1 = (coulomb.getOperator()[0])->operatorValue(state_FD_LR, state_FD_LR);
-    // Complex test2 = (coulomb.getOperator()[0])->operatorValue(state_FD_RL, state_FD_RL);
-    // Complex test3 = (coulomb.getOperator()[0])->operatorValue(state_FD_LR, state_FD_RL);
-    // Complex test4 = (coulomb.getOperator()[0])->operatorValue(state_FD_RL, state_FD_LR);
-    // Complex testss = (coulomb.getOperator()[0])->operatorValue(state_FD_sym, state_FD_sym);
-    // Complex testsa = (coulomb.getOperator()[0])->operatorValue(state_FD_antisym, state_FD_antisym);
-
-    // TODO: Float point data distortion!!!
-
     ComplexHighRes result_sym = 0., result_asym = 0.;
-
-    // for (SingleOperator *op : hamiltonian.getOperator()) {
-    //     Complex temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real();
-    //     Complex temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real();
-    //     result_sym += temp1;
-    //     result_asym += temp2;
-
-    //     //std::cout << temp1 << " " << temp2 << std::endl;
-    // }
 
     result_sym = hilbertSpace.operatorValue(state_FD_sym, hamiltonian, state_FD_sym);
     result_asym = hilbertSpace.operatorValue(state_FD_antisym, hamiltonian, state_FD_antisym);

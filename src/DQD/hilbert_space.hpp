@@ -45,8 +45,14 @@ public:
     // SingleParticleState: Represents a one-particle wavefunction.
     class SingleParticleState {
     public:
-        explicit SingleParticleState(const ScalarField &, const Spin &, const std::string &);
-        explicit SingleParticleState(const ScalarField &, const Spin &);
+        explicit SingleParticleState(
+            const ScalarField &, 
+            const Spin &, 
+            const std::string &);
+
+        explicit SingleParticleState(
+            const ScalarField &, 
+            const Spin &);
 
         ScalarField getField() const;
 
@@ -84,11 +90,17 @@ public:
     // SingleParticleStatePair: Represents a separable two-particle wavefunction.
     class SingleParticleStatePair {
     public:
-        explicit SingleParticleStatePair(const SingleParticleState &, const SingleParticleState &, const std::string & label = "");
+        explicit SingleParticleStatePair(
+            const SingleParticleState &, 
+            const SingleParticleState &, 
+            const Complex & coef_ = 1.0, 
+            const std::string & label = "");
 
         SingleParticleState getFirstField() const;
 
         SingleParticleState getSecondField() const;
+
+        Complex getCoef() const;
 
         std::string getLabel() const;
 
@@ -97,6 +109,7 @@ public:
         SingleParticleStatePair operator*(Complex) const;
 
     private:
+        Complex coef;
         SingleParticleState first;
         SingleParticleState second;
         std::string label_override;
@@ -106,9 +119,14 @@ public:
     class State {
     public:
 
-        explicit State(const SingleParticleState &, const SingleParticleState &, const std::string & label = "");
+        explicit State(
+            const SingleParticleState &, 
+            const SingleParticleState &, 
+            const std::string & label = "");
 
-        explicit State(const std::vector<SingleParticleStatePair> &, const std::string & label = "");
+        explicit State(
+            const std::vector<SingleParticleStatePair> &, 
+            const std::string & label = "");
 
         std::vector<SingleParticleStatePair> getState() const;
 
@@ -148,7 +166,9 @@ public:
     // SingleParticleOperator: Represents a one-particle (separable) operator.
     class SingleParticleOperator : public SingleOperator {
     public:
-        explicit SingleParticleOperator(const SingleParticleFunction &, const SingleParticleFunction &);
+        explicit SingleParticleOperator(
+            const SingleParticleFunction &, 
+            const SingleParticleFunction &);
 
         // Operators
         // "*": Operation of SingleParticleOperator on State
@@ -166,7 +186,8 @@ public:
     // DoubleParticleScalarOperator: Represents a two-particle scalar operator.
     class DoubleParticleScalarOperator : public SingleOperator {
     public:
-        explicit DoubleParticleScalarOperator(const DoubleParticleScalarFunction &);
+        explicit DoubleParticleScalarOperator(
+            const DoubleParticleScalarFunction &);
 
         // Operators
         // "*": Operation of DoubleParticleScalarOperator on State
@@ -180,7 +201,8 @@ public:
 
     class Operator {
     public:
-        explicit Operator(const std::vector<SingleOperator *> &);
+        explicit Operator(
+            const std::vector<SingleOperator *> &);
 
         ~Operator();
 

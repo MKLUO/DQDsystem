@@ -7,6 +7,8 @@
 #include <vector>
 #include <complex>
 
+constexpr double M_PI = 3.1415926535897932384626433832795028841971;
+
 // For i
 using namespace std::literals::complex_literals; 
 
@@ -114,7 +116,6 @@ private:
 
 ComplexContainer operator*(double, const ComplexContainer &);
 std::ostream & operator<<(std::ostream &, const ComplexContainer &);
-
 
 class ScalarField {
 public:

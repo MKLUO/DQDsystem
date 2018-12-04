@@ -24,7 +24,10 @@ HilbertSpace::HilbertSpace(HilbertSpace::SystemScale scale_) {
 
 SPState
 HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin & spin, const std::string & label) const {
-    return SPState(createScalarField(function), spin, label);
+    if (label == "") 
+        return SPState(createScalarField(function), spin);
+    else 
+        return SPState(createScalarField(function), spin, label);
 }
 
 ScalarField
@@ -151,9 +154,14 @@ HilbertSpace::SingleParticleState::operator^(const SPState &state) const {
 // SingleParticleStatePair  //
 //////////////////////////////
 
-HilbertSpace::SingleParticleStatePair::SingleParticleStatePair(const SPState &state1, const SPState &state2, const std::string & label) :
+HilbertSpace::SingleParticleStatePair::SingleParticleStatePair(
+    const SPState &state1, 
+    const SPState &state2, 
+    const Complex & coef_,
+    const std::string & label) :
         first(state1),
         second(state2),
+        coef(coef_),
         label_override(label) {}
 
 SPState
@@ -166,16 +174,23 @@ HilbertSpace::SingleParticleStatePair::getSecondField() const {
     return second;
 }
 
+Complex
+HilbertSpace::SingleParticleStatePair::getCoef() const {
+    return coef;
+}
+
 std::string
 HilbertSpace::SingleParticleStatePair::getLabel() const {
     if (label_override != "") return label_override;
  
-    return ("[" + first.getLabel() + " " + second.getLabel() + "]");
+    return (
+        std::to_string(coef.real()) + 
+        "[" + first.getLabel() + " " + second.getLabel() + "]");
 }
 
 SPStatePair
 HilbertSpace::SingleParticleStatePair::operator*(Complex c) const {
-    return SPStatePair(first * c, second);
+    return SPStatePair(first, second, coef * c);
 }
 
 
@@ -222,8 +237,9 @@ HilbertSpace::State::antisym() const {
     State newState = *this;
     for (const SPStatePair & pair : states)
         newState.states.push_back(SPStatePair(
-            pair.getSecondField() * (-1.0),
-            pair.getFirstField()
+            pair.getSecondField(),
+            pair.getFirstField(),
+            pair.getCoef() * (-1.0)
         ));
 
     return newState.normalize();
@@ -235,7 +251,8 @@ HilbertSpace::State::sym() const {
     for (const SPStatePair & pair : states)
         newState.states.push_back(SPStatePair(
             pair.getSecondField(),
-            pair.getFirstField()
+            pair.getFirstField(),
+            pair.getCoef()
         ));
 
     return newState.normalize();
@@ -281,12 +298,17 @@ HilbertSpace::State::operator*(const State &state) const {
 
     for (const SPStatePair &pair1 : states1) {
         for (const SPStatePair &pair2 : states2) {
-            SPState field1Left = pair1.getFirstField();
+            Complex field1Coef  = pair1.getCoef();
+            SPState field1Left  = pair1.getFirstField();
             SPState field1Right = pair1.getSecondField();
-            SPState field2Left = pair2.getFirstField();
+            Complex field2Coef  = pair2.getCoef();
+            SPState field2Left  = pair2.getFirstField();
             SPState field2Right = pair2.getSecondField();
 
-            result += (field1Left * field2Left) * (field1Right * field2Right);
+            result += 
+                (field1Left * field2Left) * 
+                (field1Right * field2Right) * 
+                (std::conj(field1Coef) * field2Coef);
         }
     }
 
@@ -316,7 +338,8 @@ HilbertSpace::SingleParticleOperator::operator*(const State &state) const {
 SPStatePair
 HilbertSpace::SingleParticleOperator::operator*(const SPStatePair &pair) const {
     return SPStatePair(pair.getFirstField() * left,
-                       pair.getSecondField() * right);
+                       pair.getSecondField() * right,
+                       pair.getCoef());
 }
 
 ComplexHighRes
@@ -348,9 +371,10 @@ HilbertSpace::DoubleParticleScalarOperator::operatorValue(const State &left, con
 
     for (const SPStatePair &pair1 : states1) {
         for (const SPStatePair &pair2 : states2) {
-            
+            Complex field1Coef  = pair1.getCoef();
             SPState field1Left  = pair1.getFirstField();
             SPState field1Right = pair1.getSecondField();
+            Complex field2Coef  = pair2.getCoef();
             SPState field2Left  = pair2.getFirstField();
             SPState field2Right = pair2.getSecondField();
 
@@ -360,8 +384,8 @@ HilbertSpace::DoubleParticleScalarOperator::operatorValue(const State &left, con
                 result += twoSiteIntegral(
                     field1Left.getField(), field1Right.getField(), 
                     func, 
-                    field2Left.getField(), field2Right.getField()
-            );
+                    field2Left.getField(), field2Right.getField()) * 
+                    (std::conj(field1Coef) * field2Coef);
         }
     }
 
