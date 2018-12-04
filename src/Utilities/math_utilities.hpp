@@ -3,8 +3,11 @@
 // TODO: Abstraction of Coordinate (x & y)
 
 #include <functional>
+#include <string>
 #include <vector>
 #include <complex>
+
+constexpr double M_PI = 3.1415926535897932384626433832795028841971;
 
 // For i
 using namespace std::literals::complex_literals; 
@@ -30,6 +33,8 @@ enum class Spin {
 	Down,
 	None
 };
+
+std::string spinSign(const Spin &);
 
 class ScalarField;
 
@@ -88,8 +93,6 @@ public:
 	int size() const;
 
 	bool isZero() const;
-
-	Complex value() const;
 	
 	// Non-const methods.
 
@@ -105,12 +108,14 @@ public:
 	void reserve(int);
 
 private:
+	// Debug only
+	Complex value() const;
+
 	std::vector<Complex> data;
 };
 
 ComplexContainer operator*(double, const ComplexContainer &);
 std::ostream & operator<<(std::ostream &, const ComplexContainer &);
-
 
 class ScalarField {
 public:
@@ -162,6 +167,10 @@ public:
 
 	std::vector<double> norm() const;
 
+	// Utils
+
+	void plotTemp() const; // For DEBUG
+
 private:
 
 	std::vector<Complex> data;
@@ -185,6 +194,9 @@ twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleSc
 
 ScalarField
 reverse(const ScalarField&);
+
+double 
+oneMinus_sqrtOneMinusXX_divideX(const double&);
 
 // Complex
 // value(const ComplexHighRes&);

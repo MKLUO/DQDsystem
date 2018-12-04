@@ -1,7 +1,5 @@
 #include <functional>
 
-#define _USE_MATH_DEFINES
-
 #include <math.h>
 
 #include "hl_hm.hpp"
@@ -10,6 +8,9 @@
 // TODO: unit tests
 
 #include <iostream>
+
+// DEBUG:
+#include <plot.hpp>
 
 Setting
 Setting::defaultSetting() {
@@ -64,12 +65,13 @@ coulombMatrix(const Setting & setting, Ansatz ansatz, Basis basis) {
         hilbertSpace.createOperator(
                     coulombEnergy(setting));
 
+    // TODO: Only F-D basis for now. Will add nn++/nn3 basis.
     SPState left       = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::None);
     SPState right      = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::None);
-    SPState left_up    = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Up);
-    SPState left_down  = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Down);
-    SPState right_up   = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Up);
-    SPState right_down = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Down);
+    SPState left_up    = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Up);
+    SPState left_down  = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Down);
+    SPState right_up   = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Up);
+    SPState right_down = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Down);
 
     std::vector<State> states;
 
@@ -155,33 +157,7 @@ calculateJWithSetting_HL(const Setting &setting) {
                            potentialRight +
                            coulomb;
 
-    // TODO: Zeeman energy
-
-    // Evaluate energy.
-
-
-    // TEST
-    // State state_FD_LR = (left ^ right).normalize();
-    // State state_FD_RL = (right ^ left).normalize();
-    // Complex test1 = (coulomb.getOperator()[0])->operatorValue(state_FD_LR, state_FD_LR);
-    // Complex test2 = (coulomb.getOperator()[0])->operatorValue(state_FD_RL, state_FD_RL);
-    // Complex test3 = (coulomb.getOperator()[0])->operatorValue(state_FD_LR, state_FD_RL);
-    // Complex test4 = (coulomb.getOperator()[0])->operatorValue(state_FD_RL, state_FD_LR);
-    // Complex testss = (coulomb.getOperator()[0])->operatorValue(state_FD_sym, state_FD_sym);
-    // Complex testsa = (coulomb.getOperator()[0])->operatorValue(state_FD_antisym, state_FD_antisym);
-
-    // TODO: Float point data distortion!!!
-
     ComplexHighRes result_sym = 0., result_asym = 0.;
-
-    // for (SingleOperator *op : hamiltonian.getOperator()) {
-    //     Complex temp1 = op->operatorValue(state_FD_sym, state_FD_sym).real();
-    //     Complex temp2 = op->operatorValue(state_FD_antisym, state_FD_antisym).real();
-    //     result_sym += temp1;
-    //     result_asym += temp2;
-
-    //     //std::cout << temp1 << " " << temp2 << std::endl;
-    // }
 
     result_sym = hilbertSpace.operatorValue(state_FD_sym, hamiltonian, state_FD_sym);
     result_asym = hilbertSpace.operatorValue(state_FD_antisym, hamiltonian, state_FD_antisym);
@@ -194,6 +170,8 @@ calculateJWithSetting_HL(const Setting &setting) {
 SingleParticleScalarFunction
 fockDarwin(const Setting &setting, Orientation direction) {
     return [setting, direction](double x, double y) {
+        double hgs = setting.scale.gridSize * 0.5;
+        // Center is shifted so that two orientations are symmetric.
         double d = setting.d;
         double B = setting.B;
         double lb = setting.magneticLength();
@@ -207,14 +185,14 @@ fockDarwin(const Setting &setting, Orientation direction) {
                 sign = +1.0;
                 break;
         }
+        Complex phase;
         if (B == 0)
-            return setting.FDConstant() *
-                exp(- PhysicsContant::m * omega * sho_field((x - d * sign / 2), y) / 
-                    (2.0 * PhysicsContant::hBar));
+            phase = 1.0;
         else
-            return setting.FDConstant() *
-                exp(1.i * sign * y * d  / (4.0 * pow(lb, 2))) *
-                exp(- PhysicsContant::m * omega * sho_field((x - d * sign / 2), y) / 
+            phase = exp(1.i * sign * (y + hgs) * d  / (4.0 * pow(lb, 2)));
+
+        return setting.FDConstant() * phase *
+                exp(- PhysicsContant::m * omega * sho_field((x + hgs - d * sign / 2), y + hgs) / 
                     (2.0 * PhysicsContant::hBar));
     };
 }
@@ -253,6 +231,28 @@ SPState
 fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin spin) {
     return hilbertSpace.createSingleParticleState(
                     fockDarwin(setting, orient), spin);
+}
+
+SPState
+OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin spin) {
+    SPState left = hilbertSpace.createSingleParticleState(
+                    fockDarwin(setting, Orientation::Left), spin, "L");
+    SPState right = hilbertSpace.createSingleParticleState(
+                    fockDarwin(setting, Orientation::Right), spin, "R");
+
+    // TODO: Implement divide
+    left = left / sqrt((left * left).real());
+    right = right / sqrt((right * right).real());
+
+    double S = (left * right).real();
+    double g = oneMinus_sqrtOneMinusXX_divideX(S);
+
+    switch (orient) {
+        case Orientation::Left:
+            return (left - right * g) / sqrt(1. - 2.*S*g + g*g);    
+        case Orientation::Right:
+            return (right - left * g) / sqrt(1. - 2.*S*g + g*g);    
+    }
 }
 
 

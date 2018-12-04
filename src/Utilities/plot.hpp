@@ -3,8 +3,10 @@
 #include "math_utilities.hpp"
 
 namespace plotter {
+    const std::string tempPath = "temp/TEMPFIELDCAR";
+
     void plotTest();
     void plotFieldAbs(const ScalarField &);
-    void outputToFile(const ScalarField &field, std::string path);
+    void plotField(const ScalarField &field, const int, std::string path);
     void printMatrix(const Matrix &);
 }

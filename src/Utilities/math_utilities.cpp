@@ -1,10 +1,25 @@
-#define _USE_MATH_DEFINES
-
 #include <math.h>
 #include <algorithm>
 
 #include "math_utilities.hpp"
 #include "fourier.hpp"
+
+#include "plot.hpp"
+
+//////////////////////////////
+//           Spin           //
+//////////////////////////////
+
+std::string 
+spinSign(const Spin & spin) {
+    switch (spin) {
+        // case Spin::Up: return "↑";
+        // case Spin::Down: return "↓";
+        case Spin::Up: return "(+)";
+        case Spin::Down: return "(-)";
+        case Spin::None: return "";
+    }
+}
 
 //////////////////////////////
 //         Complex          //
@@ -421,6 +436,11 @@ ScalarField::norm() const {
     return result;
 }
 
+void 
+ScalarField::plotTemp() const {
+    plotter::plotField(*this, 5, plotter::tempPath);
+}
+
 // Some more operators
 
 ScalarField
@@ -501,6 +521,33 @@ reverse(const ScalarField& field) {
                                                 height - 1 - j);
 
     return result;
+}
+
+double 
+oneMinus_sqrtOneMinusXX_divideX(const double& x) {
+    ComplexHighRes result;
+    double lastValue;
+    double lastLastValue;
+    for (int n = 1; n < 100; n++) {
+        double fact1 = 1., fact2 = 1.;
+        if (n > 1)
+            for (int m = 0; m < n - 1; m++)
+                fact1 = fact1 * (m + 2);
+        if (n > 2)
+            for (int m = 0; m < n - 2; m++)
+                fact2 = fact2 * (2.*m + 3);
+
+        double inc = 
+            pow(x, 2*n - 1) * fact2 / fact1 / pow(2., n);
+
+        lastLastValue = lastValue;
+        lastValue = result.real();
+        result += Complex(inc);
+
+        if ((n % 2) && (result.real() == lastLastValue))
+            return lastValue;
+    }
+    return result.real();
 }
 
 // Complex
