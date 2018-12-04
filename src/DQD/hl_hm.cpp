@@ -220,8 +220,7 @@ potentialEnergy(const Setting &setting) {
 DoubleParticleScalarFunction
 coulombEnergy(const Setting &setting) {
     return [setting](double x1, double y1, double x2, double y2) {
-        return
-                rInv_field(setting.scale.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
+        return rInv_field(setting.scale.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
     };
 }
 
@@ -236,13 +235,15 @@ fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientati
 SPState
 OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin spin) {
     SPState left = hilbertSpace.createSingleParticleState(
-                    fockDarwin(setting, Orientation::Left), spin, "L");
+                    fockDarwin(
+                        setting, 
+                        Orientation::Left), 
+                        spin, "L");
     SPState right = hilbertSpace.createSingleParticleState(
-                    fockDarwin(setting, Orientation::Right), spin, "R");
-
-    // TODO: Implement divide
-    left = left / sqrt((left * left).real());
-    right = right / sqrt((right * right).real());
+                    fockDarwin(
+                        setting, 
+                        Orientation::Right), 
+                        spin, "R");
 
     double S = (left * right).real();
     double g = oneMinus_sqrtOneMinusXX_divideX(S);

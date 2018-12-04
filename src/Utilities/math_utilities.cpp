@@ -240,6 +240,11 @@ ComplexContainer::reserve(int newSize) {
     data.reserve(newSize);
 }
 
+Complex 
+sqrt(const ComplexContainer & c) {
+    return sqrt(c.value());
+}
+
 ComplexContainer
 operator*(double d, const ComplexContainer & comp) {
     return comp * d;
@@ -257,39 +262,30 @@ operator<<(std::ostream & os, const ComplexContainer & comp) {
 
 ScalarField::ScalarField(int width_,
                          int height_,
-                         double gridSize_) {
-    width = width_;
-    height = height_;
-    gridSize = gridSize_;
-
-    data = std::vector<Complex>(width_ * height_);
-}
+                         double gridSize_) :
+    width(width_),
+    height(height_),
+    gridSize(gridSize_),
+    data(std::vector<Complex>(width_ * height_)) {}
 
 ScalarField::ScalarField(int width_,
                          int height_,
                          double gridSize_,
-                         const std::vector<Complex> &data_) {
-    width = width_;
-    height = height_;
-    gridSize = gridSize_;
-
-    data = data_;
-}
+                         const std::vector<Complex> &data_) :
+    width(width_),
+    height(height_),
+    gridSize(gridSize_),
+    data(data_) {}
 
 ScalarField::ScalarField(int width_,
                          int height_,
                          double gridSize_,
-                         const SingleParticleScalarFunction &function) {
-    width = width_;
-    height = height_;
-    gridSize = gridSize_;
+                         const SingleParticleScalarFunction &function) :
+    width(width_),
+    height(height_),
+    gridSize(gridSize_),
+    data(functionToField(function, width_, height_, gridSize_)) {}
 
-    data.resize(width * height);
-
-    for (int i = 0; i < width; ++i)
-        for (int j = 0; j < height; ++j)
-            data[getIndex(i, j)] = function(getX(i), getY(j));
-}
 
 ScalarField
 ScalarField::operator+(const ScalarField &field) const {
@@ -336,6 +332,11 @@ ScalarField::operator*(Complex c) const {
             newData[getIndex(x, y)] = c * this->getData(x, y);
 
     return ScalarField(width, height, gridSize, newData);
+}
+
+ScalarField
+ScalarField::operator/(Complex c) const {
+    return operator*(1.0 / c);
 }
 
 ScalarField
@@ -386,29 +387,29 @@ ScalarField::getDatas() const {
 }
 
 Complex
-ScalarField::getData(int x, int y) const {
-    return data[x + y * width];
+ScalarField::getData(int i, int j) const {
+    return data[getIndex(i, j)];
 }
 
 Complex &
-ScalarField::setData(int x, int y) {
-    return data[x + y * width];
+ScalarField::Data(int i, int j) {
+    return data[getIndex(i, j)];
 }
 
 double
 ScalarField::getX(int i) const {
-    return (i - double(width) / 2) * gridSize;
+    return fieldCoord(i, width, gridSize);
 
 }
 
 double
 ScalarField::getY(int j) const {
-    return (j - double(height) / 2) * gridSize;
+    return fieldCoord(j, height, gridSize);
 }
 
 int
 ScalarField::getIndex(int i, int j) const {
-    return (i + j * width);
+    return fieldIndex(i, j, width, height);
 }
 
 int
@@ -434,6 +435,12 @@ ScalarField::norm() const {
         result[i] = std::norm(data[i]);
 
     return result;
+}
+
+ScalarField
+ScalarField::normalize() const {
+    ScalarField field = *this;
+    return field / sqrt(field * field);
 }
 
 void 
@@ -467,6 +474,45 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 //        Utilities        	//
 //////////////////////////////
 
+std::vector<Complex>
+functionToField(
+	const SingleParticleScalarFunction & func, 
+	const int width,
+	const int height,
+    const double gridSize) {
+
+    std::vector<Complex> newData;
+    newData.resize(width * height);
+
+    for (int i = 0; i < width; ++i)
+        for (int j = 0; j < height; ++j)
+            newData[fieldIndex(i, j, width, height)] = 
+                func(
+                    fieldCoord(i, width, gridSize),
+                    fieldCoord(j, height, gridSize));
+
+    return newData;
+}
+
+int
+fieldIndex(
+    const int i,
+	const int j,
+	const int width,
+	const int height){
+
+    return (i + j * width);
+}
+
+double
+fieldCoord(
+	const int i,
+	const int width,
+	const double gridSize) {
+
+    return (double(i) - double(width) / 2) * gridSize;
+}
+
 // It should be the most time-consuming part. Check the result carefully.
 // WARNING: According to the design of Complex object, it might return a Complex which has a data of size width * height. Handle it carefully!
 ComplexHighRes
@@ -488,12 +534,10 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
         for (int j = 0; j < 2 * height; ++j) {
             double x = gridSize * (i - width + 1);
             double y = gridSize * (j - height + 1);
-            img.setData(i, j) = function(x, y, 0., 0.);
+            img.Data(i, j) = function(x, y, 0., 0.);
         }
 
-    ScalarField convResult = fourier::convolution(img, filter);
-
-    convResult = reverse(convResult);
+    ScalarField convResult = reverse(fourier::convolution(img, filter));
 
     ComplexHighRes result;
 
@@ -517,7 +561,7 @@ reverse(const ScalarField& field) {
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
-            result.setData(i, j) = field.getData(width - 1 - i,
+            result.Data(i, j) = field.getData(width - 1 - i,
                                                 height - 1 - j);
 
     return result;
@@ -656,7 +700,7 @@ SingleParticleFunction
             else
                 ky = 2. * M_PI * double(y) / (double(height) * gridSize);
 
-            result_FT.setData(x, y) = field_FT.getData(x, y) * (-1.) * (kx * kx + ky * ky);
+            result_FT.Data(x, y) = field_FT.getData(x, y) * (-1.) * (kx * kx + ky * ky);
         }
 
     return fourier::ifft2d(result_FT);
@@ -687,8 +731,8 @@ SingleParticleFunction
             else
                 ky = 2. * M_PI * double(y) / (double(height) * gridSize);
 
-            gradX_FT.setData(x, y) = field_FT.getData(x, y) * kx * Complex(1.i);
-            gradY_FT.setData(x, y) = field_FT.getData(x, y) * ky * Complex(1.i);
+            gradX_FT.Data(x, y) = field_FT.getData(x, y) * kx * Complex(1.i);
+            gradY_FT.Data(x, y) = field_FT.getData(x, y) * ky * Complex(1.i);
         }
 
     ScalarField gradX = fourier::ifft2d(gradX_FT);

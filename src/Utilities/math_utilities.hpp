@@ -82,6 +82,8 @@ public:
 
 	ComplexContainer operator-() const;
 
+	Complex value() const;
+
 	double real() const;
 
 	double imag() const;
@@ -103,27 +105,32 @@ public:
 
 	void shrink(int);
 
-	// Utils
-
 	void reserve(int);
 
 private:
-	// Debug only
-	Complex value() const;
-
 	std::vector<Complex> data;
 };
 
-ComplexContainer operator*(double, const ComplexContainer &);
+Complex sqrt(const ComplexContainer &);
+ComplexContainer operator*(const double, const ComplexContainer &);
 std::ostream & operator<<(std::ostream &, const ComplexContainer &);
 
 class ScalarField {
 public:
-	ScalarField(int, int, double);
 
-	ScalarField(int, int, double, const std::vector<Complex> &);
+	explicit
+	ScalarField(
+		int, int, double);
 
-	ScalarField(int, int, double, const SingleParticleScalarFunction &);
+	explicit
+	ScalarField(
+		int, int, double, 
+		const std::vector<Complex> &);
+
+	explicit
+	ScalarField(
+		int, int, double, 
+		const SingleParticleScalarFunction &);
 
 	// Operators
 
@@ -136,6 +143,8 @@ public:
 	ScalarField operator*(const SingleParticleFunction &) const;
 
 	ScalarField operator*(Complex) const;
+
+	ScalarField operator/(Complex) const;
 
 	ScalarField operator*(double) const;
 
@@ -151,8 +160,6 @@ public:
 
 	Complex getData(int, int) const;
 
-	Complex &setData(int, int);
-
 	double getX(int) const;
 
 	double getY(int) const;
@@ -167,15 +174,20 @@ public:
 
 	std::vector<double> norm() const;
 
+	// Modify
+	
+	Complex &Data(int, int);
+
 	// Utils
+
+	ScalarField normalize() const;
 
 	void plotTemp() const; // For DEBUG
 
 private:
-
+	const int width, height;
+	const double gridSize;
 	std::vector<Complex> data;
-	int width, height;
-	double gridSize;
 };
 
 ScalarField operator*(Complex, const ScalarField &);
@@ -187,6 +199,28 @@ ScalarField operator*(const SingleParticleScalarFunction &, const ScalarField &)
 ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
 
 // Math Utilities
+
+std::vector<Complex>
+functionToField(
+	const SingleParticleScalarFunction &, 
+	const int width,
+	const int height,
+    const double gridSize);
+
+int
+fieldIndex(
+	const int i,
+	const int j,
+	const int width,
+	const int height
+);
+
+double
+fieldCoord(
+	const int i,
+	const int width,
+	const double gridSize
+);
 
 ComplexHighRes
 twoSiteIntegral(const ScalarField &, const ScalarField &, const DoubleParticleScalarFunction &, const ScalarField &,

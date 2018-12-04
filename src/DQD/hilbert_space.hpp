@@ -17,11 +17,11 @@ public:
     //
     //      Operator
     //          `- (SingleOperator*) SingleParticleOperator
-    //              `- SingleParticleFunction
+    //              `- 2 * SingleParticleFunction
     //          `- (SingleOperator*) DoubleParticleScalarOperator
     //              `- DoubleParticleScalarFunction
     //
-    // NOTE:
+    
 
     struct SystemScale {
         static SystemScale defaultScale();
@@ -49,12 +49,7 @@ public:
         SingleParticleState(
             const ScalarField &, 
             const Spin &, 
-            const std::string &);
-
-        explicit 
-        SingleParticleState(
-            const ScalarField &, 
-            const Spin &);
+            const std::string & label = "");
 
         ScalarField 
         getField() 
@@ -66,6 +61,10 @@ public:
 
         std::string 
         getLabel() 
+        const;
+
+        SingleParticleState
+        normalize()
         const;
 
         // Operators
@@ -91,10 +90,6 @@ public:
 
         ComplexHighRes 
         operator*(const SingleParticleState &) 
-        const;
-
-        SingleParticleState 
-        operator*(const SingleParticleFunction &) 
         const;
 
         State 
@@ -142,9 +137,9 @@ public:
         const;
 
     private:
-        const Complex coef;
         const SingleParticleState first;
         const SingleParticleState second;
+        const Complex coef;
         const std::string label_override;
     };
 
@@ -215,7 +210,8 @@ public:
 
         virtual 
         ComplexHighRes 
-        operatorValue(const State &, const State &) const = 0;
+        operatorValue(const State &, const State &) 
+        const = 0;
     };
 
     // SingleParticleOperator: Represents a one-particle (separable) operator.
@@ -230,10 +226,6 @@ public:
         // "*": Operation of SingleParticleOperator on State
         State 
         operator*(const State &) 
-        const;
-
-        SingleParticleStatePair 
-        operator*(const SingleParticleStatePair &) 
         const;
 
         ComplexHighRes 
@@ -316,11 +308,13 @@ private:
     SystemScale scale;
 };
 
-// Abbreviations
+//=========== Abbreviations ===========
+// for scalarfield generation
 using SPSFunction   = SingleParticleScalarFunction;
-using DPSFunction   = DoubleParticleScalarFunction;
 
+// for operators
 using SPFunction    = SingleParticleFunction;
+using DPSFunction   = DoubleParticleScalarFunction;
 
 using SPState       = HilbertSpace::SingleParticleState;
 using SPStatePair   = HilbertSpace::SingleParticleStatePair;
