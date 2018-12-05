@@ -7,21 +7,6 @@
 #include "plot.hpp"
 
 //////////////////////////////
-//           Spin           //
-//////////////////////////////
-
-std::string 
-spinSign(const Spin & spin) {
-    switch (spin) {
-        // case Spin::Up: return "↑";
-        // case Spin::Down: return "↓";
-        case Spin::Up: return "(+)";
-        case Spin::Down: return "(-)";
-        case Spin::None: return "";
-    }
-}
-
-//////////////////////////////
 //       SystemScale        //
 //////////////////////////////
 
@@ -270,6 +255,45 @@ std::ostream &
 operator<<(std::ostream & os, const ComplexContainer & comp) {
     os << "(" << comp.real() << ", " << comp.imag() << ")";
     return os;
+}
+
+//////////////////////////////
+//           Spin           //
+//////////////////////////////
+
+
+Spin::Spin(Type type_) :
+    type(type_) {}
+
+double
+Spin::operator*(const Spin & spin) const {
+    if (*this == spin) 
+        return 1.0;
+    else if ((type == Type::Up) && (spin.type == Type::Down))
+        return 0.0;
+    else if ((type == Type::Down) && (spin.type == Type::Up))
+        return 0.0;
+    else
+        throw std::exception();
+}
+
+bool 
+Spin::operator==(const Spin & spin) const {
+    return type == spin.type;
+}
+
+Spin::Type
+Spin::getType() const {
+    return type;
+}
+
+std::string
+Spin::getLabel() const {
+    switch (type) {
+        case Spin::Type::Up: return "(+)";
+        case Spin::Type::Down: return "(-)";
+        case Spin::Type::None: return "";
+    }
 }
 
 //////////////////////////////

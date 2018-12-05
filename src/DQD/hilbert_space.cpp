@@ -7,11 +7,11 @@
 //////////////////////////////
 
 HilbertSpace::HilbertSpace(
-    SystemScale scale_):
+    const SystemScale scale_):
     scale(scale_) {}
 
 SPState
-HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin & spin, const std::string & label) const {
+HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin::Type & spin, const std::string & label) const {
     if (label == "") 
         return SPState(createScalarField(function), spin).normalize();
     else 
@@ -69,7 +69,7 @@ int SPState::auto_index = 1;
 
 HilbertSpace::SingleParticleState::SingleParticleState(
     const ScalarField &field_, 
-    const Spin & spin_, 
+    const Spin::Type & spin_, 
     const std::string & label_):
         field(field_), 
         spin(spin_), 
@@ -95,13 +95,19 @@ HilbertSpace::SingleParticleState::getLabel() const {
 
 SPState
 HilbertSpace::SingleParticleState::normalize() const {
-    return SPState(field.normalize(), spin, label);
+    return SPState(
+        field.normalize(), 
+        spin.getType(), 
+        label);
 }
 
 SPState
 HilbertSpace::SingleParticleState::operator+(const SPState &state) const {
     if (spin == state.spin)
-        return SPState(this->getField() + state.getField(), spin, label + "\'");
+        return SPState(
+            getField() + state.getField(), 
+            spin.getType(), 
+            label + "\'");
     else 
         throw std::exception();
 }
@@ -113,7 +119,10 @@ HilbertSpace::SingleParticleState::operator-(const SPState &state) const {
 
 SPState
 HilbertSpace::SingleParticleState::operator*(Complex c) const {
-    return SPState(field * c, spin, label);
+    return SPState(
+        field * c, 
+        spin.getType(), 
+        label);
 }
 
 SPState
@@ -121,21 +130,11 @@ HilbertSpace::SingleParticleState::operator/(Complex c) const {
     return operator*(1./c);
 }
 
-// Spin selection rule is implemented here. TODO: Is it a good practice?
 ComplexHighRes
 HilbertSpace::SingleParticleState::operator*(const SPState &state) const {
-    if ((spin == Spin::None) && (state.spin == Spin::None)) {
-        return (this->getField() * state.getField());
-
-    } else if ((spin != Spin::None) && (state.spin != Spin::None)) {
-        if (spin == state.spin)
-            return (this->getField() * state.getField());            
-        else 
-            return 0.0;
-
-    } else {
-        throw std::exception();
-    }
+    return 
+    (getField() * state.getField()) * 
+    (getSpin() * state.getSpin());
 }
 
 State
@@ -179,8 +178,8 @@ HilbertSpace::SingleParticleStatePair::getLabel() const {
     return (
         std::to_string(coef.real()) + 
         "[" + 
-        first.getLabel() + spinSign(first.getSpin()) + " " + 
-        second.getLabel() + spinSign(second.getSpin()) + "]");
+        first.getLabel() + first.getSpin().getLabel() + " " + 
+        second.getLabel() + second.getSpin().getLabel() + "]");
 }
 
 SPStatePair
@@ -282,7 +281,7 @@ HilbertSpace::State::operator-(const State &state) const {
 }
 
 State
-HilbertSpace::State::operator*(Complex c) const {
+HilbertSpace::State::operator*(const Complex c) const {
     std::vector<SPStatePair> newStates;
     for (SPStatePair & pair : this->getState())
         newStates.push_back(pair * c);
@@ -339,11 +338,11 @@ HilbertSpace::SingleParticleOperator::operator*(
             SPStatePair(
                 SingleParticleState(
                     left(leftField.getField()), 
-                    leftField.getSpin(),
+                    leftField.getSpin().getType(),
                     leftField.getLabel()),
                 SingleParticleState(
                     right(rightField.getField()), 
-                    rightField.getSpin(),
+                    rightField.getSpin().getType(),
                     rightField.getLabel()),
                 pair.getCoef()));
     }

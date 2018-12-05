@@ -6,10 +6,10 @@
 
 #include "math_utilities.hpp"
 
-// HilbertSpace: Implements 2D two particle Hilbert space with finite size.
+// HilbertSpace: Implements 2D / 3D two particle Hilbert space with finite size.
 class HilbertSpace {
 public:
-    // Pre-declaration of classes
+    
     // Structure:
     //      State
     //          `- SingleParticleStatePair
@@ -22,16 +22,12 @@ public:
     //              `- DoubleParticleScalarFunction
     //
     
+    // Pre-declaration of classes
     class SingleParticleState;
-
     class State;
-
     class SingleOperator;
-
     class SingleParticleOperator;
-
     class DoubleParticleScalarOperator;
-
     class Operator;
 
     // SingleParticleState: Represents a one-particle wavefunction.
@@ -40,7 +36,7 @@ public:
         explicit 
         SingleParticleState(
             const ScalarField &, 
-            const Spin &, 
+            const Spin::Type &, 
             const std::string & label = "");
 
         ScalarField 
@@ -183,7 +179,7 @@ public:
         const;
 
         State 
-        operator*(Complex) 
+        operator*(const Complex) 
         const;
 
         ComplexHighRes 
@@ -279,25 +275,54 @@ public:
     HilbertSpace(
         const SystemScale);
 
-    SingleParticleState createSingleParticleState(const SingleParticleScalarFunction &, const Spin & spin = Spin::None, const std::string & label = "") const;
+    SingleParticleState 
+    createSingleParticleState(
+        const SingleParticleScalarFunction &, 
+        const Spin::Type & spin = Spin::Type::None, 
+        const std::string & label = "") 
+    const;
 
-    ScalarField createScalarField() const;
+    ScalarField 
+    createScalarField() 
+    const;
 
-    ScalarField createScalarField(const std::vector<Complex> &) const;
+    ScalarField 
+    createScalarField(
+        const std::vector<Complex> &) 
+    const;
 
-    ScalarField createScalarField(const SingleParticleScalarFunction &) const;
+    ScalarField 
+    createScalarField(
+        const SingleParticleScalarFunction &) 
+    const;
 
-    Operator createOperator(const SingleParticleFunction &, const SingleParticleFunction &) const;
+    Operator 
+    createOperator(
+        const SingleParticleFunction &, 
+        const SingleParticleFunction &) 
+    const;
 
-    Operator createOperator(const DoubleParticleScalarFunction &) const;
+    Operator 
+    createOperator(
+        const DoubleParticleScalarFunction &) 
+    const;
 
     // TODO: proper naming of this function.
-    ComplexHighRes operatorValue(const State &, const Operator &, const State &) const;
+    ComplexHighRes 
+    operatorValue(
+        const State &, 
+        const Operator &, 
+        const State &) 
+    const;
 
-    double expectationValue(const State &, const Operator &) const;
+    double 
+    expectationValue(
+        const State &, 
+        const Operator &) 
+    const;
 
 private:
-    SystemScale scale;
+    const SystemScale scale;
 
     // TODO: Should I make a list of all object created? 
 };

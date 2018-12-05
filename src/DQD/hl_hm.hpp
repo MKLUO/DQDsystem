@@ -64,10 +64,10 @@ coulombEnergy(const Setting &setting);
 // Util
 
 SPState
-fockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin);
+fockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin::Type);
 
 SPState
-OrthofockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin);
+OrthofockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin::Type);
 
 // For test
 DoubleParticleScalarFunction

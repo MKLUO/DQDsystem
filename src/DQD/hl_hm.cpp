@@ -66,12 +66,12 @@ coulombMatrix(const Setting & setting, Ansatz ansatz, Basis basis) {
                     coulombEnergy(setting));
 
     // TODO: Only F-D basis for now. Will add nn++/nn3 basis.
-    SPState left       = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::None);
-    SPState right      = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::None);
-    SPState left_up    = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Up);
-    SPState left_down  = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Down);
-    SPState right_up   = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Up);
-    SPState right_down = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Down);
+    SPState left       = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Type::None);
+    SPState right      = fockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Type::None);
+    SPState left_up    = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Type::Up);
+    SPState left_down  = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Left,  Spin::Type::Down);
+    SPState right_up   = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Type::Up);
+    SPState right_down = OrthofockDarwinWithSpin(hilbertSpace, setting, Orientation::Right, Spin::Type::Down);
 
     std::vector<State> states;
 
@@ -227,13 +227,13 @@ coulombEnergy(const Setting &setting) {
 // Util
 
 SPState
-fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin spin) {
+fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin::Type spin) {
     return hilbertSpace.createSingleParticleState(
                     fockDarwin(setting, orient), spin);
 }
 
 SPState
-OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin spin) {
+OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin::Type spin) {
     SPState left = hilbertSpace.createSingleParticleState(
                     fockDarwin(
                         setting, 

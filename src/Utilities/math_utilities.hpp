@@ -28,14 +28,6 @@ const double COMPLEX_SHRINK_RATIO = 0.8;
 	using ComplexHighRes = Complex;
 #endif
 
-enum class Spin {
-	Up,
-	Down,
-	None
-};
-
-std::string spinSign(const Spin &);
-
 class ScalarField;
 
 using SingleParticleScalarFunction = std::function<Complex(double, double)>;
@@ -51,7 +43,6 @@ struct SystemScale {
 	int width, height;
 	double gridSize;
 };
-
 
 namespace PhysicsContant {
 
@@ -122,6 +113,38 @@ private:
 Complex sqrt(const ComplexContainer &);
 ComplexContainer operator*(const double, const ComplexContainer &);
 std::ostream & operator<<(std::ostream &, const ComplexContainer &);
+
+class Spin
+{
+public:
+	enum class Type {
+		Up,
+		Down,
+		None
+	};
+
+	explicit
+	Spin(Type);
+
+	double
+	operator*(const Spin &)
+	const;
+
+	bool 
+	operator==(const Spin &)
+	const;
+
+	Type
+	getType()
+	const;
+
+	std::string
+	getLabel()
+	const;
+
+private:
+	const Type type;
+};
 
 class ScalarField {
 public:
