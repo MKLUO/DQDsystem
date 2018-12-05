@@ -6,20 +6,8 @@
 //       HilbertSpace       //
 //////////////////////////////
 
-HilbertSpace::SystemScale
-HilbertSpace::SystemScale::defaultScale() {
-
-    HilbertSpace::SystemScale scale;
-
-    scale.width         = 200;
-    scale.height        = 100;
-    scale.gridSize      = 1.0E-9;
-
-    return scale;
-}
-
 HilbertSpace::HilbertSpace(
-    HilbertSpace::SystemScale scale_):
+    SystemScale scale_):
     scale(scale_) {}
 
 SPState
@@ -32,17 +20,17 @@ HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin 
 
 ScalarField
 HilbertSpace::createScalarField() const {
-    return ScalarField(scale.width, scale.height, scale.gridSize);
+    return ScalarField(scale);
 }
 
 ScalarField
 HilbertSpace::createScalarField(const std::vector<Complex> &field) const {
-    return ScalarField(scale.width, scale.height, scale.gridSize, field);
+    return ScalarField(scale, field);
 }
 
 ScalarField
 HilbertSpace::createScalarField(const SPSFunction &function) const {
-    return ScalarField(scale.width, scale.height, scale.gridSize, function);
+    return ScalarField(scale, function);
 }
 
 

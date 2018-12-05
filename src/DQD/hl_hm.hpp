@@ -11,7 +11,7 @@ struct Setting {
     // d:               Inter-dot distance  (m)
     // B:               B-field             (T)
 
-    HilbertSpace::SystemScale scale;
+    SystemScale scale;
 
     double a, d, B;
 

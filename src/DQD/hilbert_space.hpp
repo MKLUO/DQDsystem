@@ -22,14 +22,6 @@ public:
     //              `- DoubleParticleScalarFunction
     //
     
-
-    struct SystemScale {
-        static SystemScale defaultScale();
-
-        int width, height;
-        double gridSize;
-    };
-
     class SingleParticleState;
 
     class State;
@@ -306,6 +298,8 @@ public:
 
 private:
     SystemScale scale;
+
+    // TODO: Should I make a list of all object created? 
 };
 
 //=========== Abbreviations ===========

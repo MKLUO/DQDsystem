@@ -18,8 +18,8 @@ void plotter::plotFieldAbs(const ScalarField &field) {
 
 void plotter::plotField(const ScalarField &field, const int trunc, std::string path) {
 
-    int width = field.getWidth();
-    int height = field.getHeight();
+    int width = field.getScale().width;
+    int height = field.getScale().height;
     std::vector<Complex> data = field.getDatas();
 
     std::ofstream outputFile(path);

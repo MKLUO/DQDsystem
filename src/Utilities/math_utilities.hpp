@@ -45,6 +45,14 @@ using SingleParticleFunction = std::function<ScalarField(ScalarField)>;
 
 using Matrix = std::vector<std::vector<ComplexHighRes>>;
 
+struct SystemScale {
+	static SystemScale defaultScale();
+
+	int width, height;
+	double gridSize;
+};
+
+
 namespace PhysicsContant {
 
 	// TODO: Physics related entities shouldn't be here
@@ -120,16 +128,16 @@ public:
 
 	explicit
 	ScalarField(
-		int, int, double);
+		const SystemScale);
 
 	explicit
 	ScalarField(
-		int, int, double, 
+		const SystemScale, 
 		const std::vector<Complex> &);
 
 	explicit
 	ScalarField(
-		int, int, double, 
+		const SystemScale, 
 		const SingleParticleScalarFunction &);
 
 	// Operators
@@ -166,11 +174,7 @@ public:
 
 	int getIndex(int, int) const;
 
-	int getWidth() const;
-
-	int getHeight() const;
-
-	double getGridSize() const;
+	SystemScale getScale() const;
 
 	std::vector<double> norm() const;
 
@@ -185,8 +189,7 @@ public:
 	void plotTemp() const; // For DEBUG
 
 private:
-	const int width, height;
-	const double gridSize;
+	const SystemScale scale;
 	std::vector<Complex> data;
 };
 
@@ -203,9 +206,7 @@ ScalarField operator*(const SingleParticleFunction &, const ScalarField &);
 std::vector<Complex>
 functionToField(
 	const SingleParticleScalarFunction &, 
-	const int width,
-	const int height,
-    const double gridSize);
+	const SystemScale);
 
 int
 fieldIndex(

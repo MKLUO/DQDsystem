@@ -17,7 +17,7 @@ Setting::defaultSetting() {
 
     Setting setting;
 
-    setting.scale = HilbertSpace::SystemScale::defaultScale();
+    setting.scale = SystemScale::defaultScale();
     
     setting.a = 10E-9;
     setting.d = 50E-9;

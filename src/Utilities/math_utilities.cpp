@@ -22,6 +22,22 @@ spinSign(const Spin & spin) {
 }
 
 //////////////////////////////
+//       SystemScale        //
+//////////////////////////////
+
+SystemScale
+SystemScale::defaultScale() {
+
+    SystemScale scale;
+
+    scale.width         = 200;
+    scale.height        = 100;
+    scale.gridSize      = 1.0E-9;
+
+    return scale;
+}
+
+//////////////////////////////
 //         Complex          //
 //////////////////////////////
 
@@ -260,31 +276,19 @@ operator<<(std::ostream & os, const ComplexContainer & comp) {
 //      ScalarField        	//
 //////////////////////////////
 
-ScalarField::ScalarField(int width_,
-                         int height_,
-                         double gridSize_) :
-    width(width_),
-    height(height_),
-    gridSize(gridSize_),
-    data(std::vector<Complex>(width_ * height_)) {}
+ScalarField::ScalarField(const SystemScale scale_) :
+    scale(scale_),
+    data(std::vector<Complex>(scale_.width * scale_.height)) {}
 
-ScalarField::ScalarField(int width_,
-                         int height_,
-                         double gridSize_,
+ScalarField::ScalarField(const SystemScale scale_,
                          const std::vector<Complex> &data_) :
-    width(width_),
-    height(height_),
-    gridSize(gridSize_),
+    scale(scale_),
     data(data_) {}
 
-ScalarField::ScalarField(int width_,
-                         int height_,
-                         double gridSize_,
+ScalarField::ScalarField(const SystemScale scale_,
                          const SingleParticleScalarFunction &function) :
-    width(width_),
-    height(height_),
-    gridSize(gridSize_),
-    data(functionToField(function, width_, height_, gridSize_)) {}
+    scale(scale_),
+    data(functionToField(function, scale_)) {}
 
 
 ScalarField
@@ -292,11 +296,11 @@ ScalarField::operator+(const ScalarField &field) const {
     std::vector<Complex> newData;
     newData.resize(data.size());
 
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
-            newData[getIndex(x, y)] = this->getData(x, y) + field.getData(x, y);
+    for (int x = 0; x < scale.width; ++x)
+        for (int y = 0; y < scale.height; ++y)
+            newData[getIndex(x, y)] = getData(x, y) + field.getData(x, y);
 
-    return ScalarField(width, height, gridSize, newData);
+    return ScalarField(scale, newData);
 }
 
 ScalarField
@@ -310,11 +314,11 @@ ScalarField::operator*(const SingleParticleScalarFunction &function) const {
     std::vector<Complex> newData;
     newData.resize(data.size());
 
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
+    for (int x = 0; x < scale.width; ++x)
+        for (int y = 0; y < scale.height; ++y)
             newData[getIndex(x, y)] = function(getX(x), getY(y)) * getData(x, y);
 
-    return ScalarField(width, height, gridSize, newData);
+    return ScalarField(scale, newData);
 }
 
 ScalarField
@@ -327,11 +331,11 @@ ScalarField::operator*(Complex c) const {
     std::vector<Complex> newData;
     newData.resize(data.size());
 
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
+    for (int x = 0; x < scale.width; ++x)
+        for (int y = 0; y < scale.height; ++y)
             newData[getIndex(x, y)] = c * this->getData(x, y);
 
-    return ScalarField(width, height, gridSize, newData);
+    return ScalarField(scale, newData);
 }
 
 ScalarField
@@ -349,36 +353,36 @@ ScalarField::operator*(const ScalarField &field) const {
     ComplexHighRes result;
 
     #ifdef HIGH_RES_COMPLEX
-    result.reserve(width * height);
+    result.reserve(scale.width * scale.height);
     #endif
 
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
-            result += std::conj(this->getData(x, y)) * field.getData(x, y) * gridSize * gridSize;
+    for (int x = 0; x < scale.width; ++x)
+        for (int y = 0; y < scale.height; ++y)
+            result += std::conj(this->getData(x, y)) * field.getData(x, y) * scale.gridSize * scale.gridSize;
 
     return result;
 }
 
 ScalarField
 ScalarField::operator^(const ScalarField &field) const {
-    std::vector<Complex> newData(width * height);
+    std::vector<Complex> newData(scale.width * scale.height);
 
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
+    for (int x = 0; x < scale.width; ++x)
+        for (int y = 0; y < scale.height; ++y)
             newData[getIndex(x, y)] = this->getData(x, y) * field.getData(x, y);
 
-    return ScalarField(width, height, gridSize, newData);
+    return ScalarField(scale, newData);
 }
 
 ScalarField
 ScalarField::conj() const {
-    std::vector<Complex> newData(width * height);
+    std::vector<Complex> newData(scale.width * scale.height);
 
-    for (int x = 0; x < width; ++x)
-        for (int y = 0; y < height; ++y)
+    for (int x = 0; x < scale.width; ++x)
+        for (int y = 0; y < scale.height; ++y)
             newData[getIndex(x, y)] = std::conj(this->getData(x, y));
 
-    return ScalarField(width, height, gridSize, newData);
+    return ScalarField(scale, newData);
 }
 
 std::vector<Complex>
@@ -398,40 +402,30 @@ ScalarField::Data(int i, int j) {
 
 double
 ScalarField::getX(int i) const {
-    return fieldCoord(i, width, gridSize);
+    return fieldCoord(i, scale.width, scale.gridSize);
 
 }
 
 double
 ScalarField::getY(int j) const {
-    return fieldCoord(j, height, gridSize);
+    return fieldCoord(j, scale.height, scale.gridSize);
 }
 
 int
 ScalarField::getIndex(int i, int j) const {
-    return fieldIndex(i, j, width, height);
+    return fieldIndex(i, j, scale.width, scale.height);
 }
 
-int
-ScalarField::getWidth() const {
-    return width;
-}
-
-int
-ScalarField::getHeight() const {
-    return height;
-}
-
-double
-ScalarField::getGridSize() const {
-    return gridSize;
+SystemScale
+ScalarField::getScale() const {
+    return scale;
 }
 
 std::vector<double>
 ScalarField::norm() const {
-    std::vector<double> result(width * height);
+    std::vector<double> result(scale.width * scale.height);
 
-    for (int i = 0; i < width * height; ++i)
+    for (int i = 0; i < scale.width * scale.height; ++i)
         result[i] = std::norm(data[i]);
 
     return result;
@@ -477,19 +471,16 @@ operator*(const SingleParticleFunction &function, const ScalarField &field) {
 std::vector<Complex>
 functionToField(
 	const SingleParticleScalarFunction & func, 
-	const int width,
-	const int height,
-    const double gridSize) {
+	const SystemScale scale) {
 
-    std::vector<Complex> newData;
-    newData.resize(width * height);
+    std::vector<Complex> newData(scale.width * scale.height);
 
-    for (int i = 0; i < width; ++i)
-        for (int j = 0; j < height; ++j)
-            newData[fieldIndex(i, j, width, height)] = 
+    for (int i = 0; i < scale.width; ++i)
+        for (int j = 0; j < scale.height; ++j)
+            newData[fieldIndex(i, j, scale.width, scale.height)] = 
                 func(
-                    fieldCoord(i, width, gridSize),
-                    fieldCoord(j, height, gridSize));
+                    fieldCoord(i, scale.width, scale.gridSize),
+                    fieldCoord(j, scale.height, scale.gridSize));
 
     return newData;
 }
@@ -521,19 +512,23 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
                 const ScalarField &right1, const ScalarField &right2) {
 
     // Construct Convolution Input
+    // TODO: Check scale match!
 
-    int width = left1.getWidth();
-    int height = left1.getHeight();
-    double gridSize = left1.getGridSize();
+    SystemScale oriScale = left1.getScale();
+    SystemScale imgScale;
 
-    ScalarField img(width * 2, height * 2, gridSize);
+    imgScale.width = oriScale.width * 2;
+    imgScale.height = oriScale.height * 2;
+    imgScale.gridSize = oriScale.gridSize;
+
+    ScalarField img(imgScale);
     ScalarField filter = left1.conj() ^ right1;
     ScalarField weight = left2.conj() ^ right2;
 
-    for (int i = 0; i < 2 * width; ++i)
-        for (int j = 0; j < 2 * height; ++j) {
-            double x = gridSize * (i - width + 1);
-            double y = gridSize * (j - height + 1);
+    for (int i = 0; i < 2 * oriScale.width; ++i)
+        for (int j = 0; j < 2 * oriScale.height; ++j) {
+            double x = oriScale.gridSize * (i - oriScale.width + 1);
+            double y = oriScale.gridSize * (j - oriScale.height + 1);
             img.Data(i, j) = function(x, y, 0., 0.);
         }
 
@@ -542,12 +537,12 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     ComplexHighRes result;
 
     #ifdef HIGH_RES_COMPLEX
-    result.reserve(width * height);
+    result.reserve(oriScale.width * oriScale.height);
     #endif
 
-    for (int i = 0; i < width; ++i)
-        for (int j = 0; j < height; ++j)
-            result += weight.getData(i, j) * convResult.getData(i, j) * pow(gridSize, 4.0);
+    for (int i = 0; i < oriScale.width; ++i)
+        for (int j = 0; j < oriScale.height; ++j)
+            result += weight.getData(i, j) * convResult.getData(i, j) * pow(oriScale.gridSize, 4.0);
 
     return result;
 }
@@ -556,8 +551,8 @@ ScalarField
 reverse(const ScalarField& field) {
     ScalarField result(field);
 
-    int width = field.getWidth();
-    int height = field.getHeight();
+    int width = field.getScale().width;
+    int height = field.getScale().height;
 
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
@@ -680,9 +675,9 @@ SingleParticleFunction
 SingleParticleFunction
         laplacian = [](ScalarField field) {
 
-    int width = field.getWidth();
-    int height = field.getHeight();
-    double gridSize = field.getGridSize();
+    int width = field.getScale().width;
+    int height = field.getScale().height;
+    double gridSize = field.getScale().gridSize;
 
     ScalarField field_FT = fourier::fft2d(field);
 
@@ -710,9 +705,9 @@ SingleParticleFunction
 SingleParticleFunction
         angularMomentum = [](ScalarField field) {
 
-    int width = field.getWidth();
-    int height = field.getHeight();
-    double gridSize = field.getGridSize();
+    int width = field.getScale().width;
+    int height = field.getScale().height;
+    double gridSize = field.getScale().gridSize;
 
     ScalarField field_FT = fourier::fft2d(field);
 
