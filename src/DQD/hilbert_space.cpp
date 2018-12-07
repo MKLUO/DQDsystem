@@ -11,7 +11,7 @@ HilbertSpace::HilbertSpace(
     scale(scale_) {}
 
 SPState
-HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin::Type & spin, const std::string & label) const {
+HilbertSpace::createSingleParticleState(const SPSFunction &function, const Spin & spin, const std::string & label) const {
     if (label == "") 
         return SPState(createScalarField(function), spin).normalize();
     else 
@@ -69,7 +69,7 @@ int SPState::auto_index = 1;
 
 HilbertSpace::SingleParticleState::SingleParticleState(
     const ScalarField &field_, 
-    const Spin::Type & spin_, 
+    const Spin & spin_, 
     const std::string & label_):
         field(field_), 
         spin(spin_), 
@@ -97,7 +97,7 @@ SPState
 HilbertSpace::SingleParticleState::normalize() const {
     return SPState(
         field.normalize(), 
-        spin.getType(), 
+        spin, 
         label);
 }
 
@@ -106,7 +106,7 @@ HilbertSpace::SingleParticleState::operator+(const SPState &state) const {
     if (spin == state.spin)
         return SPState(
             getField() + state.getField(), 
-            spin.getType(), 
+            spin, 
             label + "\'");
     else 
         throw std::exception();
@@ -121,7 +121,7 @@ SPState
 HilbertSpace::SingleParticleState::operator*(Complex c) const {
     return SPState(
         field * c, 
-        spin.getType(), 
+        spin, 
         label);
 }
 
@@ -338,11 +338,11 @@ HilbertSpace::SingleParticleOperator::operator*(
             SPStatePair(
                 SingleParticleState(
                     left(leftField.getField()), 
-                    leftField.getSpin().getType(),
+                    leftField.getSpin(),
                     leftField.getLabel()),
                 SingleParticleState(
                     right(rightField.getField()), 
-                    rightField.getSpin().getType(),
+                    rightField.getSpin(),
                     rightField.getLabel()),
                 pair.getCoef()));
     }

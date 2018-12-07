@@ -74,10 +74,7 @@ fourier::convolution(   const ScalarField & img,
 
     std::vector<Complex> output_AC = convertAFCtoC(std::vector<AFComplex>(output_AFC, output_AFC + width * height));
 
-    SystemScale newScale;
-    newScale.width = width;
-    newScale.height = height;
-    newScale.gridSize = imgScale.gridSize;
+    SystemScale newScale(width, height, imgScale.gridSize);
     return reverse(ScalarField(newScale, output_AC));
 }
 

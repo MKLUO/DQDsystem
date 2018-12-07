@@ -2,73 +2,77 @@
 
 #include "hilbert_space.hpp"
 
-struct Setting {
-    static Setting defaultSetting();
-    
-    // NOTE: Parameters are in SI unit system.
+namespace HL_HM { 
+    struct Setting {
 
-    // a:               Width of FD state   (m)
-    // d:               Inter-dot distance  (m)
-    // B:               B-field             (T)
+        Setting(SystemScale, double, double, double);
 
-    SystemScale scale;
+        static Setting defaultSetting();
+        
+        // NOTE: Parameters are in SI unit system.
 
-    double a, d, B;
+        // a:               Width of FD state   (m)
+        // d:               Inter-dot distance  (m)
+        // B:               B-field             (T)
 
-    double omegaL() const;
+        SystemScale scale;
 
-    double omega0() const;
+        double a, d, B;
 
-    double omega() const;
+        double omegaL() const;
 
-    double coulombConstant() const;
+        double omega0() const;
 
-    double FDConstant() const;
+        double omega() const;
 
-    double magneticLength() const;
-};
+        double coulombConstant() const;
 
-enum class Ansatz {
-    HL,     // Heitler-London
-    HM     // Hund-Mulliken
-    // HMp     // Hund-Mulliken + (1+,1) & (1,1+)
-};
+        double FDConstant() const;
 
-enum class Basis {
-    FD      // Fock-Darwin
-};
+        double magneticLength() const;
+    };
 
-enum class Orientation {
-    Left,
-    Right
-};
+    enum class Ansatz {
+        HL,     // Heitler-London
+        HM     // Hund-Mulliken
+    };
 
-Matrix
-coulombMatrix(const Setting &, Ansatz, Basis);
+    enum class Basis {
+        FD      // Fock-Darwin
+    };
 
-double
-calculateJWithSetting_HL(const Setting &);
+    enum class Orientation {
+        Left,
+        Right
+    };
 
-SingleParticleScalarFunction
-fockDarwin(const Setting &, Orientation);
+    Matrix
+    coulombMatrix(const Setting &, Ansatz, Basis);
 
-SingleParticleFunction
-kineticEnergy(const Setting &setting);
+    double
+    calculateJWithSetting_HL(const Setting &);
 
-SingleParticleFunction
-potentialEnergy(const Setting &setting);
+    SingleParticleScalarFunction
+    fockDarwin(const Setting &, Orientation);
 
-DoubleParticleScalarFunction
-coulombEnergy(const Setting &setting);
+    SingleParticleFunction
+    kineticEnergy(const Setting &);
 
-// Util
+    SingleParticleFunction
+    potentialEnergy(const Setting &);
 
-SPState
-fockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin::Type);
+    DoubleParticleScalarFunction
+    coulombEnergy(const Setting &);
 
-SPState
-OrthofockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin::Type);
+    // Util
 
-// For test
-DoubleParticleScalarFunction
-identity_twoSite(const Setting &setting);
+    SPState
+    fockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin::Type);
+
+    SPState
+    OrthofockDarwinWithSpin(const HilbertSpace &, Setting, Orientation, Spin::Type);
+
+    // For test
+    DoubleParticleScalarFunction
+    identity_twoSite(const Setting &setting);
+}

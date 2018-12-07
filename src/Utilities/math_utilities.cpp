@@ -10,16 +10,14 @@
 //       SystemScale        //
 //////////////////////////////
 
+SystemScale::SystemScale(int width_, int height_, double gridSize_):
+    width(width_),
+    height(height_),
+    gridSize(gridSize_) {}
+
 SystemScale
 SystemScale::defaultScale() {
-
-    SystemScale scale;
-
-    scale.width         = 200;
-    scale.height        = 100;
-    scale.gridSize      = 1.0E-9;
-
-    return scale;
+    return SystemScale(200, 100, 1.0E-9);
 }
 
 //////////////////////////////
@@ -317,8 +315,8 @@ ScalarField::ScalarField(const SystemScale scale_,
 
 ScalarField
 ScalarField::operator+(const ScalarField &field) const {
-    std::vector<Complex> newData;
-    newData.resize(data.size());
+
+    std::vector<Complex> newData(data.size());
 
     for (int x = 0; x < scale.width; ++x)
         for (int y = 0; y < scale.height; ++y)
@@ -329,14 +327,13 @@ ScalarField::operator+(const ScalarField &field) const {
 
 ScalarField
 ScalarField::operator-(const ScalarField &field) const {
-    return *this + field * Complex(-1., 0.);
+    return *this + field * (-1.0);
 }
 
 ScalarField
 ScalarField::operator*(const SingleParticleScalarFunction &function) const {
 
-    std::vector<Complex> newData;
-    newData.resize(data.size());
+    std::vector<Complex> newData(data.size());
 
     for (int x = 0; x < scale.width; ++x)
         for (int y = 0; y < scale.height; ++y)
@@ -352,12 +349,12 @@ ScalarField::operator*(const SingleParticleFunction &function) const {
 
 ScalarField
 ScalarField::operator*(Complex c) const {
-    std::vector<Complex> newData;
-    newData.resize(data.size());
+
+    std::vector<Complex> newData(data.size());
 
     for (int x = 0; x < scale.width; ++x)
         for (int y = 0; y < scale.height; ++y)
-            newData[getIndex(x, y)] = c * this->getData(x, y);
+            newData[getIndex(x, y)] = c * getData(x, y);
 
     return ScalarField(scale, newData);
 }
@@ -382,29 +379,31 @@ ScalarField::operator*(const ScalarField &field) const {
 
     for (int x = 0; x < scale.width; ++x)
         for (int y = 0; y < scale.height; ++y)
-            result += std::conj(this->getData(x, y)) * field.getData(x, y) * scale.gridSize * scale.gridSize;
+            result += std::conj(getData(x, y)) * field.getData(x, y) * scale.gridSize * scale.gridSize;
 
     return result;
 }
 
 ScalarField
 ScalarField::operator^(const ScalarField &field) const {
-    std::vector<Complex> newData(scale.width * scale.height);
+
+    std::vector<Complex> newData(data.size());
 
     for (int x = 0; x < scale.width; ++x)
         for (int y = 0; y < scale.height; ++y)
-            newData[getIndex(x, y)] = this->getData(x, y) * field.getData(x, y);
+            newData[getIndex(x, y)] = getData(x, y) * field.getData(x, y);
 
     return ScalarField(scale, newData);
 }
 
 ScalarField
 ScalarField::conj() const {
-    std::vector<Complex> newData(scale.width * scale.height);
+
+    std::vector<Complex> newData(data.size());
 
     for (int x = 0; x < scale.width; ++x)
         for (int y = 0; y < scale.height; ++y)
-            newData[getIndex(x, y)] = std::conj(this->getData(x, y));
+            newData[getIndex(x, y)] = std::conj(getData(x, y));
 
     return ScalarField(scale, newData);
 }
@@ -447,7 +446,8 @@ ScalarField::getScale() const {
 
 std::vector<double>
 ScalarField::norm() const {
-    std::vector<double> result(scale.width * scale.height);
+
+    std::vector<double> result(data.size());
 
     for (int i = 0; i < scale.width * scale.height; ++i)
         result[i] = std::norm(data[i]);
@@ -539,11 +539,10 @@ twoSiteIntegral(const ScalarField &left1, const ScalarField &left2,
     // TODO: Check scale match!
 
     SystemScale oriScale = left1.getScale();
-    SystemScale imgScale;
-
-    imgScale.width = oriScale.width * 2;
-    imgScale.height = oriScale.height * 2;
-    imgScale.gridSize = oriScale.gridSize;
+    SystemScale imgScale(
+        oriScale.width * 2,
+        oriScale.height * 2,
+        oriScale.gridSize);
 
     ScalarField img(imgScale);
     ScalarField filter = left1.conj() ^ right1;

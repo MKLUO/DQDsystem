@@ -36,7 +36,7 @@ public:
         explicit 
         SingleParticleState(
             const ScalarField &, 
-            const Spin::Type &, 
+            const Spin &, 
             const std::string & label = "");
 
         ScalarField 
@@ -278,7 +278,7 @@ public:
     SingleParticleState 
     createSingleParticleState(
         const SingleParticleScalarFunction &, 
-        const Spin::Type & spin = Spin::Type::None, 
+        const Spin & spin = Spin(Spin::Type::None), 
         const std::string & label = "") 
     const;
 

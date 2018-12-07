@@ -38,10 +38,13 @@ using SingleParticleFunction = std::function<ScalarField(ScalarField)>;
 using Matrix = std::vector<std::vector<ComplexHighRes>>;
 
 struct SystemScale {
+	
+	SystemScale(int, int, double);
+
 	static SystemScale defaultScale();
 
-	int width, height;
-	double gridSize;
+	const int width, height;
+	const double gridSize;
 };
 
 namespace PhysicsContant {

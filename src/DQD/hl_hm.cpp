@@ -1,5 +1,3 @@
-#include <functional>
-
 #include <math.h>
 
 #include "hl_hm.hpp"
@@ -9,55 +7,53 @@
 
 #include <iostream>
 
-// DEBUG:
-#include <plot.hpp>
+HL_HM::Setting::Setting(SystemScale scale_, double a_, double d_, double B_):
+    scale(scale_),
+    a(a_),
+    d(d_),
+    B(B_) {}
 
-Setting
-Setting::defaultSetting() {
-
-    Setting setting;
-
-    setting.scale = SystemScale::defaultScale();
-    
-    setting.a = 10E-9;
-    setting.d = 50E-9;
-    setting.B = 1.0;
-
-    return setting;
+HL_HM::Setting
+HL_HM::Setting::defaultSetting() {
+    return Setting(
+        SystemScale::defaultScale(), 
+        10E-9,
+        50E-9, 
+        1.0);
 }
 
 double
-Setting::omegaL() const {
+HL_HM::Setting::omegaL() const {
     return PhysicsContant::e * B / (2. * PhysicsContant::m);
 }
 
 double
-Setting::omega0() const {
+HL_HM::Setting::omega0() const {
     return PhysicsContant::hBar / (PhysicsContant::m * pow(a, 2));
 }
 
 double
-Setting::omega() const {
+HL_HM::Setting::omega() const {
     return hypot(omegaL(), omega0());
 }
 
 double
-Setting::coulombConstant() const {
+HL_HM::Setting::coulombConstant() const {
     return pow(PhysicsContant::e, 2) / (PhysicsContant::kappa * 4. * M_PI * PhysicsContant::epsilon);
 }
 
 double
-Setting::FDConstant() const {
+HL_HM::Setting::FDConstant() const {
     return sqrt(PhysicsContant::m * omega() / (M_PI * PhysicsContant::hBar));
 }
 
 double
-Setting::magneticLength() const {
+HL_HM::Setting::magneticLength() const {
     return sqrt(PhysicsContant::hBar / (PhysicsContant::e * B));
 }
 
 Matrix
-coulombMatrix(const Setting & setting, Ansatz ansatz, Basis basis) {
+HL_HM::coulombMatrix(const Setting & setting, Ansatz ansatz, Basis basis) {
 
     HilbertSpace hilbertSpace = HilbertSpace(setting.scale);
 
@@ -102,7 +98,7 @@ coulombMatrix(const Setting & setting, Ansatz ansatz, Basis basis) {
 }
 
 double
-calculateJWithSetting_HL(const Setting &setting) {
+HL_HM::calculateJWithSetting_HL(const Setting &setting) {
 
     // TODO: check if setting matches constraint
     // TODO: check if system is too small that the F-D wave functions are not covered.
@@ -168,7 +164,7 @@ calculateJWithSetting_HL(const Setting &setting) {
 // ScalarFunctions
 
 SingleParticleScalarFunction
-fockDarwin(const Setting &setting, Orientation direction) {
+HL_HM::fockDarwin(const Setting &setting, Orientation direction) {
     return [setting, direction](double x, double y) {
         double hgs = setting.scale.gridSize * 0.5;
         // Center is shifted so that two orientations are symmetric.
@@ -198,7 +194,7 @@ fockDarwin(const Setting &setting, Orientation direction) {
 }
 
 SingleParticleFunction
-kineticEnergy(const Setting &setting) {
+HL_HM::kineticEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         double B = setting.B;
         return  1.0 / (2.0 * PhysicsContant::m) * (
@@ -209,7 +205,7 @@ kineticEnergy(const Setting &setting) {
 }
 
 SingleParticleFunction
-potentialEnergy(const Setting &setting) {
+HL_HM::potentialEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         double d = setting.d;
         double omega0 = setting.omega0();
@@ -218,7 +214,7 @@ potentialEnergy(const Setting &setting) {
 }
 
 DoubleParticleScalarFunction
-coulombEnergy(const Setting &setting) {
+HL_HM::coulombEnergy(const Setting &setting) {
     return [setting](double x1, double y1, double x2, double y2) {
         return rInv_field(setting.scale.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
     };
@@ -227,23 +223,23 @@ coulombEnergy(const Setting &setting) {
 // Util
 
 SPState
-fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin::Type spin) {
+HL_HM::fockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin::Type spin) {
     return hilbertSpace.createSingleParticleState(
-                    fockDarwin(setting, orient), spin);
+                    fockDarwin(setting, orient), Spin(spin));
 }
 
 SPState
-OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin::Type spin) {
+HL_HM::OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orientation orient, Spin::Type spin) {
     SPState left = hilbertSpace.createSingleParticleState(
                     fockDarwin(
                         setting, 
                         Orientation::Left), 
-                        spin, "L");
+                        Spin(spin), "L");
     SPState right = hilbertSpace.createSingleParticleState(
                     fockDarwin(
                         setting, 
                         Orientation::Right), 
-                        spin, "R");
+                        Spin(spin), "R");
 
     double S = (left * right).real();
     double g = oneMinus_sqrtOneMinusXX_divideX(S);
@@ -259,7 +255,7 @@ OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting setting, Orie
 
 // For test
 DoubleParticleScalarFunction
-identity_twoSite(const Setting &setting) {
+HL_HM::identity_twoSite(const Setting &setting) {
     return [](double x1, double y1, double x2, double y2) {
         return 1.0;
     };
