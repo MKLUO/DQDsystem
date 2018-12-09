@@ -14,9 +14,9 @@ HL_HM::Setting::Setting(SystemScale scale_, double a_, double d_, double B_):
     B(B_) {}
 
 HL_HM::Setting
-HL_HM::Setting::defaultSetting() {
+HL_HM::Setting::defaultSetting_2D() {
     return Setting(
-        SystemScale::defaultScale(), 
+        SystemScale::defaultScale_2D(), 
         10E-9,
         50E-9, 
         1.0);
@@ -165,7 +165,10 @@ HL_HM::calculateJWithSetting_HL(const Setting &setting) {
 
 SingleParticleScalarFunction
 HL_HM::fockDarwin(const Setting &setting, Orientation direction) {
-    return [setting, direction](double x, double y) {
+    return [setting, direction](std::vector<double> coord) {
+        double x = coord[0];
+        double y = coord[1];
+
         double hgs = setting.scale.gridSize * 0.5;
         // Center is shifted so that two orientations are symmetric.
         double d = setting.d;
@@ -188,7 +191,7 @@ HL_HM::fockDarwin(const Setting &setting, Orientation direction) {
             phase = exp(1.i * sign * (y + hgs) * d  / (4.0 * pow(lb, 2)));
 
         return setting.FDConstant() * phase *
-                exp(- PhysicsContant::m * omega * sho_field((x + hgs - d * sign / 2), y + hgs) / 
+                exp(- PhysicsContant::m * omega * sho_field_2D({(x + hgs - d * sign / 2), y + hgs}) / 
                     (2.0 * PhysicsContant::hBar));
     };
 }
@@ -198,9 +201,9 @@ HL_HM::kineticEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         double B = setting.B;
         return  1.0 / (2.0 * PhysicsContant::m) * (
-                laplacian * field * (- pow(PhysicsContant::hBar, 2)) +
-                angularMomentum * field * (1.i * PhysicsContant::hBar * PhysicsContant::e * B)  +
-                sho_field * field * (pow(0.5 * PhysicsContant::e * B, 2)) );
+                laplacian_2D * field * (- pow(PhysicsContant::hBar, 2)) +
+                angularMomentum_2D * field * (1.i * PhysicsContant::hBar * PhysicsContant::e * B)  +
+                sho_field_2D * field * (pow(0.5 * PhysicsContant::e * B, 2)) );
     };
 }
 
@@ -209,14 +212,14 @@ HL_HM::potentialEnergy(const Setting &setting) {
     return [setting](ScalarField field) {
         double d = setting.d;
         double omega0 = setting.omega0();
-        return quartic(0.5 * d) * field * (0.5 * PhysicsContant::m * pow(omega0, 2));
+        return quartic_2D(0.5 * d) * field * (0.5 * PhysicsContant::m * pow(omega0, 2));
     };
 }
 
 DoubleParticleScalarFunction
 HL_HM::coulombEnergy(const Setting &setting) {
-    return [setting](double x1, double y1, double x2, double y2) {
-        return rInv_field(setting.scale.gridSize)(x1, y1, x2, y2) * setting.coulombConstant();
+    return [setting](std::vector<double> coord1, std::vector<double> coord2) {
+        return rInv_field_2D(setting.scale.gridSize)(coord1, coord2) * setting.coulombConstant();
     };
 }
 
@@ -256,7 +259,7 @@ HL_HM::OrthofockDarwinWithSpin(const HilbertSpace & hilbertSpace, Setting settin
 // For test
 DoubleParticleScalarFunction
 HL_HM::identity_twoSite(const Setting &setting) {
-    return [](double x1, double y1, double x2, double y2) {
+    return [](std::vector<double> coord1, std::vector<double> coord2) {
         return 1.0;
     };
 }

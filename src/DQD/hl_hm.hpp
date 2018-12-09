@@ -7,7 +7,7 @@ namespace HL_HM {
 
         Setting(SystemScale, double, double, double);
 
-        static Setting defaultSetting();
+        static Setting defaultSetting_2D();
         
         // NOTE: Parameters are in SI unit system.
 
@@ -15,7 +15,7 @@ namespace HL_HM {
         // d:               Inter-dot distance  (m)
         // B:               B-field             (T)
 
-        SystemScale scale;
+        const SystemScale scale;
 
         double a, d, B;
 

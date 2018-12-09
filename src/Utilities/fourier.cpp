@@ -16,8 +16,8 @@ ScalarField
 fourier::fft2d(const ScalarField &field) {
     SystemScale scale = field.getScale();
 
-    int width = scale.width;
-    int height = scale.height;
+    int width = scale.dims[0];
+    int height = scale.dims[1];
 
     af::array input(width, height, convertCtoAFC(field.getDatas()).data());
     AFComplex *output_AFC = af::fft2(input, width, height).host<AFComplex>();
@@ -31,8 +31,8 @@ ScalarField
 fourier::ifft2d(const ScalarField &field) {
     SystemScale scale = field.getScale();
 
-    int width = scale.width;
-    int height = scale.height;
+    int width = scale.dims[0];
+    int height = scale.dims[1];
 
     af::array input(width, height, convertCtoAFC(field.getDatas()).data());
     AFComplex *output_AFC = af::ifft2(input, width, height).host<AFComplex>();
@@ -43,18 +43,18 @@ fourier::ifft2d(const ScalarField &field) {
 }
 
 ScalarField
-fourier::convolution(   const ScalarField & img,
+fourier::convolution2d(   const ScalarField & img,
                         const ScalarField & filter) {
     SystemScale imgScale = img.getScale();
     SystemScale filterScale = filter.getScale();
 
     af::array input_img(    
-        imgScale.width,      
-        imgScale.height,     
+        imgScale.dims[0],      
+        imgScale.dims[1],     
         convertCtoAFC(img.getDatas()).data());
     af::array input_filter( 
-        filterScale.width,   
-        filterScale.height,  
+        filterScale.dims[0],   
+        filterScale.dims[1],  
         convertCtoAFC(filter.getDatas()).data());
 
     int img_width   = input_img.dims(0);
@@ -74,7 +74,7 @@ fourier::convolution(   const ScalarField & img,
 
     std::vector<Complex> output_AC = convertAFCtoC(std::vector<AFComplex>(output_AFC, output_AFC + width * height));
 
-    SystemScale newScale(width, height, imgScale.gridSize);
+    SystemScale newScale({width, height}, imgScale.gridSize);
     return reverse(ScalarField(newScale, output_AC));
 }
 

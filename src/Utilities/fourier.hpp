@@ -16,7 +16,7 @@ namespace fourier {
     ifft2d(const ScalarField &);
 
     ScalarField
-    convolution(const ScalarField &, const ScalarField &);
+    convolution2d(const ScalarField &, const ScalarField &);
 
     std::vector<AFComplex>
     convertCtoAFC(const std::vector<Complex> &);

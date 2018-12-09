@@ -16,10 +16,10 @@ void plotter::plotFieldAbs(const ScalarField &field) {
 
 }
 
-void plotter::plotField(const ScalarField &field, const int trunc, std::string path) {
+void plotter::plotField_2D(const ScalarField &field, const int trunc, std::string path) {
 
-    int width = field.getScale().width;
-    int height = field.getScale().height;
+    int width = field.getScale().dims[0];
+    int height = field.getScale().dims[1];
     std::vector<Complex> data = field.getDatas();
 
     std::ofstream outputFile(path);

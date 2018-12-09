@@ -30,22 +30,36 @@ const double COMPLEX_SHRINK_RATIO = 0.8;
 
 class ScalarField;
 
-using SingleParticleScalarFunction = std::function<Complex(double, double)>;
-using DoubleParticleScalarFunction = std::function<Complex(double, double, double, double)>;
+using SingleParticleScalarFunction = std::function<Complex(
+	std::vector<double>)>;
+using DoubleParticleScalarFunction = std::function<Complex(
+	std::vector<double>, 
+	std::vector<double>)>;
 
 using SingleParticleFunction = std::function<ScalarField(ScalarField)>;
 
 using Matrix = std::vector<std::vector<ComplexHighRes>>;
 
+struct Grid {
+	Grid(int, std::vector<double>);
+	const int index;
+	const std::vector<double> coord;
+};
+
 struct SystemScale {
-	
-	SystemScale(int, int, double);
+	SystemScale(std::vector<int>, double);
 
-	static SystemScale defaultScale();
+	static SystemScale defaultScale_2D();
+	int size() const;
+	std::vector<double> coord(int) const;
 
-	const int width, height;
+	const std::vector<int> dims;
 	const double gridSize;
 };
+
+// std::vector<Grid> * gridding(std::vector<int>, double);
+
+std::vector<int> padDimToThree(std::vector<int>);
 
 namespace PhysicsContant {
 
@@ -117,8 +131,7 @@ Complex sqrt(const ComplexContainer &);
 ComplexContainer operator*(const double, const ComplexContainer &);
 std::ostream & operator<<(std::ostream &, const ComplexContainer &);
 
-class Spin
-{
+class Spin {
 public:
 	enum class Type {
 		Up,
@@ -190,15 +203,9 @@ public:
 
 	// Access
 
+	Complex getData(int) const;
+
 	std::vector<Complex> getDatas() const;
-
-	Complex getData(int, int) const;
-
-	double getX(int) const;
-
-	double getY(int) const;
-
-	int getIndex(int, int) const;
 
 	SystemScale getScale() const;
 
@@ -206,7 +213,7 @@ public:
 
 	// Modify
 	
-	Complex &Data(int, int);
+	Complex &Data(int);
 
 	// Utils
 
@@ -277,7 +284,7 @@ extern SingleParticleScalarFunction
 		yy_field;
 
 extern SingleParticleScalarFunction
-		sho_field;
+		sho_field_2D;
 
 // ScalarFields with settings needed
 
@@ -285,16 +292,16 @@ SingleParticleScalarFunction
 scalar(Complex);
 
 SingleParticleScalarFunction
-planeWave(double, double);
+planeWave_2D(double, double);
 
 SingleParticleScalarFunction
-gaussian(double);
+gaussian_2D(double);
 
 SingleParticleScalarFunction
-quartic(double);
+quartic_2D(double);
 
 DoubleParticleScalarFunction
-rInv_field(double);
+rInv_field_2D(double);
 
 // ScalarFunctions
 
@@ -302,10 +309,10 @@ extern SingleParticleFunction
 		identity;
 
 extern SingleParticleFunction
-		laplacian;
+		laplacian_2D;
 
 extern SingleParticleFunction
-		angularMomentum;
+		angularMomentum_2D;
 
 
 
